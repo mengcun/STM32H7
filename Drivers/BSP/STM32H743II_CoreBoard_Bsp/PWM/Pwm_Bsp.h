@@ -1,17 +1,16 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/AppUser/core/includes.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/PWM/Pwm_Bsp.h
   * @author  CME
-  * @version V1.0.0
-  * @date  	 14-Junly-2018
-  * @brief   The header of in common use.
-  *					 Add the common use headers and function definitions
+  * @version SW:V1.0.0 HW:V1.0
+  * @date    28-August-2018
+  * @brief   The PWM of header file.
   ******************************************************************************
 **/ 
 
 /* Define to prevent recursive inclusion ----------------------------------------------------------*/
-#ifndef __INCLUDES_H
-#define __INCLUDES_H
+#ifndef __PWM_BSP_H
+#define __PWM_BSP_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -19,13 +18,11 @@
 
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+/***************************************Include StdLib**********************************************/
+#include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
-#include "Led_Bsp.h"
+#include "stm32h7xx_hal.h"
+/*******************************************APP/BSP*************************************************/
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -34,43 +31,59 @@
 /** @addtogroup STM32H743II_CoreBoard
   * @{
   */
-/** @addtogroup APP_MAIN
+/** @addtogroup PWM
   * @{
   */ 
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
 /* Private macros ---------------------------------------------------------------------------------*/
+/** @defgroup RTC_Calendar_Exported_Macro RTC_Calendar Exported Macro
+  * @{
+  */
+/**
+  * @brief  定时器3通道1句柄
+  */
+extern TIM_HandleTypeDef TIM3_Handler;
+extern TIM_OC_InitTypeDef TIM3_CH1Handler;
+
+
+/** @}
+*/
+/*----------------------------------------RTC_Calendar Exported Macro---------------------------------------*/
 /* Private types ----------------------------------------------------------------------------------*/
 /* Private variables ------------------------------------------------------------------------------*/
 /* Exported types ---------------------------------------------------------------------------------*/
 /* Exported constants -----------------------------------------------------------------------------*/
 /* Exported macro ---------------------------------------------------------------------------------*/
-
 /* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup APP_MAIN_Exported_Functions APP_MAIN Exported Functions
+/** @defgroup PWM_Exported_Functions PWM Exported Functions
   * @{
   */
-/** @defgroup APP_MAIN_Exported_Functions_Group1 Initialization and de-initialization functions
+/** @defgroup PWM_Exported_Functions_Group1 Initialization and de-initialization functions
 	* @{
   */
-//CODE HERE
+  
+void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler);
+
 /** @}
 */
-/*********************APP_MAIN Exported Functions Group1***************************/
-/** @defgroup APP_MAIN_Exported_Functions_Group2 Operation Functions
+/*********************PWM Exported Functions Group1***************************/
+/** @defgroup PWM_Exported_Functions_Group2 Operation Functions
   * @{
   */
-//CODE HERE
+  
+void Bsp_SetTIM3Compare1(uint32_t Compare);
+
 /** @}
 */
-/**********************APP_MAIN Exported Functions Group2**************************/
+/**********************PWM Exported Functions Group2**************************/
 /** @}
 */
-/*--------------------------------APP_MAIN Exported Functions--------------------------------------*/
+/*--------------------------------PWM Exported Functions--------------------------------------*/
 /** @}
 */
-/*-----------------------------------------APP_MAIN------------------------------------------------*/
+/*-----------------------------------------PWM------------------------------------------------*/
 /** @}
 */
 /*-----------------------------------STM32H743II_CoreBoard-----------------------------------------*/
@@ -78,6 +91,6 @@
 }
 #endif
 
-#endif /* __TEMPLATE_H */
+#endif /* __PWM_BSP_H */
 
 /**********************************************END OF FILE******************************************/

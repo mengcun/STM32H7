@@ -6,7 +6,15 @@
   * @date    13-July-2018
   * @brief   Main Interrupt Service Routines.
   ******************************************************************************
+  *	我们只需要添加需要的中断函数即可。一般中断函数名是固定的，除非您修改了启动文件中的函数名
+  *	//\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f4xx.s
   *
+  *	启动文件是汇编语言文件，定了每个中断的服务函数，这些函数使用了WEAK 关键字，表示弱定义，因此如
+  *	果我们在c文件中重定义了该服务函数（必须和它同名），那么启动文件的中断函数将自动无效。这也就
+  *	函数重定义的概念。
+  *
+  *	为了加强模块化，我们建议将中断服务程序分散到对应的驱动模块文件中。比如systick中断服务程序
+  *	放在 bsp_timer.c 文件中。
   *
   * 
   *
@@ -16,9 +24,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "includes.h"
 #include "stm32h7xx_it.h"
-#include "CoreBoard_Usart1_Bsp.h"
-#include "Coreboard_Led_Bsp.h"
-
+#include "Led_Bsp.h"
+#include "Usart1_Bsp.h"
+#include "Led_Bsp.h"
 /** @addtogroup STM32H743II_CoreBoard
   * @{
   */
@@ -29,6 +37,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup CoreBoard_BSP_Private_Define CoreBoard_BSP Private Define
+  * @{
+  */
+#define ERR_INFO "\r\nEnter HardFault_Handler, System Halt.\r\n"
+/** @}
+*/	
+/*----------------------------CoreBoard_BSP Private Functions Prototypes--------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -37,82 +52,7 @@
 /******************************************************************************/
 /*            Cortex-M7 Processor Exceptions Handlers                         */
 /******************************************************************************/
-#ifdef EN_USARTx_RX
-/**
-  * @brief  //串口x的中断服务程序.
-  * @param  None
-  * @retval None
-  */
-void USARTx_IRQHandler(void)                	
-{ 
-#ifdef SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntEnter();    
-#endif /*SYSTEM_SUPPORT_OS*/
 
-		
-#ifdef NO_USE_HAL_UART_RxCpltCallback
-	uint8_t Res;
-
-	if((__HAL_UART_GET_FLAG(&UartHandle,UART_FLAG_RXNE)!=RESET))  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-	{
-		Bsp_LED_On(LED2_Blue);
-    HAL_UART_Receive(&UartHandle,&Res,1,1000); 
-
-		if((USART_RX_STA&0x8000)==0)//接收未完成
-		{
-			if(USART_RX_STA&0x4000)//接收到了0x0d
-			{
-				if(Res!=0x0a)USART_RX_STA = 0;//接收错误,重新开始
-				else
-				{					
-					USART_RX_STA|=0x8000;	//接收完成了 
-					Bsp_LED_Off(LED2_Blue);
-				}
-			}
-			else //还没收到0X0D
-			{	
-				if(Res==0x0d)USART_RX_STA|=0x4000;
-				else
-				{
-					USART_RX_BUF[USART_RX_STA&0X3FFF] = Res ;
-					USART_RX_STA++;
-					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		} 
-	}	
-#endif /*NO_USE_HAL_UART_RxCpltCallback*/
-	
-	HAL_UART_IRQHandler(&UartHandle);	//调用HAL库中断处理公用函数
-
-#ifdef USE_HAL_UART_RxCpltCallback
-	uint32_t timeout=0;
-  uint32_t maxDelay=0x1FFFF;	
-	timeout=0;
-  /*  Wait for the end of the transfer */
-  while (HAL_UART_GetState(&UartHandle) != HAL_UART_STATE_READY)
-	{
-		timeout++; //超时处理
-    if(timeout>maxDelay)	
-   /* Transfer error in reception process */
-    {Error_Handler();}		
-	}
-	timeout=0;
-  /* Put UART peripheral in reception process */
-	while(HAL_UART_Receive_IT(&UartHandle,(uint8_t *)aRxBuffer, RXBUFFERSIZE)!=HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
-  {
-		timeout++; //超时处理
-    if(timeout>maxDelay)	
-   /* Transfer error in reception process */
-    {Error_Handler();}
-  }
-#endif /*USE_HAL_UART_RxCpltCallback*/
-	
-#ifdef SYSTEM_SUPPORT_OS	 	//使用OS
-	OSIntExit();  											 
-#endif /*SYSTEM_SUPPORT_OS*/
-} 
-#endif /*EN_USARTx_RX*/
 /**
   * @brief   This function handles NMI exception.
   * @param  None
@@ -129,7 +69,18 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
+ #if 1
+  const char *pError = ERR_INFO;
+  uint8_t i;
+
+  for (i = 0; i < sizeof(ERR_INFO); i++)
+  {
+     USARTx->TDR = pError[i];
+     /* 等待发送结束 */
+     while ((USARTx->ISR&0X40)==0);
+  }
+#endif
+ /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
   }
@@ -143,10 +94,10 @@ void MemManage_Handler(void)
 {
 	Bsp_LED_Off(LED1_Green);
 	Bsp_LED_On(LED1_Red);	
-	printf("Mem Access Error!!\r\n"); 	//输出错误信息
-	delay_ms(1000);	
-	printf("Soft Reseting...\r\n");		//提示软件重启
-	delay_ms(1000);	
+	BSP_Printf("Mem Access Error!!\r\n"); 	//输出错误信息
+	Bsp_Delay_ms(1000);	
+	BSP_Printf("Soft Reseting...\r\n");		//提示软件重启
+	Bsp_Delay_ms(1000);	
 	NVIC_SystemReset();					//软复位
 }
 
@@ -200,22 +151,11 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-/*
+
 void PendSV_Handler(void)
 {
 }
-*/
-/**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-/*
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
-}
-*/
+
 /******************************************************************************/
 /*                 STM32H7xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

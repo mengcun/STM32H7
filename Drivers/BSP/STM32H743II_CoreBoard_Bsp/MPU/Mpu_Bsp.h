@@ -1,17 +1,17 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/AppUser/core/includes.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MPU/CoreBoard_Mpu_Bsp.h
   * @author  CME
-  * @version V1.0.0
+  * @version SW:V1.0.0 HW:V1.0
   * @date  	 14-Junly-2018
-  * @brief   The header of in common use.
-  *					 Add the common use headers and function definitions
+  * @brief   The template of header file.
+  *					 Please copy this file and rename the file name if needed.
   ******************************************************************************
 **/ 
 
 /* Define to prevent recursive inclusion ----------------------------------------------------------*/
-#ifndef __INCLUDES_H
-#define __INCLUDES_H
+#ifndef __MPU_BSP_H
+#define __MPU_BSP_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -19,13 +19,9 @@
 
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
-#include "Led_Bsp.h"
+#include "stm32h7xx_hal.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -34,7 +30,7 @@
 /** @addtogroup STM32H743II_CoreBoard
   * @{
   */
-/** @addtogroup APP_MAIN
+/** @addtogroup MPU
   * @{
   */ 
 	 
@@ -46,31 +42,21 @@
 /* Exported types ---------------------------------------------------------------------------------*/
 /* Exported constants -----------------------------------------------------------------------------*/
 /* Exported macro ---------------------------------------------------------------------------------*/
+/** @defgroup MPU_Exported_Functions_Group2 Operation Functions
+  * @{
+  */
+uint8_t Bsp_Mpu_Set_Protection(uint32_t baseaddr,uint32_t size,uint32_t rnum,uint32_t ap);
+void Bsp_MPU_Memory_Protection(void);
 
-/* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup APP_MAIN_Exported_Functions APP_MAIN Exported Functions
-  * @{
-  */
-/** @defgroup APP_MAIN_Exported_Functions_Group1 Initialization and de-initialization functions
-	* @{
-  */
-//CODE HERE
 /** @}
 */
-/*********************APP_MAIN Exported Functions Group1***************************/
-/** @defgroup APP_MAIN_Exported_Functions_Group2 Operation Functions
-  * @{
-  */
-//CODE HERE
+/**********************MPU Exported Functions Group2**************************/
 /** @}
 */
-/**********************APP_MAIN Exported Functions Group2**************************/
+/*--------------------------------MPU Exported Functions--------------------------------------*/
 /** @}
 */
-/*--------------------------------APP_MAIN Exported Functions--------------------------------------*/
-/** @}
-*/
-/*-----------------------------------------APP_MAIN------------------------------------------------*/
+/*-----------------------------------------MPU------------------------------------------------*/
 /** @}
 */
 /*-----------------------------------STM32H743II_CoreBoard-----------------------------------------*/
@@ -78,6 +64,6 @@
 }
 #endif
 
-#endif /* __TEMPLATE_H */
+#endif /* __MPU_BSP_H */
 
 /**********************************************END OF FILE******************************************/

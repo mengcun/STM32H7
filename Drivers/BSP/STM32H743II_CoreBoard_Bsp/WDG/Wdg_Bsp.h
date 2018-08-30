@@ -1,17 +1,16 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/AppUser/core/includes.h
+  * @file    STM32H7_CoreBoard/Template_C_H/WatchDog.h
   * @author  CME
-  * @version V1.0.0
+  * @version SW:V1.0.0 HW:V1.0
   * @date  	 14-Junly-2018
-  * @brief   The header of in common use.
-  *					 Add the common use headers and function definitions
+  * @brief   The WatchDog of header file.
   ******************************************************************************
 **/ 
 
 /* Define to prevent recursive inclusion ----------------------------------------------------------*/
-#ifndef __INCLUDES_H
-#define __INCLUDES_H
+#ifndef __WDG_BSP_H
+#define __WDG_BSP_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -19,13 +18,9 @@
 
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
-#include "Led_Bsp.h"
+#include "stm32h7xx_hal.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -34,7 +29,7 @@
 /** @addtogroup STM32H743II_CoreBoard
   * @{
   */
-/** @addtogroup APP_MAIN
+/** @addtogroup WatchDog
   * @{
   */ 
 	 
@@ -46,31 +41,43 @@
 /* Exported types ---------------------------------------------------------------------------------*/
 /* Exported constants -----------------------------------------------------------------------------*/
 /* Exported macro ---------------------------------------------------------------------------------*/
+/** @defgroup Template_Exported_Macro WatchDog Exported Macro
+  * @{
+  */
+/**
+  * @brief  WatchDog Macro definition
+	* @note		WatchDog
+  */
+	//CODE HERE
+/** @}
+*/
+/*----------------------------------------WatchDog Exported Macro---------------------------------------*/
 
 /* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup APP_MAIN_Exported_Functions APP_MAIN Exported Functions
+/** @defgroup Template_Exported_Functions WatchDog Exported Functions
   * @{
   */
-/** @defgroup APP_MAIN_Exported_Functions_Group1 Initialization and de-initialization functions
+/** @defgroup Template_Exported_Functions_Group1 Initialization and de-initialization functions
 	* @{
   */
-//CODE HERE
+void Bsp_IWDG_Init(uint8_t prer, uint16_t rlr);
+uint32_t Bsp_WWDG_Init(uint8_t timer_counter, uint8_t Window_counter, uint32_t prescaler);
 /** @}
 */
-/*********************APP_MAIN Exported Functions Group1***************************/
-/** @defgroup APP_MAIN_Exported_Functions_Group2 Operation Functions
+/*********************WatchDog Exported Functions Group1***************************/
+/** @defgroup Template_Exported_Functions_Group2 Operation Functions
   * @{
   */
-//CODE HERE
+void Bsp_IWDG_Feed(void);
 /** @}
 */
-/**********************APP_MAIN Exported Functions Group2**************************/
+/**********************WatchDog Exported Functions Group2**************************/
 /** @}
 */
-/*--------------------------------APP_MAIN Exported Functions--------------------------------------*/
+/*--------------------------------WatchDog Exported Functions--------------------------------------*/
 /** @}
 */
-/*-----------------------------------------APP_MAIN------------------------------------------------*/
+/*-----------------------------------------WatchDog------------------------------------------------*/
 /** @}
 */
 /*-----------------------------------STM32H743II_CoreBoard-----------------------------------------*/
@@ -78,6 +85,6 @@
 }
 #endif
 
-#endif /* __TEMPLATE_H */
+#endif /* __WDG_BSP_H */
 
 /**********************************************END OF FILE******************************************/
