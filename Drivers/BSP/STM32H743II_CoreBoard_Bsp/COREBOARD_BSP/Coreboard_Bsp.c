@@ -91,7 +91,6 @@ Infor_CoreBoard CoreBoard_Infor;
   */
 void Coreboard_BSP_Init(void)
 {		
-	uint8_t 	x=0;
 	/* -1- Enable the CPU Cache */
 	CPU_CACHE_Enable();
 
@@ -151,8 +150,8 @@ void Coreboard_BSP_Init(void)
 	Bsp_RTC_Set_BackupRAM();
 	
 	/* -15- Initialize TIM3_CHANNEL1_PWM as 2000Hz and remaping to PB3 mounted on STM32H743II_CoreBoard*/	
-	/*Prescaler = 200 : 200M / 200 = 1M 计数频率;Period = 500, PWM = 1M / 500 = 2KHz;PWM_Duty : 设置占空比*/
-	Bsp_TIM3_PWM_Init(500, 200, 250);
+	/*Frequence(KHz) = 2;Prescaler = 200;计数频率 = 200M / 200 = 1M ;Period = 1000 / 2 = 500, PWM = 1M / 500 = 2KHz;PWM_Duty : 设置占空比*/
+	Bsp_TIM3_PWM_Init(2, 200, 50);
 	
 	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
 	Bsp_InitDefautCRC();
@@ -161,8 +160,8 @@ void Coreboard_BSP_Init(void)
 	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitUserDefineCRC();
 	Bsp_ComputeCRCAccumulate();
-	
-	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
+
+/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
 	usmart_dev.init(); 	
 	
 	/* -27- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
@@ -178,28 +177,18 @@ void Coreboard_BSP_Init(void)
 	Bsp_InitRNG();		/*It produces four 32-bit random samples every 16*FAHB/FRNG AHB clock cycles, if value is higher than 213 cycles (213 cycles otherwise).*/
 						/*After enabling the RNG for the first time, random data is first available after either */
 						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
-	//__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断，为了保证系统稳定运行，在中断中将其中断关闭，只有在需要随机数时候重新开启*/
 
 	POINT_COLOR=RED; 
 	
 	while(1)
 	{
-		switch(x)
-		{
-			case 0:Bsp_LCD_Clear(WHITE);break;
-			case 1:Bsp_LCD_Clear(BLACK);break;
-			case 2:Bsp_LCD_Clear(BLUE);break;
-			case 3:Bsp_LCD_Clear(RED);break;
-			case 4:Bsp_LCD_Clear(MAGENTA);break;
-			case 5:Bsp_LCD_Clear(GREEN);break;
-			case 6:Bsp_LCD_Clear(CYAN);break; 
-			case 7:Bsp_LCD_Clear(YELLOW);break;
-			case 8:Bsp_LCD_Clear(BRRED);break;
-			case 9:Bsp_LCD_Clear(GRAY);break;
-			case 10:Bsp_LCD_Clear(LGRAY);break;
-			case 11:Bsp_LCD_Clear(BROWN);break;
-		}
+#if RNG_IT_ENABLE == 1	
+		__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断,为了保证系统稳定运行,在中断中将其中断关闭,只有在需要随机数时候重新开启*/
+		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
+#endif
+		Bsp_LCD_Clear(BLUE);
 		POINT_COLOR=RED;
+		
 		GetInfo_Calendar();
 		Bsp_LCD_ShowString(10,40,800,32,32,CoreBoard_Infor.BOARD_NAME); 	
 		Bsp_LCD_ShowString(10,80,800,24,24,CoreBoard_Infor.CPU_NAME);
@@ -209,9 +198,17 @@ void Coreboard_BSP_Init(void)
 		Bsp_LCD_ShowString(10,240,800,24,24,aShowTime);
 		Bsp_LCD_ShowString(10,280,800,24,24,aShowDate);
 		Bsp_LCD_ShowString(10,320,800,24,24,aShowWeek);
+		
+#if SYSTEM_DEBUG == 1		
+		RNG_Get_RandomNum();
+		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
+		
+		RNG_Get_RandomRange(0x00000000,0x00000020);
+		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG = %X! \r\n",POLL_Random32bit);
 
-		x++;
-		if(x==12)x=0;  
+		Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
+		Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
+#endif
 		Bsp_Delay_ms(1000);	
 	}
 }
@@ -388,7 +385,7 @@ void BSP_Idle(void)
 	/* --- 喂狗 */
     Bsp_IWDG_Feed();
 #if SYSTEM_DEBUG == 1
-	Bsp_Printf("IWDG feed in BSP_Idle() every 2ms when calling the Bsp_Delay_ms()!\r\n");
+	Bsp_Printf("IWDG feed in BSP_Idle() when calling the Bsp_Delay_ms(), This time is less then 1ms!\r\n");
 #endif
 	/* --- 让CPU进入休眠，由Systick定时中断唤醒或者其他中断唤醒 */
 

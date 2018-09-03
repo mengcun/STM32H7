@@ -69,7 +69,13 @@ extern CRC_HandleTypeDef   CRC_Handler;
 /**
   * @brief		Storing the computed CRC value
   */
-extern __IO uint32_t uwCRCValue;
+extern __IO uint32_t DefaultCRCValue;
+
+/**
+  * @brief		Storing the Accumulate computed CRC value
+  */
+extern __IO uint32_t AccumulateCRCValue;
+
 
 /**
   * @brief		Expected CRC Value

@@ -98,7 +98,6 @@ void GetInfo_Calendar(void);
 void Bsp_WriteToRTC_BKP_DR(uint32_t FirstRTCBackupData);
 uint32_t Bsp_CheckRTC_BKP_DR(uint32_t FirstRTCBackupData);
 uint32_t Bsp_IsBackupRegReset(void);
-void Bsp_RTC_Set_BackupRAM(void);
 
 uint32_t Bsp_WriteToSRAM(void);
 

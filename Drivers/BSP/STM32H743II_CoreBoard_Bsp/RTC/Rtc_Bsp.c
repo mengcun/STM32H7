@@ -157,7 +157,7 @@ uint8_t Bsp_RTC_Init(void)
     if(HAL_RTCEx_BKUPRead(&RTC_Handler,RTC_BKP_DR0)!=0X5050)	//用于检测是否已经配置过RTC,如果配置过的话,会在配置结束时设置RTC备份寄存器为0x32F2。
 																//如果检测RTC备份寄存器不0X5050,那么表示没有配置过,需要配置RTC.
     { 
-        Bsp_RTC_Set_Time(10,50,0,0,RTC_HOURFORMAT12_AM);	        //设置时间,根据实际时间修改
+        Bsp_RTC_Set_Time(10,50,0,0,RTC_HOURFORMAT12_AM);	    //设置时间,根据实际时间修改
 		Bsp_RTC_Set_Date(18,8,29,35);		                    //设置日期
         HAL_RTCEx_BKUPWrite(&RTC_Handler,RTC_BKP_DR0,0X5050);	//标记已经初始化过了
     }
@@ -206,7 +206,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
   * @{
   */
 /**
-  * @brief 	RTC time set
+  * @brief 	RTC time set,this can be called by use_dbg to adjust the time
   * @param 	hour: hours
   * @param 	min: minutes,
   * @param 	sec: seconds
@@ -230,7 +230,7 @@ HAL_StatusTypeDef Bsp_RTC_Set_Time(uint8_t hour,uint8_t min,uint8_t sec,uint8_t 
 }
 
 /**
-  * @brief 	RTC Date set
+  * @brief 	RTC Date set, this can be called by use_dbg to adjust the date
   * @param 	year: 0-99
   * @param 	month: 1-12
   * @param 	date: 0-31
@@ -250,7 +250,7 @@ HAL_StatusTypeDef Bsp_RTC_Set_Date(uint8_t year,uint8_t month,uint8_t date,uint8
 }
 
 /**
-  * @brief 	Set the Alarm by weeks
+  * @brief 	Set the Alarm by weeks, this can be called by use_dbg to adjust the Alarm A
   * @param 	week: RTC_WeekDay_Definitions
   * @param 	hour: hours
   * @param 	min: minutes
@@ -560,7 +560,7 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 {  
   HAL_RTCEx_GetTimeStamp(&RTC_Handler, &RTC_TimeStruct, &RTC_DateStruct, RTC_FORMAT_BIN);
-  Bsp_Printf("TimeStamp Event detected, the time is saved! \r\n");
+  Bsp_Printf("TimeStamp Event detected, the time is saved in RTC_TimeStruct! \r\n");
   Bsp_Printf("%.2d:%.2d:%.2d \r\n", RTC_TimeStruct.Hours, RTC_TimeStruct.Minutes, RTC_TimeStruct.Seconds);
   Bsp_Printf("%.2d-%.2d-%.2d \r\n", RTC_DateStruct.Year, RTC_DateStruct.Month, RTC_DateStruct.Date);	
 }

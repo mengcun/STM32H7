@@ -41,9 +41,9 @@
   * @{
   */
   
-#define USE_MicroLIB  0		//Bsp_Printf函数是否使用MicroLIB
-#define EN_USART1_RX  1		//是否使能串口接收
-#define USART_DEBUG   0		//是否使能串口调试，如果使能,将发送给EUC的数据发送回串口调试助手
+#define USE_MicroLIB	0		//Bsp_Printf函数是否使用MicroLIB
+#define EN_USART1_RX	1		//是否使能串口接收
+#define USART_DEBUG 	0		//是否使能串口调试，如果使能,将发送给EUC的数据发送回串口调试助手
 /* Definition for USARTx clock resources */
 #define USARTx         					 USART1		//使用USART1
 #define USARTx_CLK_ENABLE()              __HAL_RCC_USART1_CLK_ENABLE()

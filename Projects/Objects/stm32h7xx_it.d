@@ -95,10 +95,11 @@
 .\objects\stm32h7xx_it.o: ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h
 .\objects\stm32h7xx_it.o: ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h
 .\objects\stm32h7xx_it.o: ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_hcd.h
+.\objects\stm32h7xx_it.o: ..\AppUser\Core\includes.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\LED\Led_Bsp.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\MPU\Mpu_Bsp.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RGB_LCD\Lcd_Bsp.h
-.\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM\Sdram_Bsp.h
+.\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM\SDRAM_Bsp.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SOFT_TIMER\Software_Timer_Bsp.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\USART1\Usart1_Bsp.h
 .\objects\stm32h7xx_it.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\HARD_TIMER\Hardware_Timer_Bsp.h

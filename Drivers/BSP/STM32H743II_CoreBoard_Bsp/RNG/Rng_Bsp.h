@@ -43,6 +43,9 @@
 /**
   * @brief  The size of databuffer that store the Random Number
   */
+  
+#define RNG_IT_ENABLE		0
+
 #define RANDOM_SIZE		8
 
 /** @}
@@ -62,9 +65,14 @@
 extern RNG_HandleTypeDef Rng_Handler;
 
 /**
-  * @brief		Used for storing 8 Random 32bit Numbers
+  * @brief		Used for storing 8 Random 32bit Numbers in IT mode
   */
-extern __IO uint32_t urandom32bit;
+extern __IO uint32_t IT_Random32bit;
+
+/**
+  * @brief		Used for storing 8 Random 32bit Numbers in POLL mode
+  */
+extern __IO uint32_t POLL_Random32bit;
 
 /**
   * @brief		Data need to be compute RNG
@@ -81,6 +89,8 @@ extern __IO uint32_t urandom32bit;
 	* @{
   */
 void Bsp_InitRNG(void);
+void RNG_Get_RandomNum(void);
+void RNG_Get_RandomRange(uint32_t min,uint32_t max);
 
 /** @}
 */

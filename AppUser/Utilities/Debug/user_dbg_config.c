@@ -56,7 +56,8 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)write_addr,"void write_addr(uint32_t addr,uint32_t val)",	 
 #endif		   
 	(void*)Bsp_Delay_ms,"void Bsp_Delay_ms(uint16_t nms)",
- 	(void*)Bsp_Delay_us,"void Bsp_Delay_us(uint32_t nus)",	 
+ 	(void*)Bsp_Delay_us,"void Bsp_Delay_us(uint32_t nus)",	
+		
 	(void*)Bsp_LCD_Clear,"void Bsp_LCD_Clear(uint16_t Color)",
 	(void*)Bsp_LCD_Fill,"void Bsp_LCD_Fill(uint16_t xsta,uint16_t ysta,uint16_t xend,uint16_t yend,uint16_t color)",
 	(void*)Bsp_LCD_DrawLine,"void Bsp_LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)",
@@ -79,6 +80,13 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)Bsp_LTDC_Layer_Window_Config,"void Bsp_LTDC_Layer_Window_Config(uint8_t layerx,uint16_t sx,uint16_t sy,uint16_t width,uint16_t height)", 				
 	(void*)Bsp_LTDC_Clear,"void Bsp_LTDC_Clear(uint32_t color)", 
 		
+	(void*)GetInfo_Calendar,"void GetInfo_Calendar(void)",
+	(HAL_StatusTypeDef*)Bsp_RTC_Set_Time,"Bsp_RTC_Set_Time(uint8_t hour,uint8_t min,uint8_t sec,uint8_t subsec,uint8_t ampm)",
+	(HAL_StatusTypeDef*)Bsp_RTC_Set_Date,"Bsp_RTC_Set_Date(uint8_t year,uint8_t month,uint8_t date,uint8_t week)",
+	(void*)Bsp_RTC_Set_AlarmA,"Bsp_RTC_Set_AlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)",
+
+	(void*)Bsp_SetTIM3Compare1,"Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty)",
+
 };						  
 ///////////////////////////////////END///////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

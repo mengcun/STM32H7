@@ -48,9 +48,15 @@
 RNG_HandleTypeDef Rng_Handler;
  
 /**
-  * @brief		Used for storing Random 32bit Numbers
+  * @brief		Used for storing Random 32bit Numbers generated in IT mode
   */
-__IO uint32_t urandom32bit = 0;
+__IO uint32_t IT_Random32bit = 0;
+
+
+/**
+  * @brief		Used for storing Random 32bit Numbers generated in Polling mode
+  */
+__IO uint32_t POLL_Random32bit = 0;
 
 /** @}
 */		
@@ -73,10 +79,12 @@ __IO uint32_t urandom32bit = 0;
   * @{
   */
 /**
-* @brief Initialize the RNG
+  * @brief Initialize the RNG
+  * @return 0 = RNG Initial OK; 1 = Initial error
   */
 void Bsp_InitRNG(void)
 {
+	
 	Rng_Handler.Instance = RNG;
 
 	if (HAL_RNG_DeInit(&Rng_Handler) != HAL_OK)		/* DeInitialize the RNG peripheral */
@@ -88,11 +96,25 @@ void Bsp_InitRNG(void)
 	{
 		Error_Handler();	/* Initialization Error */
 	}
-	
+#if RNG_IT_ENABLE == 1	
 	if (HAL_RNG_GenerateRandomNumber_IT(&Rng_Handler)!= HAL_OK)	
 	{
 		Error_Handler();	/* Initialization Error */	
 	}
+	
+#else	
+	uint16_t Retry=0;
+    while((__HAL_RNG_GET_FLAG(&Rng_Handler,RNG_FLAG_DRDY)==RESET) && (Retry<10000))//等待RNG准备就绪
+    {
+        Retry++;
+        Bsp_Delay_us(10);
+    }
+    if(Retry>=10000) 
+	{
+		Error_Handler();	/* Initialization Error */	
+	}
+#endif
+
 }
 
 /**
@@ -108,16 +130,19 @@ void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng)
 
 	/*Select PLL output as RNG clock source */
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
-	PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
+	PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;	/*选择PLL， 时钟为400MHz*/
 	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
 
 	/* RNG Peripheral clock enable */
 	__HAL_RCC_RNG_CLK_ENABLE();
-
+	
+#if RNG_IT_ENABLE == 1	
 	HAL_NVIC_SetPriority(RNG_IRQn,3,1);    						//设置随机数生成器中断优先级,抢占优先级3,子优先级1,中断优先级比串口优先级高,但是在中断处理完成后会关闭中断.
 																//只有在需要生成随机数时候才会开启中断,所以合理规划程序会避免中断嵌套造成的系统不稳定
 	HAL_NVIC_EnableIRQ(RNG_IRQn);          						//使能随机数生成器中断
+#endif
+
 }
 
 /**
@@ -151,9 +176,39 @@ void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng)
   @endverbatim
   * @{
   */
-/**
-  * @brief 	WWDG窗口看门狗中断服务函数
 
+/**
+  * @brief 	得到RNG随机数
+  */
+  
+void RNG_Get_RandomNum(void)
+{	
+	uint32_t random32bit; 
+	HAL_RNG_GenerateRandomNumber(&Rng_Handler,&random32bit);
+	POLL_Random32bit = random32bit;
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
+#endif	
+}
+
+/**
+  * @brief 	生成[min,max]范围的随机数
+  */
+  
+void RNG_Get_RandomRange(uint32_t min,uint32_t max)
+{ 	
+    uint32_t random32bit;
+	HAL_RNG_GenerateRandomNumber(&Rng_Handler,&random32bit);
+	POLL_Random32bit = random32bit % (max-min+1) + min;
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("The Random32bit is generated in Polling Mode between [%d,%d], RNG = %X! \r\n",min,max,POLL_Random32bit);
+#endif
+}
+
+#if RNG_IT_ENABLE == 1	
+
+/**
+  * @brief 	RNG随机数生成器中断服务函数
   */
 void RNG_IRQHandler(void)
 {
@@ -167,9 +222,9 @@ void RNG_IRQHandler(void)
 void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32bit)
 { 
 	__HAL_RNG_DISABLE_IT(hrng);		/*Disable the RNG IT*/
-	urandom32bit = random32bit;
+	IT_Random32bit = random32bit;
 #if SYSTEM_DEBUG == 1
-	Bsp_Printf("The Random32bit is generated = %X! \r\n",random32bit);
+	Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
 #endif	
 }
 /**
@@ -184,6 +239,8 @@ void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng)
 #endif		
 
 }
+
+#endif /*RNG_IT_ENABLE == 1	*/
 /** @}
 */
 /****************************RNG Exported Functions Group2*********************/

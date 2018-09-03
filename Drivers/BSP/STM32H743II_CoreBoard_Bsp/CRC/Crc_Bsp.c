@@ -48,9 +48,14 @@
 CRC_HandleTypeDef   CRC_Handler;
  
 /**
-  * @brief		Storing the computed CRC value
+  * @brief		Storing the Default computed CRC value
   */
-__IO uint32_t uwCRCValue = 0;
+__IO uint32_t DefaultCRCValue = 0;
+ 
+/**
+  * @brief		Storing the Accumulate computed CRC value
+  */
+__IO uint32_t AccumulateCRCValue = 0;
 
 /**
   * @brief		Expected CRC Value
@@ -184,7 +189,7 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   * @{
   */
 /**
-  * @brief 	Computed The CRC and stored to uwCRCValue variable
+  * @brief 	Computed The CRC and stored to DefaultCRCValue variable
   *			The CRC calculator is re-initialized with the default polynomial 0x4C11DB7
   *			4 AHB clock cycles for 32-bit
   *			2 AHB clock cycles for 16-bit
@@ -192,21 +197,21 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   */
 void Bsp_ComputeCRCDefault(void)
 {
-	uwCRCValue = HAL_CRC_Calculate(&CRC_Handler, (uint32_t *)aDataBuffer, DATA_BUFFER_SIZE);
+	DefaultCRCValue = HAL_CRC_Calculate(&CRC_Handler, (uint32_t *)aDataBuffer, DATA_BUFFER_SIZE);
 #if SYSTEM_DEBUG == 1
-	Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", uwCRCValue);
+	Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
 #endif
 }
 
 /**
-  * @brief 	Computed The CRC and stored to uwCRCValue variable
+  * @brief 	Computed The CRC and stored to AccumulateCRCValue variable
   *			The CRC calculator is not re-initialized, instead the previously computed CRC is used as initial value.  
   */
 void Bsp_ComputeCRCAccumulate(void)
 {
-	uwCRCValue = HAL_CRC_Accumulate(&CRC_Handler, (uint32_t *)&aDataBuffer, DATA_BUFFER_SIZE);
+	AccumulateCRCValue = HAL_CRC_Accumulate(&CRC_Handler, (uint32_t *)&aDataBuffer, DATA_BUFFER_SIZE);
 #if SYSTEM_DEBUG == 1
-	Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", uwCRCValue);
+	Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
 #endif
 }
 

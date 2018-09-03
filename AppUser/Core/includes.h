@@ -43,8 +43,8 @@
   * @{
   */
   
-#define SYSTEM_SUPPORT_OS  0
-#define SYSTEM_DEBUG  0
+#define SYSTEM_SUPPORT_OS	0
+#define SYSTEM_DEBUG	0
 
 /** @}
 */

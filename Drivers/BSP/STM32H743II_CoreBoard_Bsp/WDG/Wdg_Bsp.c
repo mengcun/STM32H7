@@ -54,7 +54,7 @@ WWDG_HandleTypeDef   WWDG_Handler;
 */		
 /*----------------------------WatchDog Private Variables--------------------------------*/
 /* Private functions ------------------------------------------------------------------------------*/
-/** @defgroup Template_Private_Functions WatchDog Private Functions
+/** @defgroup WDG_Private_Functions WatchDog Private Functions
   * @{
   */
 /**
@@ -65,10 +65,10 @@ static uint32_t TimeoutCalculation(uint32_t timevalue);
 */
 /*--------------------------------------WatchDog Private Functions---------------------------------*/
 /* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup Template_Exported_Functions WatchDog Exported Functions
+/** @defgroup WDG_Exported_Functions WatchDog Exported Functions
   * @{
   */
-/** @defgroup Template_Exported_Functions_Group1 Initialization and de-initialization functions
+/** @defgroup WDG_Exported_Functions_Group1 Initialization and de-initialization functions
   *  @brief   Initialization and Configuration functions
   *
 @verbatim
@@ -210,7 +210,7 @@ static uint32_t TimeoutCalculation(uint32_t timevalue)
 */
 /*********************WatchDog Exported Functions Group1**************************/
 
-/** @defgroup Template_Exported_Functions_Group2 Operation Functions
+/** @defgroup WDG_Exported_Functions_Group2 Operation Functions
   *  @brief   Operation Functions
   *
 @verbatim

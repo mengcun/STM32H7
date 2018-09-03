@@ -73,8 +73,7 @@ void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler,uint32_t PWM_Duty);
   * @{
   */
   
-void Bsp_SetTIM3Compare1(uint32_t Compare);
-
+void Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty);
 /** @}
 */
 /**********************PWM Exported Functions Group2**************************/
