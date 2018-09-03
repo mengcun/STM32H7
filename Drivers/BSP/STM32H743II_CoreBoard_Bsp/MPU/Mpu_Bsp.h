@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MPU/CoreBoard_Mpu_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MPU/Mpu_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 14-Junly-2018

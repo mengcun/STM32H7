@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RDB_LCD/Coreboard_Lcd_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RGB_LCD/Lcd_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 20-Junly-2018
@@ -36,7 +36,7 @@
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
-/** @defgroup LCD_Private_Types LCD Private Define
+/** @defgroup LCD_Private_Define LCD Private Define
   * @{
   */
 /**
@@ -152,7 +152,7 @@
 
 /** @}
 */
-/*----------------------------------------RGB_LCD Private Types---------------------------------------*/
+/*----------------------------------------RGB_LCD Private Define---------------------------------------*/
 
 /* Private macros ---------------------------------------------------------------------------------*/
 /* Private types ----------------------------------------------------------------------------------*/
@@ -216,7 +216,7 @@ typedef struct
   * @{
   */
 /** @defgroup LCD_Exported_Functions_Group1 Initialization and de-initialization functions
-	* @{
+  * @{
   */
 void Bsp_LCD_Init(void);													  //初始化MPU_LCD
 void Bsp_RGB_LCD_Init(void);                     		//初始化RGB_LCD

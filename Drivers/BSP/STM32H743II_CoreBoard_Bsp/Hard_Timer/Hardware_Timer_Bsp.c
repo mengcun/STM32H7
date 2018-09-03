@@ -1,20 +1,21 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/Soft_Timer/Hardware_Timer_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/HARD_TIMER/Hardware_Timer_Bsp.c
   * @author  MCD Application Team
   * @version SW:V1.0.0 HW:V1.0
   * @date    21-August-2018
   * @brief   This file provides set of firmware functions to manage:
-  *			 定义用于硬件定时器的TIM,可以使用通用定时器TIM2 - TIM5,每个定时器有4个通道.
+  *			 定义用于硬件定时器的TIM.
   *			 TIM3 和TIM4 是16位
   *			 TIM2 和TIM5 是32位
   *			 TIM2 - TIM5 时钟来自APB1 = HCLK / 2 = 200MHz
   *			 APB1 定时器有 TIM2, TIM3 ,TIM4, TIM5, TIM6, TIM7, TIM12, TIM13,TIM14
   *			 APB2 定时器有 TIM1, TIM8 ,TIM9, TIM10, TIM11
   *
-  * 		 TIM1: The TIM1CLK frequency is set to 2*PCK2 = HCLK = SystemCoreClock/2 (Hz), the Prescaler is 0,
-  *			 so the TIM1 counter clock is SystemCoreClock/2 (Hz).
-  *			 SystemCoreClock is set to 400 MHz.
+  *			 TIM1的通道2用于测量外部输入时钟频率，输入在PE11，注意不能与FMC同时复用
+  *			 TIM3的通道1用于2KHz PWM生成，输出在PB4引脚
+  *			 TIM4早USER_DEBUG中用于计算函数执行时间，定时器4为16位最大计数65535，计时周期为10KHz(0.1ms)，所以最长计时时间为13.1s
+  *			 TIM5做单次定时器使用,精度为正负2us
   @verbatim
  ===============================================================================
                         ##### How to use this file #####
@@ -30,7 +31,7 @@
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -40,23 +41,28 @@
   * @{
   */
 /** @defgroup Hardware_Timer Hardware_Timer
-  * @brief 	使用TIM2-5做单次定时器使用, 定时时间到后执行回调函数。可以同时启动4个定时器，互不干扰。
-  *        	定时精度正负10us （主要耗费在调用本函数的执行时间，函数内部进行了补偿减小误差）
+  * @brief Hardware_Timer Hardware_Timer
   * @{
   */
 /* Private variables ------------------------------------------------------------------------------*/
 /** @defgroup Hardware_Timer_Private_Variables Hardware_Timer Private Variables
   * @{
   */
-/**
-  * @brief		Generic TIMx Private Handle
-  */
-TIM_HandleTypeDef 		TIMx_Handler;      //通用定时器句柄 
+
 /**
   * @brief		TIM1 Private Handle
   */
 TIM_HandleTypeDef 		TIM1_Handler;      //定时器1句柄 
 
+/**
+  * @brief		TIM4 Private Handle
+  */
+TIM_HandleTypeDef 		TIM4_Handler;      //定时器4句柄 
+
+/**
+  * @brief		Generic TIMx Private Handle
+  */
+TIM_HandleTypeDef 		TIM5_Handler;      //定时器5句柄 
 /**
   * @brief		Timer Output Compare Configuration Structure declaration
   */
@@ -103,7 +109,8 @@ static void (*s_TIM_CallBack_CC4)(void);
   */
 /** @}
 */		
-/*----------------------------Hardware_Timer Private Functions Prototypes--------------------------------*/ /** @defgroup Hardware_Timer_Exported_Functions Hardware_Timer Exported Functions
+/*----------------------------Hardware_Timer Private Functions Prototypes--------------------------------*/ 
+/** @defgroup Hardware_Timer_Exported_Functions Hardware_Timer Exported Functions
   * @{
   */
 /** @defgroup Hardware_Timer_Exported_Functions_Group1 Initialization and de-initialization functions
@@ -118,26 +125,9 @@ static void (*s_TIM_CallBack_CC4)(void);
   @endverbatim
   * @{
   */
+ 
 /**
-  * @brief	通用定时器5中断初始化,定时器5在APB1上，APB1的定时器时钟为200MHz
-  *			定时器溢出时间计算方法:Tout=((usPeriod)*(usPrescaler))/uiTIMxCLK us.	uiTIMxCLK = 定时器工作频率,单位:Mhz
-  *			这里使用的是定时器5!(定时器2挂在APB1上，时钟为HCLK/2)
-  */  
- void Bsp_InitGeneralHardTimer(void)
-{  	
-    TIMx_Handler.Instance = TIMx;                          		//通用定时器TIMx
-    TIMx_Handler.Init.Prescaler = 200 - 1;                    	//uiTIMxCLK / 1000000; /* 分频到周期 1us */ /*减去1 为了更加准确*/
-    TIMx_Handler.Init.CounterMode = TIM_COUNTERMODE_UP;    		//向上计数器
-    TIMx_Handler.Init.Period = usPeriod - 1;                    //自动装载值	/*减去1 为了更加准确*/
-    TIMx_Handler.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;	//时钟分频因子
-    
-	HAL_TIM_Base_Init(&TIMx_Handler);
-    
-    HAL_TIM_Base_Start_IT(&TIMx_Handler); //使能定时器5和定时器5更新中断：TIM_IT_UPDATE    
-}
-
-/**
-  * @brief	高级定时器TIM1的初始化，是一个16位自动重装定时器
+  * @brief	高级定时器TIM1的初始化，是一个16位自动重装定时器,用于计算外部输入时钟的频率
   *			TIM1 counter clock is SystemCoreClock/2 (Hz) =  200MHz
   *			TIM1 configuration: Input Capture mode
   *			The external signal is connected to TIM1 CH2 pin (PE.11), 注意核心板将PE11接到了FMC上，不能同时使用。  
@@ -184,7 +174,50 @@ static void (*s_TIM_CallBack_CC4)(void);
 	/* Starting Error */
 	Error_Handler();
 	}
- }
+ } 
+
+ #if USMART_ENTIMX_SCAN == 1
+ 
+/**
+  * @brief	通用定时器4中断初始化,确保计数器计数频率为:10Khz即可.另外,定时器不要开启自动重装载功能!!
+  *			用于USER_DEBUG模块中的usmart_reset_runtime() usmart_get_runtime 
+  */   
+
+void Bsp_InitHardTimer_TIM4(uint16_t Period,uint16_t Prescaler)
+{ 
+    __HAL_RCC_TIM4_CLK_ENABLE();
+    HAL_NVIC_SetPriority(TIM4_IRQn,3,3);	//设置TIM4中断优先级，抢占优先级3，子优先级3 注意比串口优先级低，最长计时13.1s
+    HAL_NVIC_EnableIRQ(TIM4_IRQn);      	//开启ITM4中断    
+    
+    TIM4_Handler.Instance=TIM4;                          //通用定时器4
+    TIM4_Handler.Init.Prescaler=Prescaler;                     //分频
+    TIM4_Handler.Init.CounterMode=TIM_COUNTERMODE_UP;    //向上计数器
+    TIM4_Handler.Init.Period=Period;                        //自动装载值
+    TIM4_Handler.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;
+    HAL_TIM_Base_Init(&TIM4_Handler);
+    HAL_TIM_Base_Start_IT(&TIM4_Handler); //使能定时器4和定时器4中断 					 
+}
+ 
+#endif
+
+/**
+  * @brief	通用定时器5中断初始化,定时器5在APB1上，APB1的定时器时钟为200MHz
+  *			定时器溢出时间计算方法:Tout=((usPeriod)*(usPrescaler))/uiTIMxCLK us.	uiTIMxCLK = 定时器工作频率,单位:Mhz
+  *			这里使用的是定时器5!(定时器2挂在APB1上，时钟为HCLK/2)
+  *			TIM5 最大0xFFFFFFFF / 1000000 = 4294s
+  */  
+ void Bsp_InitHardTimer_TIM5(void)
+{  	
+    TIM5_Handler.Instance = TIM5;                          		//通用定时器TIM5
+    TIM5_Handler.Init.Prescaler = 200 - 1;                    	//uiTIMxCLK / 1000000; /* 分频到周期 1us */ /*减去1 为了更加准确*/
+    TIM5_Handler.Init.CounterMode = TIM_COUNTERMODE_UP;    		//向上计数器
+    TIM5_Handler.Init.Period = 0x000F4240 - 1;                  //自动装载值	/*减去1 为了更加准确*/  1s = 1 * 1000000 us
+    TIM5_Handler.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;	//时钟分频因子
+    
+	HAL_TIM_Base_Init(&TIM5_Handler);
+    
+    HAL_TIM_Base_Start_IT(&TIM5_Handler); 						//使能定时器5和定时器5更新中断    
+}
 
 /**
   * @brief	通用定时器底册驱动，开启时钟，设置中断优先级
@@ -192,25 +225,22 @@ static void (*s_TIM_CallBack_CC4)(void);
   */  
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
-    if(htim->Instance==TIMx)					//通用定时器
+    if(htim->Instance==TIM5)				//通用定时器
 	{
-		__HAL_RCC_TIMx_CLK_ENABLE();            //使能TIMx时钟
-		HAL_NVIC_SetPriority(TIMx_IRQn,4,1);    //设置通用定时器中断优先级，抢占优先级4，子优先级1, 注意比串口优先级低
-		HAL_NVIC_EnableIRQ(TIMx_IRQn);          //开启ITMx中断   
+		__HAL_RCC_TIM5_CLK_ENABLE();        //使能TIMx时钟
+		HAL_NVIC_SetPriority(TIM5_IRQn,4,1);//设置通用定时器中断优先级，抢占优先级4，子优先级1, 注意比串口优先级低
+		HAL_NVIC_EnableIRQ(TIM5_IRQn);      //开启ITMx中断   
 	} 
 	
     if(htim->Instance==TIM3)					//用于PWM
 	{
-		__HAL_RCC_TIM3_CLK_ENABLE();            //使能TIM3时钟
-		HAL_NVIC_SetPriority(TIM3_IRQn,3,4);    //设置TIM3_PWM 中断优先级,抢占优先级3,子优先级4, 注意比串口优先级低
-		HAL_NVIC_EnableIRQ(TIM3_IRQn);          //开启ITM3中断   
+		__HAL_RCC_TIM3_CLK_ENABLE();        //使能TIM3时钟
+		HAL_NVIC_SetPriority(TIM3_IRQn,3,4);//设置TIM3_PWM 中断优先级,抢占优先级3,子优先级4, 注意比串口优先级低
+		HAL_NVIC_EnableIRQ(TIM3_IRQn);      //开启ITM3中断   
 	}  	
 }
 /**
-  * @brief TIM MSP Initialization
-  *        This function configures the hardware resources used in this example:
-  *           - Peripheral's clock enable
-  *           - Peripheral's GPIO Configuration
+  * @brief TIM MSP Initialization 用于TIM1的外部输入时钟频率计算，注意核心板将PE11接到了FMC上，不能同时使用
   * @param htim: TIM handle pointer
   * @retval None
   */
@@ -219,13 +249,13 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
   GPIO_InitTypeDef   GPIO_InitStruct;
  
   /*##-1- Enable peripherals and GPIO Clocks #################################*/
-  /* TIMx Peripheral clock enable */
+  /* TIM1 Peripheral clock enable */
   __HAL_RCC_TIM1_CLK_ENABLE();
   
   /* Enable GPIO channels Clock */
   __HAL_RCC_GPIOE_CLK_ENABLE();
 
-  /* Configure  (TIMx_Channel) in Alternate function, push-pull and high speed */
+  /* Configure  (TIM1_Channel) in Alternate function, push-pull and high speed */
   GPIO_InitStruct.Pin = GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -233,7 +263,7 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
   GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
   
-  /*##-2- Configure the NVIC for TIMx #########################################*/
+  /*##-2- Configure the NVIC for TIM1 #########################################*/
 
   HAL_NVIC_SetPriority(TIM1_CC_IRQn, 4, 2);	//设置定时器TIM1中断优先级，抢占优先级4，子优先级2, 注意比串口优先级低
 
@@ -242,23 +272,30 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief	定时器中断服务函数
-  * 		其内部会对相应的中断标志位进行详细判断,确定来源后,会自动清掉该中断标志位同时调用不类型的回函数.
-  *			所以我们控制逻辑只用编写在中断回调函数,并且不需要清标志位.
+  * @brief	定时器1中断服务函数 用于TIM1的外部输入时钟频率计算，注意核心板将PE11接到了FMC上，不能同时使用
   */ 
 void TIM1_CC_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&TIM1_Handler);
 }
 
-/**
-  * @brief 	定时器3中断服务函数
-  */
+#if USMART_ENTIMX_SCAN == 1
 
-void TIM3_IRQHandler(void)
-{
-    HAL_TIM_IRQHandler(&TIM3_Handler);
+/**
+  * @brief	定时器4中断服务函数 用于USER_DEBUGE中
+  */ 
+void TIM4_IRQHandler(void)
+{ 		    		  			       
+    if(__HAL_TIM_GET_IT_SOURCE(&TIM4_Handler,TIM_IT_UPDATE)==SET)//溢出中断
+    {
+        usmart_dev.scan();	//执行usmart扫描
+        __HAL_TIM_SET_COUNTER(&TIM4_Handler,0);;    //清空定时器的CNT
+        __HAL_TIM_SET_AUTORELOAD(&TIM4_Handler,100);//恢复原来的设置
+    }
+    __HAL_TIM_CLEAR_IT(&TIM4_Handler, TIM_IT_UPDATE);//清除中断标志位
 }
+
+#endif
 
 /**
   * @brief 	定时器5中断服务函数
@@ -266,7 +303,7 @@ void TIM3_IRQHandler(void)
 
 void TIM5_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&TIMx_Handler);
+    HAL_TIM_IRQHandler(&TIM5_Handler);
 }
 /**
   * @brief	定时器中断服务函数调用，不同的服务函数调用在stm32h7xxx_hal_tim.c中
@@ -274,8 +311,11 @@ void TIM5_IRQHandler(void)
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if(htim==(&TIMx_Handler))
+    if(htim==(&TIM5_Handler))
     {
+#if SYSTEM_DEBUG == 1
+		Bsp_Printf("TIM5 Timeout Occured! \r\n");
+#endif
 		if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
 		{
 			s_TIM_CallBack_CC1();			
@@ -300,24 +340,23 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if(htim==(&TIMx_Handler))
+    if(htim==(&TIM5_Handler))
     {
-		BSP_Printf("TIMx Period Elapsed! \r\n");
-    }
-	if(htim==(&TIM3_Handler))			   //用于PWM
-    {
-        Bsp_LED_Toggled(LED2_Blue);        //LED0反转
+#if SYSTEM_DEBUG == 1
+		Bsp_Printf("TIM5 Period Elapsed every 1s! \r\n");
+#endif
     }
 }
 /**
-  * @brief  使用TIM1计算外部输入时钟频率
-  * @param  htim : hadc handle
-  * @retval None
+  * @brief  定时器中断服务函数调用，不同的服务函数调用在stm32h7xxx_hal_tim.c中
   */
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
 	{
+#if SYSTEM_DEBUG == 1
+		Bsp_Printf("TIM1 External Input Frequence \r\n");
+#endif
 		if(uhCaptureIndex == 0)
 		{
 			/* Get the 1st Input Capture value */
@@ -370,14 +409,18 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   * @{
   */
 /**
-  * @brief		使用TIM2-5做单次定时器使用, 定时时间到后执行回调函数。可以同时启动4个定时器，互不干扰.
-  *             定时精度正负2us （主要耗费在调用本函数的执行时间，函数内部进行了补偿减小误差）
-  *			 	TIM2和TIM5 是32位定时器.定时范围很大
-  *			 	TIM3和TIM4 是16位定时器.
-  *	@param		_CC : 捕获通道几，1，2，3, 4
-  *             _uiTimeOut : 超时时间, 单位 1us.对于16位定时器,最大 65.5ms;对于32位定时器,最大 4294秒
-  *             _pCallBack : 定时时间到后，被执行的函数
+  * @brief		Start TIMER 5 For time out
+  *	@param		_CC : Channel 1，2，3, 4
+  *	@param		_uiTimeOut : The timeout period
+  *	@param		_pCallBack : callback functions
   */ 
+  
+// 使用TIM5做单次定时器使用, 定时时间到后执行回调函数。可以同时启动4个通道，互不干扰.
+// 定时精度正负2us （主要耗费在调用本函数的执行时间，函数内部进行了补偿减小误差）
+// TIM5 是32位定时器.定时范围很大
+// _CC : 捕获通道几，1，2，3, 4
+// _uiTimeOut : 超时时间,32位定时器,最大 4294秒
+// _pCallBack : 定时时间到后，被执行的函数 
 void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack)
 {
 //用于测量执行此函数所用时为1.16us(通过逻辑分析仪测量IO翻转)	
@@ -401,19 +444,19 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
         _uiTimeOut -= 1;
     }
 
-    cnt_now = __HAL_TIM_GetCounter(&TIMx_Handler);    	/* 读取当前的计数器值 */
+    cnt_now = __HAL_TIM_GetCounter(&TIM5_Handler);    	/* 读取当前的计数器值 */
     cnt_tar = cnt_now + _uiTimeOut;						/* 计算捕获的计数器值 */
     if (_CC == 1)
     {
         s_TIM_CallBack_CC1 = (void (*)(void))_pCallBack;
 		
-		if(HAL_TIM_OC_ConfigChannel(&TIMx_Handler, &sOCConfig, TIM_CHANNEL_1) != HAL_OK)
+		if(HAL_TIM_OC_ConfigChannel(&TIM5_Handler, &sOCConfig, TIM_CHANNEL_1) != HAL_OK)
 		{
 		Error_Handler();
 		}
-        __HAL_TIM_SET_COMPARE(&TIMx_Handler, TIM_CHANNEL_1, cnt_tar);      	/* 设置捕获比较计数器CC1 */
-        __HAL_TIM_CLEAR_IT(&TIMx_Handler, TIM_IT_CC1);						/* 清CC1中断标志位.*/
-		if(HAL_TIM_OC_Start_IT(&TIMx_Handler, TIM_CHANNEL_3) != HAL_OK)		/* 使能CC1中断 */
+        __HAL_TIM_SET_COMPARE(&TIM5_Handler, TIM_CHANNEL_1, cnt_tar);      	/* 设置捕获比较计数器CC1 */
+        __HAL_TIM_CLEAR_IT(&TIM5_Handler, TIM_IT_CC1);						/* 清CC1中断标志位.*/
+		if(HAL_TIM_OC_Start_IT(&TIM5_Handler, TIM_CHANNEL_3) != HAL_OK)		/* 使能CC1中断 */
 		{
 			Error_Handler();
 		}
@@ -422,13 +465,13 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
     {
 		s_TIM_CallBack_CC2 = (void (*)(void))_pCallBack;
 
-		if(HAL_TIM_OC_ConfigChannel(&TIMx_Handler, &sOCConfig, TIM_CHANNEL_2) != HAL_OK)
+		if(HAL_TIM_OC_ConfigChannel(&TIM5_Handler, &sOCConfig, TIM_CHANNEL_2) != HAL_OK)
 		{
 		Error_Handler();
 		}
-        __HAL_TIM_SET_COMPARE(&TIMx_Handler, TIM_CHANNEL_2, cnt_tar);      	/* 设置捕获比较计数器CC2 */
-        __HAL_TIM_CLEAR_IT(&TIMx_Handler, TIM_IT_CC2);						/* 清CC2中断标志位.*/
-		if(HAL_TIM_OC_Start_IT(&TIMx_Handler, TIM_CHANNEL_2) != HAL_OK)		/* 使能CC2中断 */
+        __HAL_TIM_SET_COMPARE(&TIM5_Handler, TIM_CHANNEL_2, cnt_tar);      	/* 设置捕获比较计数器CC2 */
+        __HAL_TIM_CLEAR_IT(&TIM5_Handler, TIM_IT_CC2);						/* 清CC2中断标志位.*/
+		if(HAL_TIM_OC_Start_IT(&TIM5_Handler, TIM_CHANNEL_2) != HAL_OK)		/* 使能CC2中断 */
 		{
 			Error_Handler();
 		}
@@ -437,13 +480,13 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
     {
         s_TIM_CallBack_CC3 = (void (*)(void))_pCallBack;
 
- 		if(HAL_TIM_OC_ConfigChannel(&TIMx_Handler, &sOCConfig, TIM_CHANNEL_3) != HAL_OK)
+ 		if(HAL_TIM_OC_ConfigChannel(&TIM5_Handler, &sOCConfig, TIM_CHANNEL_3) != HAL_OK)
 		{
 		Error_Handler();
 		}
-        __HAL_TIM_SET_COMPARE(&TIMx_Handler, TIM_CHANNEL_3, cnt_tar);      	/* 设置捕获比较计数器CC3 */
-        __HAL_TIM_CLEAR_IT(&TIMx_Handler, TIM_IT_CC3);						/* 清CC3中断标志位.*/
-		if(HAL_TIM_OC_Start_IT(&TIMx_Handler, TIM_CHANNEL_3) != HAL_OK)		/* 使能CC3中断 */
+        __HAL_TIM_SET_COMPARE(&TIM5_Handler, TIM_CHANNEL_3, cnt_tar);      	/* 设置捕获比较计数器CC3 */
+        __HAL_TIM_CLEAR_IT(&TIM5_Handler, TIM_IT_CC3);						/* 清CC3中断标志位.*/
+		if(HAL_TIM_OC_Start_IT(&TIM5_Handler, TIM_CHANNEL_3) != HAL_OK)		/* 使能CC3中断 */
 		{
 			Error_Handler();
 		}
@@ -452,13 +495,13 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
     {
         s_TIM_CallBack_CC4 = (void (*)(void))_pCallBack;
 
-		if(HAL_TIM_OC_ConfigChannel(&TIMx_Handler, &sOCConfig, TIM_CHANNEL_4) != HAL_OK)
+		if(HAL_TIM_OC_ConfigChannel(&TIM5_Handler, &sOCConfig, TIM_CHANNEL_4) != HAL_OK)
 		{
 		Error_Handler();
 		}
-        __HAL_TIM_SET_COMPARE(&TIMx_Handler, TIM_CHANNEL_4, cnt_tar);      	/* 设置捕获比较计数器CC4 */
-        __HAL_TIM_CLEAR_IT(&TIMx_Handler, TIM_IT_CC4);						/* 清CC4中断标志位.*/
-		if(HAL_TIM_OC_Start_IT(&TIMx_Handler, TIM_CHANNEL_4) != HAL_OK)		/* 使能CC4中断 */
+        __HAL_TIM_SET_COMPARE(&TIM5_Handler, TIM_CHANNEL_4, cnt_tar);      	/* 设置捕获比较计数器CC4 */
+        __HAL_TIM_CLEAR_IT(&TIM5_Handler, TIM_IT_CC4);						/* 清CC4中断标志位.*/
+		if(HAL_TIM_OC_Start_IT(&TIM5_Handler, TIM_CHANNEL_4) != HAL_OK)		/* 使能CC4中断 */
 		{
 			Error_Handler();
 		}
@@ -477,22 +520,27 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
 /**
   * @brief	启用硬件定时器到达指定时间后的TimeOut回调函数,需要使用时可以复制出去修改程序名
   */ 
+
 void _pFunctionHardTimeout(void)
 {
-	Bsp_LED_Toggled(LED2_Red);
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("TIM5 Delay TimeOut! User can add functions here when timeout! \r\n");
+#endif
 }
 
 /**
-  * @brief 	配置TIM1的通道4测试LSI频率
-  * @return LSI Frequency	 实际测试LSI = 34000左右
+  * @brief 	配置TIM1的通道2测试LSI频率
+  * @return Input Frequence
   */
-uint32_t GetFrequency(void)
+
+uint32_t TIM1_ComputeInputFreq(void)
 {
 	extern uint32_t	uwFrequency;
-	
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("Initial TIM1_CHANNEL2 to Compute the input Frequence in PE11 ! \r\n");
+#endif	
 	/* 初始化TIM1定时器 */		
 	Bsp_InitHardTimer_TIM1();
-	
 	return uwFrequency;
 }
 

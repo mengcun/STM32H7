@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RDB_LCD/Lcd_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RGB_LCD/Lcd_Bsp.c
   * @author  MCD Application Team
   * @version SW:V1.0.0 HW:V1.0
   * @date    20-July-2018
@@ -22,7 +22,7 @@
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 #include "font.h"
 /**********************************************OS***************************************************/
@@ -91,7 +91,7 @@ _lcd_dev lcddev;
 /*--------------------------------------LCD Private Functions---------------------------------*/
 
 /* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup LCD_Exported_Functions RGB_LCD
+/** @defgroup LCD_Exported_Functions LCD Exported Functions
   * @{
   */
 /** @defgroup LCD_Exported_Functions_Group1 Initialization and de-initialization functions
@@ -1462,7 +1462,6 @@ void Bsp_LCD_Init(void)
      FSMC_WriteTim.DataSetupTime=5;         
      FMC_NORSRAM_Extended_Timing_Init(SRAM_Handler.Extended,&FSMC_WriteTim,SRAM_Handler.Init.NSBank,SRAM_Handler.Init.ExtendedMode);
 	} 
-	BSP_Printf("LCD ID:%x\r\n",lcddev.id); //打印LCD ID  	
 	Bsp_LCD_Display_Dir(0);		//默认为竖屏
 	LCD_LED(1);				//点亮背光
 	Bsp_LCD_Clear(WHITE);
@@ -1725,11 +1724,6 @@ void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc)
 			This subsection provides a set of functions allowing to manage the XXXX
   @endverbatim
   * @{
-  */
-/**
-  * @brief 
-  * @param param: brief.
-  * @retval status
   */
 
 //打开LCD开关

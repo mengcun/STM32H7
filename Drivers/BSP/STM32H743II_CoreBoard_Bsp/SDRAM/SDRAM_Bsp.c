@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SDRAM/SDRAM_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SDRAM/Sdram_Bsp.c
   * @author  MCD Application Team
   * @version SW:V1.0.0 HW:V1.0
   * @date    20-July-2018
@@ -22,7 +22,7 @@
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -45,10 +45,10 @@
 SDRAM_HandleTypeDef SDRAM_Handler;   //SDRAM句柄
 /**
   * @brief  SDRAM Test Array
-  *			与LCD帧缓冲区首地址是一样的.定义在了0XC0000000,所以如果使用测试功能需要禁止LCD
+  *			
   */
 #if SDRM_TEST == 1
-uint16_t TestSdram[250000] __attribute__((at(0XC0000000)));//测试用数组
+uint16_t TestSdram[250000] __attribute__((at(0XC0000000)));//测试用数组, 与LCD帧缓冲区首地址是一样的.定义在了0XC0000000,所以如果使用测试功能需要禁止LCD
 #endif
 /** @}
 */		
@@ -81,7 +81,7 @@ uint16_t TestSdram[250000] __attribute__((at(0XC0000000)));//测试用数组
             ##### Initialization and Configuration functions #####
 ===============================================================================
   [..]
-	    This subsection provides a set of functions allowing to initialize XXXX
+	    This subsection provides a set of functions allowing to initialize SDRAM
   @endverbatim
   * @{
   */
@@ -200,27 +200,25 @@ void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
             ##### 					Operation Functions 						#####
 ===============================================================================
   [..]
-			This subsection provides a set of functions allowing to manage the XXXX
+			This subsection provides a set of functions allowing to manage the SDRAM
   @endverbatim
   * @{
   */
 /**
-  * @brief 
-  * @param param: brief.
-  * @retval status
-  */
-/**
-  * @brief Send Operation to SDRAM
-  * @param hsdram: SDRAM handle pointer
-	*				 bankx:0,向BANK5上面的SDRAM发送指令
-	*				       1,向BANK6上面的SDRAM发送指令
-	*				 cmd:指令(0,正常模式/1,时钟配置使能/2,预充电所有存储区/3,自动刷新/4,加载模式寄存器/5,自刷新/6,掉电)
-	*				 refresh:自刷新次数
-	*				 regval:模式寄存器的定义
-	*	@return:0,正常;
-	*					1,失败.
+  * @brief 	Send Operation to SDRAM
+  * @param 	bankx:
+  *			@arg 0,Send instruction to SDRAM ON bank5
+  *		    @arg 1,Send instruction to SDRAM ON bank5
+  * @param 	cmd: Instructions(0,Normal mode/1,Enable the clk/2,Precharged all storage area/3,Auto refresh/4,Load mode register/5,Self-refresh/6,Power-off)
+  * @param 	refresh: Number of self-refreshes
+  * @param 	regval: Definition of mode registers
+  * @return 0: success; 1: fail.
  */
-//向SDRAM发送命令
+// bankx:0,向BANK5上面的SDRAM发送指令
+//		 1,向BANK6上面的SDRAM发送指令
+// cmd:指令(0,正常模式/1,时钟配置使能/2,预充电所有存储区/3,自动刷新/4,加载模式寄存器/5,自刷新/6,掉电)
+// refresh:自刷新次数
+// regval:模式寄存器的定义
 uint8_t Bsp_SDRAM_Send_Cmd(uint8_t bankx,uint8_t cmd,uint8_t refresh,uint16_t regval)
 {
     uint32_t target_bank=0;
@@ -240,9 +238,9 @@ uint8_t Bsp_SDRAM_Send_Cmd(uint8_t bankx,uint8_t cmd,uint8_t refresh,uint16_t re
 }
 /**
   * @brief Write bytes to SDRAM at specified address
-  * @param pBuffer:字节指针
-	*				 WriteAddr:要写入的地址
-	*				 n:要写入的字节数
+  * @param pBuffer: Pointer for Bytes needed to write
+  * @param WriteAddr: The address to write
+  * @param n: The number of bytes to write
  */
 //在指定地址(WriteAddr+Bank5_SDRAM_ADDR)开始,连续写入n个字节.
 void Bsp_FMC_SDRAM_WriteBuffer(uint8_t *pBuffer,uint32_t WriteAddr,uint32_t n)
@@ -256,9 +254,9 @@ void Bsp_FMC_SDRAM_WriteBuffer(uint8_t *pBuffer,uint32_t WriteAddr,uint32_t n)
 }
 /**
   * @brief Read bytes from SDRAM at specified address
-  * @param pBuffer:字节指针
-	*				 ReadAddr:要写入的地址
-	*				 n:要读出的字节数
+  * @param pBuffer: Pointer for bytes need to read
+  * @param ReadAddr: The address to read
+  * @param n: The number of bytes to read
  */
 //在指定地址((WriteAddr+Bank5_SDRAM_ADDR))开始,连续读出n个字节.
 void Bsp_FMC_SDRAM_ReadBuffer(uint8_t *pBuffer,uint32_t ReadAddr,uint32_t n)
@@ -270,6 +268,9 @@ void Bsp_FMC_SDRAM_ReadBuffer(uint8_t *pBuffer,uint32_t ReadAddr,uint32_t n)
 	}
 }
 
+/**
+  * @brief Test the SDRAM
+ */
 #if SDRM_TEST == 1
 //SDRAM内存测试	    
 void Bsp_Fsmc_Sdram_Test(void)
@@ -282,7 +283,7 @@ void Bsp_Fsmc_Sdram_Test(void)
     for(Ts=0;Ts<250000;Ts++)
 	{
 		TestSdram[Ts]=Ts;												//预存测试数据	
-		BSP_Printf("TestSdram[%d]:%d\r\n",Ts,TestSdram[Ts]);			//打印测试数据
+		Bsp_Printf("TestSdram[%d]:%d\r\n",Ts,TestSdram[Ts]);			//打印测试数据
 		
   	}
 	for(i=0;i<32*1024*1024;i+=16*1024)									//每隔16K字节,写入一个数据,总共写入2048个数据,刚好是32M字节
@@ -299,13 +300,13 @@ void Bsp_Fsmc_Sdram_Test(void)
 		}
  		else if(temp<=sval)
 			break;														//后面读出的数据一定要比第一次读到的数据大.	   		   
-		BSP_Printf("SDRAM Capacity:%dKB\r\n",(uint16_t)(temp-sval+1)*16);//打印SDRAM容量
+		Bsp_Printf("SDRAM Capacity:%dKB\r\n",(uint16_t)(temp-sval+1)*16);//打印SDRAM容量
  	}					 
 }
 #endif
 /** @}
 */
-/****************************XXXX Exported Functions Group2*********************/
+/****************************SDRAM Exported Functions Group2*********************/
 /** @}
 */
 /*----------------------------------SDRAM Exported Functions------------------------------------*/

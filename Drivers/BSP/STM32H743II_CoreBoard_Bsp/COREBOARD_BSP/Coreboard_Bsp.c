@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/stm32h743ii_Coreboard_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/COREBOARD_BSP/Coreboard_Bsp.c
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    15-July-2018
@@ -12,7 +12,7 @@
                         ##### How to use this file #####
  ===============================================================================
   [..]
-	The stm32h743ii_coreboard_bsp canbe used as follows:
+	The Coreboard_Bsp canbe used as follows:
 	(#)...
 		(++)...
 				(+++)...
@@ -24,7 +24,7 @@
 #include "stdint.h"
 #include <stdio.h>
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -91,8 +91,6 @@ Infor_CoreBoard CoreBoard_Infor;
   */
 void Coreboard_BSP_Init(void)
 {		
-	uint8_t 	dir=1;
-    uint16_t 	led0pwmval=0; 
 	uint8_t 	x=0;
 	/* -1- Enable the CPU Cache */
 	CPU_CACHE_Enable();
@@ -126,7 +124,7 @@ void Coreboard_BSP_Init(void)
 	Bsp_InitSoftTimer(400);
 	
 	/* -7- Initialize General Hard_Timer mounted on STM32H743II_CoreBoard*/
-	Bsp_InitGeneralHardTimer();	 
+	Bsp_InitHardTimer_TIM5();	 
 	
 	/* -8- Initialize IWatchDog as 1s timeout mounted on STM32H743II_CoreBoard*/			
 	Bsp_IWDG_Init(IWDG_PRESCALER_64, 500);
@@ -153,18 +151,35 @@ void Coreboard_BSP_Init(void)
 	Bsp_RTC_Set_BackupRAM();
 	
 	/* -15- Initialize TIM3_CHANNEL1_PWM as 2000Hz and remaping to PB3 mounted on STM32H743II_CoreBoard*/	
-	/*Prescaler = 200 : 200M / 200 = 1M 计数频率;Period = 500, PWM = 1M / 500 = 2KHz*/
-	Bsp_TIM3_PWM_Init(500, 200);
-
-	/* -18- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
+	/*Prescaler = 200 : 200M / 200 = 1M 计数频率;Period = 500, PWM = 1M / 500 = 2KHz;PWM_Duty : 设置占空比*/
+	Bsp_TIM3_PWM_Init(500, 200, 250);
+	
+	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
+	Bsp_InitDefautCRC();
+	Bsp_ComputeCRCDefault();
+	
+	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
+	Bsp_InitUserDefineCRC();
+	Bsp_ComputeCRCAccumulate();
+	
+	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
+	usmart_dev.init(); 	
+	
+	/* -27- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
 	Bsp_SDRAM_Init();          
 	
-	/* -19- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
+	/* -28- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
 	Bsp_RGB_LCD_Init(); 
 	
-	/* -20- Get the Information about STM32H743II_CoreBoard*/
+	/* -29- Get the Information about STM32H743II_CoreBoard*/
 	GetInfo_CoreBoard();
 	
+	/* -30- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
+	Bsp_InitRNG();		/*It produces four 32-bit random samples every 16*FAHB/FRNG AHB clock cycles, if value is higher than 213 cycles (213 cycles otherwise).*/
+						/*After enabling the RNG for the first time, random data is first available after either */
+						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
+	//__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断，为了保证系统稳定运行，在中断中将其中断关闭，只有在需要随机数时候重新开启*/
+
 	POINT_COLOR=RED; 
 	
 	while(1)
@@ -198,12 +213,6 @@ void Coreboard_BSP_Init(void)
 		x++;
 		if(x==12)x=0;  
 		Bsp_Delay_ms(1000);	
-		
-		if(dir)led0pwmval++;				//dir==1 led0pwmval递增
-		else led0pwmval--;				    //dir==0 led0pwmval递减 
-		if(led0pwmval>300)dir=0;			//led0pwmval到达300后，方向为递减
-		if(led0pwmval==0)dir=1;			    //led0pwmval递减到0后，方向改为递增
-		Bsp_SetTIM3Compare1(led0pwmval);	//修改比较值，修改占空比
 	}
 }
 /*********************CoreBoard_BSP Exported Functions_Group1**************************/
@@ -356,7 +365,9 @@ void BSP_RunPer10ms(void)
 		/* --- 喂狗 */
 		Bsp_IWDG_Feed();
 		Bsp_LED_Toggled(LED1_Green); 	//每秒LED1_Green闪烁表明系统运行正常
-		BSP_Printf("IWDG feed in BSP_RunPer10ms() every 0.6s!\r\n");
+#if SYSTEM_DEBUG == 1
+		Bsp_Printf("IWDG feed in BSP_RunPer10ms() every 0.6s!\r\n");
+#endif
 	}	
 }
 
@@ -376,7 +387,9 @@ void BSP_Idle(void)
 {
 	/* --- 喂狗 */
     Bsp_IWDG_Feed();
-	BSP_Printf("IWDG feed in BSP_Idle() every 0.68s - 1.88s!\r\n");
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("IWDG feed in BSP_Idle() every 2ms when calling the Bsp_Delay_ms()!\r\n");
+#endif
 	/* --- 让CPU进入休眠，由Systick定时中断唤醒或者其他中断唤醒 */
 
 	/* 对于 emWin 图形库，可以插入图形库需要的轮询函数 */
@@ -405,6 +418,12 @@ void GetInfo_CoreBoard(void)
 	sprintf((char*)CoreBoard_Infor.CPU_ID, "CPU ID : %08X %08X %08X", CPU_Sn2, CPU_Sn1, CPU_Sn0);
 	sprintf((char*)CoreBoard_Infor.BSP_VERSION,"BSP VERSION : %08X", __STM32H743II_COREBOARD_BSP_VERSION);
 	sprintf((char*)CoreBoard_Infor.LCD_ID,"LCD ID : %04X",lcddev.id);	
+	
+	Bsp_Printf("%s \r\n",CoreBoard_Infor.BOARD_NAME);
+	Bsp_Printf("%s \r\n",CoreBoard_Infor.CPU_NAME);
+	Bsp_Printf("%s \r\n",CoreBoard_Infor.CPU_ID);
+	Bsp_Printf("%s \r\n",CoreBoard_Infor.BSP_VERSION);
+	Bsp_Printf("%s \r\n",CoreBoard_Infor.LCD_ID);
 }
 
  /**
@@ -464,7 +483,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t* file, uint32_t line)
 {
 	/* User can add his own implementation to report the file name and line number,*/
-	BSP_Printf("Wrong parameters value: file %s on line %d\r\n", file, line);
+	Bsp_Printf("Wrong parameters value: file %s on line %d\r\n", file, line);
 	/* Infinite loop */
 	while (1)
 	{

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/Soft_Timer/Software_Timer_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SOFT_TIMER/Software_Timer_Bsp.c
   * @author  MCD Application Team
   * @version SW:V1.0.0 HW:V1.0
   * @date    21-August-2018
@@ -24,7 +24,7 @@
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -34,13 +34,15 @@
   * @{
   */
 /** @defgroup Software_Timer Software_Timer
-  * @brief 我们利用是钟摘取.以Bsp_Delay_us为例,比如Bsp_Delay_us(50),在刚进入 Bsp_Delay_us的时候先计算好这段延需要等待的 
-  *		   systick计数次数,这里为50*400(假设系统时钟为 400Mhz,因为我们设置 systick的频率为系统时钟,那么systick每增加1，
-  *        就是1/400us)，然后我们就一直统计systick的计数变化,直到这个值变化了50*400,一旦检测到变化达或超过这个值，那么50us时间到了。
-  *        这样我们只是抓取SysTick计数器的变化,并不需要修改计数器,并不需要修改SysTick的任何状态,完全不影响态,完全不影响SysTick作为UCOS时钟节拍的功能,
-  *        这就是实现delay和操作系统共用SysTick定时器的原理.
+  * @brief	Creat the Software timer by systick
   * @{
   */
+// 我们利用是钟摘取.以Bsp_Delay_us为例,比如Bsp_Delay_us(50),在刚进入 Bsp_Delay_us的时候先计算好这段延需要等待的 
+// systick计数次数,这里为50*400(假设系统时钟为 400Mhz,因为我们设置 systick的频率为系统时钟,那么systick每增加1，
+// 就是1/400us)，然后我们就一直统计systick的计数变化,直到这个值变化了50*400,一旦检测到变化达或超过这个值，那么50us时间到了。
+// 这样我们只是抓取SysTick计数器的变化,并不需要修改计数器,并不需要修改SysTick的任何状态,完全不影响态,完全不影响SysTick作为UCOS时钟节拍的功能,
+// 这就是实现delay和操作系统共用SysTick定时器的原理.
+
 /* Private Static Variable -------------------------------------------------------------------*/
 /** @defgroup Software_Timer_Static_Variable Software_Timer Static Variable
   * @{
@@ -107,7 +109,7 @@ static void Bsp_SoftTimerDec(SOFT_TMR *_tmr);
   */
 /**
   * @brief  This function is initial the Systick.
-  * @param  SYSCLK: SYSCLK时钟频率
+  * @param  SYSCLK: SYSCLK
   */
 void Bsp_InitSoftTimer(uint16_t SYSCLK)
 {
@@ -148,13 +150,9 @@ void Bsp_InitSoftTimer(uint16_t SYSCLK)
   @endverbatim
   * @{
   */
+
 /**
-  * @brief 
-  * @param param: brief.
-  * @retval status
-  */
-/**
-  * @brief  This function handles SysTick Handler. 每隔1ms进入1次
+  * @brief  This function handles SysTick Handler. Every 1ms interrupt
   */
 void SysTick_Handler(void)
 {
@@ -179,12 +177,12 @@ void SysTick_Handler(void)
 	{
 		g_iRunTime = 0;
 	}
-	BSP_RunPer1ms();		/* 每隔1ms调用一次此函数，此函数在 stm32h743ii_Coreboard_Bsp.c */
+	BSP_RunPer1ms();		/* 每隔1ms调用一次此函数，此函数在 Coreboard_Bsp.c */
 	
 	if (++s_count >= 10)
 	{
 		s_count = 0;
-		BSP_RunPer10ms();	/* 每隔10ms调用一次此函数，此函数在 stm32h743ii_Coreboard_Bsp.c */
+		BSP_RunPer10ms();	/* 每隔10ms调用一次此函数，此函数在 Coreboard_Bsp.c */
 	}	
 }
 /**
@@ -249,7 +247,7 @@ void Bsp_Delay_ms(uint32_t nms)
 
 	while (1)
 	{
-		BSP_Idle();				/* CPU空闲执行的操作， 见 stm32h743ii_Coreboard_Bsp.c 和 stm32h743ii_Coreboard_Bsp.h 文件 */
+		BSP_Idle();				/* CPU空闲执行的操作， 见 Coreboard_Bsp.c 和 Coreboard_Bsp.h 文件 */
 		/*
 			等待延迟时间到
 			注意：编译器认为 s_ucTimeOutFlag = 0，所以可能优化错误，因此 s_ucTimeOutFlag 变量必须申明为 volatile
@@ -262,9 +260,10 @@ void Bsp_Delay_ms(uint32_t nms)
 }
 
 /**
-  * @brief  每隔1ms对所有定时器变量减1。必须被SysTick_ISR周期性调用。
-  *	@param	 _tmr : 定时器变量指针
+  * @brief  The _tmr will decrease 1 ervery 1ms, this should be called in SysTick_ISR period
+  *	@param	 _tmr : The pointer for Timer Variables
   */
+//每隔1ms对所有定时器变量减1。必须被SysTick_ISR周期性调用。
 static void Bsp_SoftTimerDec(SOFT_TMR *_tmr)
 {
 	if (_tmr->Count > 0)
@@ -284,16 +283,18 @@ static void Bsp_SoftTimerDec(SOFT_TMR *_tmr)
 }
 
 /**
-  * @brief  启动一个定时器，并设置定时周期。
-  *	@param	_id     : 定时器ID，值域【0,TMR_COUNT-1】。用户必须自行维护定时器ID，以避免定时器ID冲突。
-  *			_period : 定时周期，单位1ms
+  * @brief  Start a software Timer once with the Period
+  *	@param	_id     : Timer ID，should be [0,TMR_COUNT-1]。
+ *	@param	_period : timerout period (ms)
   */
-void Bsp_StartTimer(uint8_t _id, uint32_t _period)
+
+//启动一个一次性定时器，并设置定时周期。用户必须自行维护定时器ID，以避免定时器ID冲突。
+void Bsp_StartSoftwareTimerOnce(uint8_t _id, uint32_t _period)
 {
 	if (_id >= TMR_COUNT)
 	{
 		/* 打印出错的源代码文件名、函数名称 */
-		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
+		Bsp_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
 		while(1); /* 参数异常，死机等待看门狗复位 */
 	}
 
@@ -308,16 +309,17 @@ void Bsp_StartTimer(uint8_t _id, uint32_t _period)
 }
 
 /**
-  * @brief  启动一个自动定时器，并设置定时周期。
-  *	@param	_id     : 定时器ID，值域【0,TMR_COUNT-1】。用户必须自行维护定时器ID，以避免定时器ID冲突。
-  *			_period : 定时周期，单位1ms
+  * @brief  Start a software Timer auto reload with the Period
+  *	@param	_id     : Timer ID，should be [0,TMR_COUNT-1]。
+ *	@param	_period : timerout period (ms)
   */
-void Bsp_StartAutoTimer(uint8_t _id, uint32_t _period)
+//启动一个自动重装定时器，并设置定时周期。用户必须自行维护定时器ID，以避免定时器ID冲突。
+void Bsp_StartSoftwareTimerAuto(uint8_t _id, uint32_t _period)
 {
 	if (_id >= TMR_COUNT)
 	{
 		/* 打印出错的源代码文件名、函数名称 */
-		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
+		Bsp_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
 		while(1); /* 参数异常，死机等待看门狗复位 */
 	}
 
@@ -332,15 +334,15 @@ void Bsp_StartAutoTimer(uint8_t _id, uint32_t _period)
 }
 
 /**
-  * @brief  停止一个定时器。
-  *	@param	_id     : 定时器ID，值域【0,TMR_COUNT-1】。用户必须自行维护定时器ID，以避免定时器ID冲突。
+  * @brief  Stop the software timer
+  *	@param	_id     : Timer ID，should be [0,TMR_COUNT-1]。
   */
-void Bsp_StopTimer(uint8_t _id)
+void Bsp_StopSoftwareTimer(uint8_t _id)
 {
 	if (_id >= TMR_COUNT)
 	{
 		/* 打印出错的源代码文件名、函数名称 */
-		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
+		Bsp_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
 		while(1); /* 参数异常，死机等待看门狗复位 */
 	}
 
@@ -354,12 +356,11 @@ void Bsp_StopTimer(uint8_t _id)
 }
 
 /**
-  * @brief  检测定时器是否超时.
-  *	@param	_id     : 定时器ID，值域【0,TMR_COUNT-1】。用户必须自行维护定时器ID，以避免定时器ID冲突。
-  *			_period : 定时周期，单位1ms
-  * @return 0 表示定时未到， 1表示定时到
+  * @brief  Check whether is timeout or not.
+  *	@param	_id  : Timer ID，should be [0,TMR_COUNT-1]。
+  * @return 0: Time no out; 1: Timeout
 */
-uint8_t Bsp_CheckTimer(uint8_t _id)
+uint8_t Bsp_CheckSoftwareTimer(uint8_t _id)
 {
 	if (_id >= TMR_COUNT)
 	{
@@ -378,10 +379,12 @@ uint8_t Bsp_CheckTimer(uint8_t _id)
 }
 
 /**
-  * @brief  获取CPU运行时间，单位1ms。最长可以表示 24.85天，如果你的产品连续运行时间超过这个数，则必须考虑溢出问题.
-  *	@return CPU运行时间，单位1ms
+  * @brief  Get the CPU  run time (ms), the longest time is 24.85 days
+  *	@return CPU run time (1ms)
 */
-int32_t Bsp_GetRunTime(void)
+
+//获取CPU运行时间，单位1ms。最长可以表示 24.85天，如果你的产品连续运行时间超过这个数，则必须考虑溢出问题.
+int32_t Bsp_GetCPURunTime(void)
 {
 	int32_t runtime;
 

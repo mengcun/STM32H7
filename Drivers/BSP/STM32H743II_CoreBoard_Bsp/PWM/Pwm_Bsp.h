@@ -64,7 +64,7 @@ extern TIM_OC_InitTypeDef TIM3_CH1Handler;
 	* @{
   */
   
-void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler);
+void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler,uint32_t PWM_Duty);
 
 /** @}
 */

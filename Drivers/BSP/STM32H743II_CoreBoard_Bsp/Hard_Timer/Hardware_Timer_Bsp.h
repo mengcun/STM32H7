@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/Hard_Timer/Hardware_Timer_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/HARD_TIMER/Hardware_Timer_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 21-August-2018
@@ -36,33 +36,27 @@
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
-/** @defgroup Hardware_Timer_Private_Define Hardware_Timer Private Define
-  * @{
-  */
-/**
-  * @brief		TIMx取值TIM2 - TIM5;
-  *			 	TIM2和TIM5 是32位定时器。定时范围很大
-  *			 	TIM3和TIM4 是16位定时器,TIM3用于PWM_CHANNEL1生成，在PB3引脚上输出
-  */
-#define TIMx							TIM5
-#define TIMx_Handler					TIM5_Handler
-#define	TIMx_IRQn						TIM5_IRQn
-#define	__HAL_RCC_TIMx_CLK_ENABLE()		__HAL_RCC_TIM5_CLK_ENABLE()            //使能TIMx时钟
-/**
-  * @brief		TIMx的自动重装载值大小，分频到了1us;
-  *				对于16位定时器，TIM3 和TIM4 最大0xFFFF / 1000 = 65.5ms; 
-  *				对于32位定时器，TIM2 和TIM5 最大0xFFFFFFFF / 1000000 = 4294s
-  */	
-#define usPeriod	0x000F4240	// 1s = 1 * 1000000 us
-
-/** @}
-*/
-/**********************Hardware_Timer Private Define**************************/
 /* Private macros ---------------------------------------------------------------------------------*/
 /* Private types ----------------------------------------------------------------------------------*/
 /* Private variables ------------------------------------------------------------------------------*/
 /* Exported types ---------------------------------------------------------------------------------*/
 /* Exported constants -----------------------------------------------------------------------------*/
+/** @defgroup Hardware_Timer_Private_Exported constants Hardware_Timer Exported constants
+  * @{
+  */
+/**
+  * @brief		TIM4 Private Handle
+  */
+extern TIM_HandleTypeDef 		TIM4_Handler;      //定时器4句柄 
+/**
+  * @brief		usmart_dev
+  */
+extern struct _m_usmart_dev usmart_dev;				//在usmart_config.c里面定义
+
+/** @}
+*/
+/*----------------------------------------Hardware_Timer_Exported constants---------------------------------------*/
+
 /* Exported macro ---------------------------------------------------------------------------------*/
 /* Exported functions -----------------------------------------------------------------------------*/
 /** @defgroup Hardware_Timer_Exported_Functions Hardware_Timer Exported Functions
@@ -77,11 +71,12 @@
 /** @defgroup Hardware_Timer_Exported_Functions_Group2 Operation Functions
   * @{
   */
-void Bsp_InitGeneralHardTimer(void);
+void Bsp_InitHardTimer_TIM5(void);
+void Bsp_InitHardTimer_TIM4(uint16_t Period,uint16_t Prescaler);
 void Bsp_InitHardTimer_TIM1(void);
 void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack);
 void _pFunctionHardTimeout(void);
-uint32_t GetFrequency(void);
+uint32_t TIM1_ComputeInputFreq(void);
 /** @}
 */
 /**********************Hardware_Timer Exported Functions Group2**************************/

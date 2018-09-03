@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MPU/Mpu_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    14-August-2018
   * @brief   This file provides set of firmware functions to protect mpu
@@ -22,7 +22,7 @@
 /* Includes ---------------------------------------------------------------------------------------*/
 /***************************************Include StdLib**********************************************/
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -53,14 +53,19 @@
   * @{
   */
 /**
-  * @brief	设置某个区域的MPU保护
-  * @param 	baseaddr:MPU保护区域的基址(首地址)
-  *					size:MPU保护区域的大小(必须是32的倍数,单位为字节),可设置的值参考:CORTEX_MPU_Region_Size
-  *					rnum:MPU保护区编号,范围:0~15,最大支持16个保护区域,可设置的值参考：CORTEX_MPU_Region_Number
-  *					ap:访问权限,访问关系如下:可设置的值参考：CORTEX_MPU_Region_Permission_Attributes
-  * @retval 0:成功.
+  * @brief	Set the MPU protect zone
+  * @param 	baseaddr: The base address of MPU protect 
+  * @param 	size: The size of MPU protect
+  * @param 	rnum: The number of MPU protect zone
+  * @param 	ap: CORTEX_MPU_Region_Permission_Attributes
+  * @retval 0: sucess.
   */
 
+//	baseaddr:MPU保护区域的基址(首地址)
+//  size:MPU保护区域的大小(必须是32的倍数,单位为字节),可设置的值参考:CORTEX_MPU_Region_Size
+//  rnum:MPU保护区编号,范围:0~15,最大支持16个保护区域,可设置的值参考：CORTEX_MPU_Region_Number
+//  ap:访问权限,访问关系如下:可设置的值参考：CORTEX_MPU_Region_Permission_Attributes
+// 
 //MPU_REGION_NO_ACCESS,无访问（特权&用户都不可访问）
 //MPU_REGION_PRIV_RW,仅支持特权读写访问
 //MPU_REGION_PRIV_RW_URO,禁止用户写访问（特权可读写访问）
@@ -91,10 +96,12 @@ uint8_t Bsp_Mpu_Set_Protection(uint32_t baseaddr,uint32_t size,uint32_t rnum,uin
 }
 
 /**
-  * @brief	设置需要保护的存储块
-  * 		必须对部分存储区域进行MPU保护,否则可能导致程序运行异常
-  *			比如MCU屏不显示,摄像头采集数据出错等等问题...
+  * @brief	Set the MPU protect for Memory
   */
+
+//设置需要保护的存储块
+//必须对部分存储区域进行MPU保护,否则可能导致程序运行异常
+//比如MCU屏不显示,摄像头采集数据出错等等问题...
 void Bsp_MPU_Memory_Protection(void)
 {
 	Bsp_Mpu_Set_Protection(0x60000000,MPU_REGION_SIZE_64MB,MPU_REGION_NUMBER0,MPU_REGION_FULL_ACCESS);		//保护MCU LCD屏所在的FMC区域,,共64M字节

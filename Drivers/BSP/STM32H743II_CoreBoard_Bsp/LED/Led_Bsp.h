@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/LED/CoreBoard_Led_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/LED/Led_Bsp.h
   * @author  CME
   * @version V1.0.0
   * @date  	 15-Junly-2018

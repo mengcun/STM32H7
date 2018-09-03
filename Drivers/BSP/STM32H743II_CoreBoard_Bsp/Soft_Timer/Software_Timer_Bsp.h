@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/Soft_Timer/Software_Timer_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SOFT_TIMER/Software_Timer_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 21-August-2018
@@ -97,11 +97,11 @@ void Bsp_InitSoftTimer(uint16_t SYSCLK);
 void Bsp_Delay_us(uint32_t nus);
 void Bsp_Delay_ms(uint32_t nms);
 
-void Bsp_StartTimer(uint8_t _id, uint32_t _period);
-void Bsp_StartAutoTimer(uint8_t _id, uint32_t _period);
-void Bsp_StopTimer(uint8_t _id);
-uint8_t Bsp_CheckTimer(uint8_t _id);
-int32_t Bsp_GetRunTime(void);
+void Bsp_StartSoftwareTimerOnce(uint8_t _id, uint32_t _period);
+void Bsp_StartSoftwareTimerAuto(uint8_t _id, uint32_t _period);
+void Bsp_StopSoftwareTimer(uint8_t _id);
+uint8_t Bsp_CheckSoftwareTimer(uint8_t _id);
+int32_t Bsp_GetCPURunTime(void);
 
 /** @}
 */

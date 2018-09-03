@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SDRAM/Coreboard_SDRAM_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SDRAM/Sdram_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 20-Junly-2018

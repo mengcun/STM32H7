@@ -23,7 +23,7 @@
 /***************************************Include StdLib**********************************************/
 #include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -49,10 +49,6 @@ IWDG_HandleTypeDef 	IWDG_Handler;
   * @brief	Window WatchDog Private Handle
   */
 WWDG_HandleTypeDef   WWDG_Handler;
-/**
-  * @brief	WWDG loop for 1s; 1s ~= 11ms * 91
-  */
-static volatile uint8_t loop;
 
 /** @}
 */		
@@ -86,13 +82,15 @@ static uint32_t TimeoutCalculation(uint32_t timevalue);
   */
 /**
   * @brief 	Initialize the WatchDog according to the specified
-  * @param 	prer:分频数:0~7(只有低3位有效!),决定分频因子，但在HAL库中直接定义的是换算后的分频因子
-  *			rlr:自动重装载值,0~0XFFF.
-  * @note	时间计算(大概):Tout=((4*2^prer)*rlr)/32 (ms). (4*2^prer)
-  *			分频因子=4*2^prer.但最大值只能是256!
-  *			rlr:重装载寄存器值:低11位有效.
+  * @param 	prescaler: 0 - 7.
+  * @param	reloard: 0 - 0XFFF.
+  * @note	Tout=((4*2^prescaler)*reloard)/32 (ms). (4*2^prescaler)
   */
-
+//prer:分频数:0~7(只有低3位有效!),决定分频因子，但在HAL库中直接定义的是换算后的分频因子
+//rlr:自动重装载值,0~0XFFF.
+//时间计算(大概):Tout=((4*2^prer)*rlr)/32 (ms). (4*2^prer)
+//分频因子=4*2^prer.但最大值只能是256!
+//rlr:重装载寄存器值:低11位有效.
 void Bsp_IWDG_Init(uint8_t prescaler,uint16_t reloard)
 {
 	/*Check if the system has resumed from IWDG reset*/
@@ -121,17 +119,18 @@ void Bsp_IWDG_Init(uint8_t prescaler,uint16_t reloard)
 
 /**
   * @brief 	Initialize the Window WatchDog according to the specified
-  * @param 	timer_counter: T[6:0],计数器值
-  *			Window_counter: W[6:0],窗口值
-  *			prescaler: 分频系数（WDGTB）,3位有效
-  *			WWDG_timeout(ms) = ((4096 * 2^WDGTB * timer_counter) / (pclk1 / 1000));	
+  * @param 	timer_counter: T[6:0], Counter value
+  * @param	Window_counter: W[6:0], Window value
+  * @param	prescaler: Frequency division(WDGTB), 3-bit efficiency 
+  * @return WWDG_timeout(ms)
+ */
+  /*		WWDG_timeout(ms) = ((4096 * 2^WDGTB * timer_counter) / (pclk1 / 1000));	
   * 		WDGTB	T[5:0] = 0X00	T[5:0] = 0X3F
   *			0 		40.96us			2.62ms
   *			1 		81.92us 		5.24ms
   *			2 		163.84us 		10.48ms
   *			3 		372.68us 		20.96ms
-  * @return WWDG_timeout(ms)
- */
+  */
 uint32_t Bsp_WWDG_Init(uint8_t timer_counter,uint8_t Window_counter,uint32_t prescaler)
 {
 	/*Check if the system has resumed from WWDG reset*/
@@ -164,16 +163,15 @@ uint32_t Bsp_WWDG_Init(uint8_t timer_counter,uint8_t Window_counter,uint32_t pre
 
 /**
   * @brief 	WWDG MSP Initialization 
-  *			此函数会被HAL_WWDG_Init()调用,WWDG底层驱动，时钟配置，中断配置
-  *        	与IWDG不同，WWDG没有专用32KHz时钟，使用的是PCLK = 100MHz的时钟
   * @param 	hwwdg: WWDG handle pointer
   */
-
+//此函数会被HAL_WWDG_Init()调用,WWDG底层驱动，时钟配置，中断配置
+//与IWDG不同，WWDG没有专用32KHz时钟，使用的是PCLK = 100MHz的时钟
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
-    __HAL_RCC_WWDG1_CLK_ENABLE();           //使能窗口看门狗时钟
-    HAL_NVIC_SetPriority(WWDG_IRQn,3,3);    //设置窗口看门狗中断优先级，抢占优先级3，子优先级3, 注意比串口优先级低
-    HAL_NVIC_EnableIRQ(WWDG_IRQn);          //使能窗口看门狗中断
+    __HAL_RCC_WWDG1_CLK_ENABLE();           					//使能窗口看门狗时钟
+    HAL_NVIC_SetPriority(WWDG_IRQn,2,4);    					//设置窗口看门狗中断优先级，抢占优先级2，子优先级4，窗口看门狗大约每11ms喂狗一次，优先级最高，可抢占串口中断。
+    HAL_NVIC_EnableIRQ(WWDG_IRQn);          					//使能窗口看门狗中断
 }
 
 /**
@@ -247,13 +245,10 @@ void WWDG_IRQHandler(void)
 
 void HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
-    HAL_WWDG_Refresh(&WWDG_Handler);//更新窗口看门狗值
-	loop ++;
-	if(loop == 30)
-	{
-		loop = 0;
-		BSP_Printf("WWDG feed in HAL_WWDG_EarlyWakeupCallback() every 300ms!\r\n");
-	}
+	HAL_WWDG_Refresh(&WWDG_Handler);//更新窗口看门狗值
+#if SYSTEM_DEBUG == 1
+	Bsp_Printf("WWDG feed in HAL_WWDG_EarlyWakeupCallback() every 11 ms!\r\n");
+#endif
 }
 
 /** @}

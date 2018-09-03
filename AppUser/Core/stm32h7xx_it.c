@@ -6,9 +6,7 @@
   * @date    13-July-2018
   * @brief   Main Interrupt Service Routines.
   ******************************************************************************
-  *	我们只需要添加需要的中断函数即可。一般中断函数名是固定的，除非您修改了启动文件中的函数名
-  *	//\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f4xx.s
-  *
+  *	我们只需要添加需要的中断函数即可。一般中断函数名是固定的，除非修改了启动文件中的函数名
   *	启动文件是汇编语言文件，定了每个中断的服务函数，这些函数使用了WEAK 关键字，表示弱定义，因此如
   *	果我们在c文件中重定义了该服务函数（必须和它同名），那么启动文件的中断函数将自动无效。这也就
   *	函数重定义的概念。
@@ -55,8 +53,6 @@
 
 /**
   * @brief   This function handles NMI exception.
-  * @param  None
-  * @retval None
   */
 void NMI_Handler(void)
 {
@@ -64,8 +60,6 @@ void NMI_Handler(void)
 
 /**
   * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
   */
 void HardFault_Handler(void)
 {
@@ -87,24 +81,21 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief  This function handles Memory Manage exception.
-  * @param  MemManage错误处理中断,进入此中断以后,将无法恢复程序运行!!
+  * @brief  This function handles Memory Manage exception. MemManage错误处理中断,进入此中断以后,将无法恢复程序运行!!
   */
 void MemManage_Handler(void)
 {
 	Bsp_LED_Off(LED1_Green);
 	Bsp_LED_On(LED1_Red);	
-	BSP_Printf("Mem Access Error!!\r\n"); 	//输出错误信息
+	Bsp_Printf("Mem Access Error!!\r\n"); 	//输出错误信息
 	Bsp_Delay_ms(1000);	
-	BSP_Printf("Soft Reseting...\r\n");		//提示软件重启
+	Bsp_Printf("Soft Reseting...\r\n");		//提示软件重启
 	Bsp_Delay_ms(1000);	
 	NVIC_SystemReset();					//软复位
 }
 
 /**
   * @brief  This function handles Bus Fault exception.
-  * @param  None
-  * @retval None
   */
 void BusFault_Handler(void)
 {
@@ -116,8 +107,6 @@ void BusFault_Handler(void)
 
 /**
   * @brief  This function handles Usage Fault exception.
-  * @param  None
-  * @retval None
   */
 void UsageFault_Handler(void)
 {
@@ -129,8 +118,6 @@ void UsageFault_Handler(void)
 
 /**
   * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
   */
 /*
 void SVC_Handler(void)
@@ -139,8 +126,6 @@ void SVC_Handler(void)
 */
 /**
   * @brief  This function handles Debug Monitor exception.
-  * @param  None
-  * @retval None
   */
 void DebugMon_Handler(void)
 {
@@ -148,8 +133,6 @@ void DebugMon_Handler(void)
 
 /**
   * @brief  This function handles PendSVC exception.
-  * @param  None
-  * @retval None
   */
 
 void PendSV_Handler(void)

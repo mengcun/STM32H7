@@ -23,7 +23,7 @@
 /***************************************Include StdLib**********************************************/
 #include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /*******************************************APP/BSP*************************************************/
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
@@ -84,12 +84,13 @@ TIM_OC_InitTypeDef TIM3_CH1Handler;
   */
 
 /**
-  * @brief TIM3 PWM部分初始化 
-  * @param 	Period:自动重装值。
-  *			Prescaler:时钟预分频数
+  * @brief TIM3 PWM Init 
+  * @param 	Period: The value to relaod 。
+  * @param 	Prescaler: CLK divide
+  * @param 	PWM_Duty: duty
   */
 
-void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler)
+void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler,uint32_t PWM_Duty)
 { 
     TIM3_Handler.Instance=TIM3;            										//定时器3
     TIM3_Handler.Init.Prescaler=Prescaler - 1;       								//定时器分频
@@ -104,13 +105,16 @@ void Bsp_TIM3_PWM_Init(uint16_t Period,uint16_t Prescaler)
     TIM3_CH1Handler.OCPolarity=TIM_OCPOLARITY_LOW; 								//输出比较极性为低 
     HAL_TIM_PWM_ConfigChannel(&TIM3_Handler,&TIM3_CH1Handler,TIM_CHANNEL_1);	//配置TIM3通道1
     HAL_TIM_PWM_Start(&TIM3_Handler,TIM_CHANNEL_1);								//开启PWM通道4
+	
+	Bsp_SetTIM3Compare1(PWM_Duty);												//设置占空比
+
 }
 
 /**
-  * @brief 	定时器底层驱动，时钟使能，引脚配置,此函数会被HAL_TIM_PWM_Init()调用
-  * @param 	htim:定时器句柄
+  * @brief 	Low level BSP
+  * @param 	htim: The timer handle
   */
-
+//定时器底层驱动，时钟使能，引脚配置,此函数会被HAL_TIM_PWM_Init()调用
 void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
     GPIO_InitTypeDef GPIO_Initure;
@@ -143,15 +147,16 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   */
 
 /**
-  * @brief 	设置TIM通道4的占空比
-  * 		compare:比较值
+  * @brief 	Set TIMER CHANNEL 4
+  * @param 	PWM_Duty: Duty
   */
 
-void Bsp_SetTIM3Compare1(uint32_t Compare)
+void Bsp_SetTIM3Compare1(uint32_t PWM_Duty)
 {
-	TIM3->CCR1=Compare; 
+	TIM3->CCR1=PWM_Duty; 
 }
-
+//设置TIM通道4的占空比
+//compare:比较值
 /** @}
 */
 /****************************PWM Exported Functions Group2*********************/

@@ -22,7 +22,7 @@
 /***************************************Include StdLib**********************************************/
 #include "stdint.h"
 /*******************************************APP/BSP*************************************************/
-#include "stm32h743ii_Coreboard_Bsp.h"
+#include "Coreboard_Bsp.h"
 /********************************************Macro**************************************************/
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
@@ -76,9 +76,8 @@ __IO FlagStatus TamperStatus = RESET;
 
 /**
   * @brief	RTC BACKUP Reg defines. there are 32 RTC_BKPxR.
-  *	@note	当系统发生故障或掉电时，使用HAL_RTCEx_BKUPWrite(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint32_t Data)将重要信息写入BKP寄存器中
   */
-
+//当系统发生故障或掉电时，使用HAL_RTCEx_BKUPWrite(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint32_t Data)将重要信息写入BKP寄存器中
 uint32_t aBKPDataReg[32] = 
 { 	RTC_BKP_DR0, RTC_BKP_DR1, RTC_BKP_DR3, RTC_BKP_DR3, RTC_BKP_DR4, 
 	RTC_BKP_DR5, RTC_BKP_DR6, RTC_BKP_DR7, RTC_BKP_DR8, RTC_BKP_DR9, 
@@ -129,12 +128,15 @@ uint32_t aBKPDataReg[32] =
   * @{
   */
 /**
-* @brief 	RTC初始化:这里使用LSE外部32.768KHz时钟; AsynchPrediv = 128;SynchPrediv = 256; 正好得到1Hz
-*			ck_apre(1Hz) = RTCCLK(LSE) /(AsynchPrediv + 1) : 用于驱动二进制RTV_SSR向下递减的亚秒计数器，当计数到0的时候，RTC_SSR寄存器重新加载AsynchPrediv的值
-*			ck_spre(1Hz) = RTCCLK(LSE) /(AsynchPrediv + 1)*(SynchPrediv + 1) : 用于更新万年历或者16位自动重装唤醒定时器的时基
-  *			RTC最小分频1，最大分频2^22(7+15),所以RTC最大输入时钟为4MHz
-  * @retval 0,初始化成功
+  * @brief 	RTC Init
+  * @retval 0=Success
   */
+//  
+//RTC初始化:这里使用LSE外部32.768KHz时钟; AsynchPrediv = 128;SynchPrediv = 256; 正好得到1Hz
+//ck_apre(1Hz) = RTCCLK(LSE) /(AsynchPrediv + 1) : 用于驱动二进制RTV_SSR向下递减的亚秒计数器，当计数到0的时候，RTC_SSR寄存器重新加载AsynchPrediv的值
+//ck_spre(1Hz) = RTCCLK(LSE) /(AsynchPrediv + 1)*(SynchPrediv + 1) : 用于更新万年历或者16位自动重装唤醒定时器的时基
+//RTC最小分频1，最大分频2^22(7+15),所以RTC最大输入时钟为4MHz
+//0,初始化成功
 uint8_t Bsp_RTC_Init(void)
 { 	
     /*Configure the RTC peripheral*/
@@ -163,10 +165,10 @@ uint8_t Bsp_RTC_Init(void)
 }
 
 /**
-  * @brief 	RTC底层驱动,时钟配置,此函数会被HAL_RTC_Init()调用
-  * @param  hrtc:RTC句柄
+  * @brief 	RTC Low level init
+  * @param  hrtc: RTC handler
   */
-
+//RTC底层驱动,时钟配置,此函数会被HAL_RTC_Init()调用
 void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -204,10 +206,13 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
   * @{
   */
 /**
-  * @brief 	RTC时间设置
-  * @param 	hour,min,sec:小时,分钟,秒钟
-  *			ampm:RTC_HOURFORMAT12_AM or RTC_HOURFORMAT12_PM
-  * @retval SUCEE(1),成功;ERROR(0),进入初始化模式失败
+  * @brief 	RTC time set
+  * @param 	hour: hours
+  * @param 	min: minutes,
+  * @param 	sec: seconds
+  * @param  subsec: sub_seconds
+  * @param 	ampm: RTC_HOURFORMAT12_AM or RTC_HOURFORMAT12_PM
+  * @retval 1=SUCEE(1);0=ERROR(0)
   */
     
 HAL_StatusTypeDef Bsp_RTC_Set_Time(uint8_t hour,uint8_t min,uint8_t sec,uint8_t subsec,uint8_t ampm)
@@ -225,10 +230,12 @@ HAL_StatusTypeDef Bsp_RTC_Set_Time(uint8_t hour,uint8_t min,uint8_t sec,uint8_t 
 }
 
 /**
-  * @brief 	RTC日期设置
-  * @param 	year,month,date:年(0~99),月(1~12),日(0~31)
-  *			week:星期(1~7,0,非法!)
-  * @retval SUCEE(1),成功;ERROR(0),进入初始化模式失败
+  * @brief 	RTC Date set
+  * @param 	year: 0-99
+  * @param 	month: 1-12
+  * @param 	date: 0-31
+  * @param 	week: 1-7
+  * @retval 1=SUCEE(1);0=ERROR(0)
   */
  
 HAL_StatusTypeDef Bsp_RTC_Set_Date(uint8_t year,uint8_t month,uint8_t date,uint8_t week)
@@ -243,9 +250,11 @@ HAL_StatusTypeDef Bsp_RTC_Set_Date(uint8_t year,uint8_t month,uint8_t date,uint8
 }
 
 /**
-  * @brief 	设置闹钟时间(按星期闹铃,24小时制)
-  * @param 	week:星期几(1~7) RTC_WeekDay_Definitions
-  *			hour,min,sec:小时,分钟,秒钟
+  * @brief 	Set the Alarm by weeks
+  * @param 	week: RTC_WeekDay_Definitions
+  * @param 	hour: hours
+  * @param 	min: minutes
+  * @param 	sec: seconds
   */
  
 void Bsp_RTC_Set_AlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)
@@ -270,14 +279,14 @@ void Bsp_RTC_Set_AlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)
 		Error_Handler();
 	}
        
-    HAL_NVIC_SetPriority(RTC_Alarm_IRQn,4,3);//设置RTC闹钟中断优先级,抢占优先级4,子优先级3,注意比串口优先级低
+    HAL_NVIC_SetPriority(RTC_Alarm_IRQn,4,3);					//设置RTC闹钟中断优先级,抢占优先级4,子优先级3,注意比串口优先级低
     HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
 }
 
 /**
-  * @brief 	周期性唤醒定时器设置
+  * @brief 	Set the period wakeup RTC
   * @param 	wksel: RTCEx_Wakeup_Timer_Definitions
-  *			cnt:自动重装载值.减到0,产生中断.
+  * @param 	cnt: Auto reload, when cnt=0, IT occured.
   */
  
 void Bsp_RTC_Set_WakeUp(uint32_t wksel,uint16_t cnt)
@@ -289,12 +298,12 @@ void Bsp_RTC_Set_WakeUp(uint32_t wksel,uint16_t cnt)
 		Error_Handler();
 	}
     
-	HAL_NVIC_SetPriority(RTC_WKUP_IRQn,4,4);//设置RTC周期唤醒中断优先级,抢占优先级4,子优先级4,注意比串口优先级低
+	HAL_NVIC_SetPriority(RTC_WKUP_IRQn,4,4);					//设置RTC周期唤醒中断优先级,抢占优先级4,子优先级4,注意比串口优先级低
     HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
 }
 
 /**
-  * @brief 	RTC时间戳功能设置TimeStamp Rising Edge on PC.13 Pin
+  * @brief 	RTC TimeStamp, Rising Edge on PC.13 Pin
   */
 
 void Bsp_RTC_Set_TimeStamp(void)
@@ -306,14 +315,14 @@ void Bsp_RTC_Set_TimeStamp(void)
 		Error_Handler();
 	}
 	
-	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);//设置RTC时间戳中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
+	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);				//设置RTC时间戳中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
 	HAL_NVIC_EnableIRQ(TAMP_STAMP_IRQn);
 }
 
 /**
-  * @brief 	RTC入侵检测功能设置 TimeStamp Failing Edge on PC.13 Pin
-  * 		检测到的入侵事件将复位所有备份寄存器的值
+  * @brief 	RTC Intrusion detection, TimeStamp Failing Edge on PC.13 Pin
   */
+//检测到的入侵事件将复位所有备份寄存器的值
 
 void Bsp_RTC_Set_Tamper(void)
 {
@@ -336,12 +345,12 @@ void Bsp_RTC_Set_Tamper(void)
 	Error_Handler();
 	}
 	
-	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);//设置RTC入侵加测 中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
+	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);				//设置RTC入侵加测 中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
 	HAL_NVIC_EnableIRQ(TAMP_STAMP_IRQn);	
 }
 
 /**
-  * @brief 	配置备份RAM并启用
+  * @brief 	Set the Backup RAM and start it
   */
 
 void Bsp_RTC_Set_BackupRAM(void)
@@ -357,7 +366,7 @@ void Bsp_RTC_Set_BackupRAM(void)
 	}
 }
 /**
-  * @brief 	得到当前时间
+  * @brief 	Get the current time
   */
  
 void Bsp_RTC_GetTime(void)
@@ -367,7 +376,7 @@ void Bsp_RTC_GetTime(void)
 }
 
 /**
-  * @brief 	得到当前日期
+  * @brief 	Get the current date
   */
  
 void Bsp_RTC_GetDate(void)
@@ -377,7 +386,7 @@ void Bsp_RTC_GetDate(void)
 }
 
 /**
-  * @brief 	得到闹钟时间
+  * @brief 	Get the alarm time
   */
  
 void Bsp_RTC_GetAlarm(void)
@@ -401,8 +410,8 @@ void GetInfo_Calendar(void)
 }
 
 /**
-  * @brief	写数据到RTC的备份数据寄存器
-  * @param  FirstRTCBackupData:写入的数据
+  * @brief	write data to RTC backup reg
+  * @param  FirstRTCBackupData: data to write
   */
 
 void Bsp_WriteToRTC_BKP_DR(uint32_t FirstRTCBackupData)
@@ -417,10 +426,9 @@ void Bsp_WriteToRTC_BKP_DR(uint32_t FirstRTCBackupData)
 }
 
 /**
-  * @brief	检测写入的数据是否正确
-  * @param  FirstRTCBackupData:写入的数据
-  * @return 0  写入和读出的全部相同
-  *         !0 写入的数据有错误，立即返回
+  * @brief	Check the data writen to the reg
+  * @param  FirstRTCBackupData: the data has been writen
+  * @return 0 write data correctly, !0 write data in correctly
   */
 
 uint32_t Bsp_CheckRTC_BKP_DR(uint32_t FirstRTCBackupData)
@@ -439,9 +447,8 @@ uint32_t Bsp_CheckRTC_BKP_DR(uint32_t FirstRTCBackupData)
 }
 
 /**
-  * @brief	检测写入到备份寄存器的数据是否清除
-  * @return 0  该备份寄存器已经清零
-  *         !0 该备份寄存器中数据没有清零，立即返回
+  * @brief	Check if the data writen to the reg has been cleared
+  * @return 0 cleard ,!0 not cleard
   */
 
 uint32_t Bsp_IsBackupRegReset(void)
@@ -460,9 +467,9 @@ uint32_t Bsp_IsBackupRegReset(void)
 }
 
 /**
-  * @brief	向备份SRAM里面写入数据并检查写入是否正确
+  * @brief  write data to backup RAM and check if correctly
   *			Backup SRAM(4 KB) over AXI->AHB Bridge
-  * @return 0: 正确写入 !0:写入错误
+  * @return 0=correctly writen !0=incorrectly writen
   */
 
 uint32_t Bsp_WriteToSRAM(void)
@@ -484,13 +491,13 @@ uint32_t Bsp_WriteToSRAM(void)
 	/* 检测是否有错误 */
 	if(uwErrorIndex)
 	{
-		BSP_Printf ("BKP SRAM Number of errors = %d\r\n", uwErrorIndex);
+		Bsp_Printf ("BKP SRAM Number of errors = %d\r\n", uwErrorIndex);
 		uwErrorIndex = 0;
 		return 1;
 	}
 	else
 	{
-		BSP_Printf ("BKP SRAM write OK \r\n");
+		Bsp_Printf ("BKP SRAM write OK \r\n");
 		uwErrorIndex = 0;
 		return 0;
 	}
@@ -531,17 +538,18 @@ void TAMP_STAMP_IRQHandler(void)
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
-    BSP_Printf("RTC_AlarmAEventCallback!\r\n");
+    Bsp_Printf("RTC_AlarmAEventCallback!\r\n");
 }
 
 /**
   * @brief	RTC WAKE UP中断处理
-
   */
 
 void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
-    BSP_Printf("RTCEx_WakeUpTimerEventCallback!\r\n");
+#if SYSTEM_DEBUG == 1 
+	Bsp_Printf("RTCEx_WakeUpTimerEventCallback!\r\n");
+#endif
 }
 
 /**
@@ -552,28 +560,27 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 {  
   HAL_RTCEx_GetTimeStamp(&RTC_Handler, &RTC_TimeStruct, &RTC_DateStruct, RTC_FORMAT_BIN);
-  BSP_Printf("TimeStamp Event detected, the time is saved! \r\n");
-  BSP_Printf("%.2d:%.2d:%.2d \r\n", RTC_TimeStruct.Hours, RTC_TimeStruct.Minutes, RTC_TimeStruct.Seconds);
-  BSP_Printf("%.2d-%.2d-%.2d \r\n", RTC_DateStruct.Year, RTC_DateStruct.Month, RTC_DateStruct.Date);	
+  Bsp_Printf("TimeStamp Event detected, the time is saved! \r\n");
+  Bsp_Printf("%.2d:%.2d:%.2d \r\n", RTC_TimeStruct.Hours, RTC_TimeStruct.Minutes, RTC_TimeStruct.Seconds);
+  Bsp_Printf("%.2d-%.2d-%.2d \r\n", RTC_DateStruct.Year, RTC_DateStruct.Month, RTC_DateStruct.Date);	
 }
 
 /**
   * @brief  Tamper event callback function
-  * @param  RTC handle
-  * @retval None
+  * @param  hrtc: RTC handle
   */
 
 void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 {
   /* LED1 On: Tamper button pressed */
-  BSP_Printf("Tamper1 Event detected, all the BKR will be reset! \r\n");
+  Bsp_Printf("Tamper1 Event detected, all the BKR will be reset! \r\n");
 	if(Bsp_IsBackupRegReset() == 0)
 	{
-		BSP_Printf("\n\r RTC备份寄存器复位成功 \n\r");				/* 清除成功 */
+		Bsp_Printf("\n\r RTC备份寄存器复位成功 \n\r");				/* 清除成功 */
 	}
 	else
 	{
-		BSP_Printf("\n\r RTC备份寄存器复位失败 \n\r");				/*清除失败 */
+		Bsp_Printf("\n\r RTC备份寄存器复位失败 \n\r");				/*清除失败 */
 	}
 	/*在进入中断后要关闭中断，否则会一直进中断*/
     __HAL_RTC_TAMPER_CLEAR_FLAG(&RTC_Handler,RTC_FLAG_TAMP1F); 	/* 清除标志 */
