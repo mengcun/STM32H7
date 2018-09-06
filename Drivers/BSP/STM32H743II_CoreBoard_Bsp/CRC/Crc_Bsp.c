@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/CRC/Crc_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 01-September-2018
   * @brief   This file provides set of firmware functions to manage:
@@ -198,7 +198,7 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 void Bsp_ComputeCRCDefault(void)
 {
 	DefaultCRCValue = HAL_CRC_Calculate(&CRC_Handler, (uint32_t *)aDataBuffer, DATA_BUFFER_SIZE);
-#if SYSTEM_DEBUG == 1
+#if CRC_DEBUG == 1
 	Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
 #endif
 }
@@ -210,7 +210,7 @@ void Bsp_ComputeCRCDefault(void)
 void Bsp_ComputeCRCAccumulate(void)
 {
 	AccumulateCRCValue = HAL_CRC_Accumulate(&CRC_Handler, (uint32_t *)&aDataBuffer, DATA_BUFFER_SIZE);
-#if SYSTEM_DEBUG == 1
+#if CRC_DEBUG == 1
 	Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
 #endif
 }

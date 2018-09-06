@@ -1,16 +1,16 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/PWM/Pwm_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/DAC/Dac_LfsrNoise_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
-  * @date    28-August-2018
-  * @brief   The PWM of header file.
+  * @date  	 14-Junly-2018
+  * @brief   The template of header file.
   ******************************************************************************
 **/ 
 
 /* Define to prevent recursive inclusion ----------------------------------------------------------*/
-#ifndef __PWM_BSP_H
-#define __PWM_BSP_H
+#ifndef __DAC_BSP_H
+#define __DAC_BSP_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -31,65 +31,86 @@
 /** @addtogroup STM32H743II_CoreBoard
   * @{
   */
-/** @addtogroup PWM
+/** @addtogroup DAC_LFSR_NOISE
   * @{
   */ 
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
-/** @defgroup PWM_Private define PWM Private define
+/** @defgroup DAC_LFSR_NOISE_Private define DAC_LFSR_NOISE Private define
   * @{
   */
 /**
-  * @brief  The define for PWM DEBUG
+  * @brief  The define for DAC_LFSR_NOISE DEBUG
   */
-#define PWM_DEBUG		0
+#define DAC_WAVE_DEBUG		0
+/**
+  * @brief Used for DAC WAVE TEST
+  */ 
+#if DAC_WAVE_DEBUG == 1
+extern uint8_t iTestDAC;
+#endif
 /** @}
 */
-/*----------------------------------------PWM Private define---------------------------------------*/
+/*-----------------------------------DAC_LFSR_NOISE Private define---------------------------------*/
 /* Private macros ---------------------------------------------------------------------------------*/
-/** @defgroup RTC_Calendar_Exported_Macro RTC_Calendar Exported Macro
-  * @{
-  */
-/**
-  * @brief  定时器3通道1句柄
-  */
-extern TIM_HandleTypeDef TIM3_Handler;
-
-
-/** @}
-*/
-/*----------------------------------------RTC_Calendar Exported Macro---------------------------------------*/
 /* Private types ----------------------------------------------------------------------------------*/
 /* Private variables ------------------------------------------------------------------------------*/
+/** @defgroup DAC_LFSR_NOISE_Exported_variables DAC_LFSR_NOISE Exported variables
+  * @{
+  */
+/**
+  * @brief Unmask DAC channel LFSR for noise wave generation
+  */
+extern uint32_t DAC_LFSRUnmaskTbl[12];
+/**
+  * @brief Unmask DAC channel LFSR for triangle wave generation
+  */
+extern uint32_t DAC_TriangleAmpTbl[12];
+/** @}
+*/
+/*----------------------------------------DAC_LFSR_NOISE Exported variables---------------------------------------*/
 /* Exported types ---------------------------------------------------------------------------------*/
 /* Exported constants -----------------------------------------------------------------------------*/
 /* Exported macro ---------------------------------------------------------------------------------*/
+
 /* Exported functions -----------------------------------------------------------------------------*/
-/** @defgroup PWM_Exported_Functions PWM Exported Functions
+/** @defgroup DAC_LFSR_NOISE_Exported_Functions DAC_LFSR_NOISE Exported Functions
   * @{
   */
-/** @defgroup PWM_Exported_Functions_Group1 Initialization and de-initialization functions
+/** @defgroup DAC_LFSR_NOISE_Exported_Functions_Group1 Initialization and de-initialization functions
 	* @{
   */
 
+void Bsp_InitHardTimer_TIM6(void);
+void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS);  
+void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE);
+void Bsp_InitEscalatorDAC(void);
+void Bsp_InitSinWaveDAC(void);
+void Bsp_InitDualWaveDAC(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK_BITS);
+
 /** @}
 */
-/*********************PWM Exported Functions Group1***************************/
-/** @defgroup PWM_Exported_Functions_Group2 Operation Functions
+/*********************DAC_LFSR_NOISE Exported Functions Group1***************************/
+/** @defgroup DAC_LFSR_NOISE_Exported_Functions_Group2 Operation Functions
   * @{
   */
   
-void Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty);
+void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS);
+void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE);
+void DAC_Ch1_EscalatorConfig(void);
+void DAC_Ch1_SinWaveConfig(void);
+void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK_BITS);
+
 /** @}
 */
-/**********************PWM Exported Functions Group2**************************/
+/**********************DAC_LFSR_NOISE Exported Functions Group2**************************/
 /** @}
 */
-/*--------------------------------PWM Exported Functions--------------------------------------*/
+/*--------------------------------DAC_LFSR_NOISE Exported Functions--------------------------------------*/
 /** @}
 */
-/*-----------------------------------------PWM------------------------------------------------*/
+/*-----------------------------------------DAC_LFSR_NOISE------------------------------------------------*/
 /** @}
 */
 /*-----------------------------------STM32H743II_CoreBoard-----------------------------------------*/
@@ -97,6 +118,6 @@ void Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty);
 }
 #endif
 
-#endif /* __PWM_BSP_H */
+#endif /* __DAC_BSP_H */
 
 /**********************************************END OF FILE******************************************/

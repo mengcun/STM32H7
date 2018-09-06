@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/USART1/Usart1_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version V1.0.0
   * @date    16-July-2018
   * @brief   This file provides set of firmware functions to manage:
@@ -183,7 +183,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 	
 
 	HAL_NVIC_EnableIRQ(USART1_IRQn);					//使能USART1中断通道
-	HAL_NVIC_SetPriority(USART1_IRQn,3,2);				//设置USART1中断优先级，抢占优先级3，子优先级2, 串口优先级仅次于窗口看门狗中断优先级
+	HAL_NVIC_SetPriority(USART1_IRQn,3,2);				//设置USART1中断优先级，抢占优先级3，子优先级2。
 														//在WWDG中每11ms在中断喂狗;如果使能窗口看门狗，所以理论上窗口看门狗中断优先级应为最高
 														//调用BSP_RunPer10ms()函数，根据SysTick,IWDG每600ms一次喂狗;
 														//调用延时函数Bsp_Delay_ms()触发Bsp_Idle()中根据SysTick大约2ms喂狗一次;																		

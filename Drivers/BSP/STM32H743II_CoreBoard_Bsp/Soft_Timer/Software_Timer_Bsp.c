@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/SOFT_TIMER/Software_Timer_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    21-August-2018
   * @brief   This file provides set of firmware functions to manage:

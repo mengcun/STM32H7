@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/AppUser/Utilities/ULibs/User_Lib.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    21-August-2018
   * @brief   This file provides set of firmware functions to manage:

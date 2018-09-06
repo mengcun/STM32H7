@@ -151,7 +151,7 @@ void Coreboard_BSP_Init(void)
 	
 	/* -15- Initialize TIM3_CHANNEL1_PWM as 2000Hz and remaping to PB3 mounted on STM32H743II_CoreBoard*/	
 	/*Frequence(KHz) = 2;Prescaler = 200;计数频率 = 200M / 200 = 1M ;Period = 1000 / 2 = 500, PWM = 1M / 500 = 2KHz;PWM_Duty : 设置占空比*/
-	Bsp_TIM3_PWM_Init(2, 200, 50);
+	Bsp_InitHardTimer_TIM3(2, 200, 50);
 	
 	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
 	Bsp_InitDefautCRC();
@@ -160,8 +160,23 @@ void Coreboard_BSP_Init(void)
 	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitUserDefineCRC();
 	Bsp_ComputeCRCAccumulate();
-
-/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
+	
+	/* -18- Initialize DAC_CHANNEL1 on PA4 as NOISE mode mounted on STM32H743II_CoreBoard*/						
+	Bsp_InitNoiseDAC(DAC_LFSRUNMASK_BITS11_0);
+	
+	/* -19- Initialize DAC_CHANNEL1 on PA4 as TRIANGLE mode mounted on STM32H743II_CoreBoard*/							
+	Bsp_InitTriangleDAC(DAC_TRIANGLEAMPLITUDE_4095);
+	
+	/* -20- Initialize DAC_CHANNEL1 on PA4 as ESCALATOR DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
+	//Bsp_InitEscalatorDAC();		//The Escalator and the Sin wave are used DMA,can not test them at the same time.
+	
+	/* -21- Initialize DAC_CHANNEL1 on PA4 as SIN DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
+	Bsp_InitSinWaveDAC();
+	
+	/* -22- Initialize DAC_CHANNEL1 and DAC_CHANNEL2 on PA4 and PB5 mounted on STM32H743II_CoreBoard*/								
+	//Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);
+	
+	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
 	usmart_dev.init(); 	
 	
 	/* -27- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
@@ -179,9 +194,9 @@ void Coreboard_BSP_Init(void)
 						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
 
 	POINT_COLOR=RED; 
-	
+				
 	while(1)
-	{
+	{	
 #if RNG_IT_ENABLE == 1	
 		__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断,为了保证系统稳定运行,在中断中将其中断关闭,只有在需要随机数时候重新开启*/
 		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
@@ -199,15 +214,38 @@ void Coreboard_BSP_Init(void)
 		Bsp_LCD_ShowString(10,280,800,24,24,aShowDate);
 		Bsp_LCD_ShowString(10,320,800,24,24,aShowWeek);
 		
-#if SYSTEM_DEBUG == 1		
+#if RNG_DEBUG == 1		
 		RNG_Get_RandomNum();
 		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
-		
 		RNG_Get_RandomRange(0x00000000,0x00000020);
 		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG = %X! \r\n",POLL_Random32bit);
-
 		Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
 		Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
+#endif
+
+#if DAC_WAVE_DEBUG == 1	
+		DAC_Ch1_NoiseConfig(DAC_LFSRUnmaskTbl[iTestDAC]);
+		Bsp_Printf("The DAC LFSR Noise Config Selected as %X! \r\n",DAC_LFSRUnmaskTbl[iTestDAC]);
+		
+		Bsp_Delay_ms(5000);	
+		
+		DAC_Ch1_TriangleConfig(DAC_TriangleAmpTbl[iTestDAC]);
+		Bsp_Printf("The DAC Triangle Config Selected as %X! \r\n",DAC_TriangleAmpTbl[iTestDAC]);
+		
+		Bsp_Delay_ms(5000);	
+		
+		Bsp_Ch12_DualWaveConfig(DAC_TriangleAmpTbl[8],DAC_LFSRUnmaskTbl[8]);
+		
+		Bsp_Printf("The CH1 is generate the triangle as %X! \r\n",DAC_TriangleAmpTbl[8]);
+		Bsp_Printf("The CH2 is generate the Noise as %X! \r\n",DAC_LFSRUnmaskTbl[8]);
+		
+		Bsp_Delay_ms(5000);	
+		
+		iTestDAC ++;
+		if(iTestDAC == 11)
+		{
+			iTestDAC = 0;
+		}
 #endif
 		Bsp_Delay_ms(1000);	
 	}
@@ -362,7 +400,7 @@ void BSP_RunPer10ms(void)
 		/* --- 喂狗 */
 		Bsp_IWDG_Feed();
 		Bsp_LED_Toggled(LED1_Green); 	//每秒LED1_Green闪烁表明系统运行正常
-#if SYSTEM_DEBUG == 1
+#if IWDG_DEBUG == 1
 		Bsp_Printf("IWDG feed in BSP_RunPer10ms() every 0.6s!\r\n");
 #endif
 	}	
@@ -384,7 +422,7 @@ void BSP_Idle(void)
 {
 	/* --- 喂狗 */
     Bsp_IWDG_Feed();
-#if SYSTEM_DEBUG == 1
+#if IWDG == 1
 	Bsp_Printf("IWDG feed in BSP_Idle() when calling the Bsp_Delay_ms(), This time is less then 1ms!\r\n");
 #endif
 	/* --- 让CPU进入休眠，由Systick定时中断唤醒或者其他中断唤醒 */

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RTC/RTC_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    28-August-2018
   * @brief   This file provides set of firmware functions to manage: RTC
@@ -157,8 +157,8 @@ uint8_t Bsp_RTC_Init(void)
     if(HAL_RTCEx_BKUPRead(&RTC_Handler,RTC_BKP_DR0)!=0X5050)	//用于检测是否已经配置过RTC,如果配置过的话,会在配置结束时设置RTC备份寄存器为0x32F2。
 																//如果检测RTC备份寄存器不0X5050,那么表示没有配置过,需要配置RTC.
     { 
-        Bsp_RTC_Set_Time(10,50,0,0,RTC_HOURFORMAT12_AM);	    //设置时间,根据实际时间修改
-		Bsp_RTC_Set_Date(18,8,29,35);		                    //设置日期
+        Bsp_RTC_Set_Time(07,29,0,0,RTC_HOURFORMAT12_AM);	    //设置时间,根据实际时间修改
+		Bsp_RTC_Set_Date(18,9,05,3);		                    //设置日期
         HAL_RTCEx_BKUPWrite(&RTC_Handler,RTC_BKP_DR0,0X5050);	//标记已经初始化过了
     }
     return 0;
@@ -406,7 +406,12 @@ void GetInfo_Calendar(void)
 	Bsp_RTC_GetAlarm();
 	sprintf((char*)aShowTime,"Time:%02d:%02d:%02d",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
 	sprintf((char*)aShowDate,"Date:20%02d-%02d-%02d",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
-	sprintf((char*)aShowWeek,"Week:%d",RTC_DateStruct.WeekDay); 
+	sprintf((char*)aShowWeek,"Week:%d",RTC_DateStruct.WeekDay);
+#if RTC_DEBUG == 1	
+	Bsp_Printf("The Current Time:%02d:%02d:%02d\r\n",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
+	Bsp_Printf("The Current Date:20%02d-%02d-%02d\r\n",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
+	Bsp_Printf("The Current Week:%d\r\n",RTC_DateStruct.WeekDay); 
+#endif	
 }
 
 /**
@@ -547,7 +552,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 
 void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
-#if SYSTEM_DEBUG == 1 
+#if RTC_DEBUG == 1 
 	Bsp_Printf("RTCEx_WakeUpTimerEventCallback!\r\n");
 #endif
 }

@@ -35,6 +35,20 @@
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
+/** @defgroup WatchDog_Private define WatchDog Private define
+  * @{
+  */
+/**
+  * @brief  The define for IWDG DEBUG
+  */
+#define IWDG_DEBUG		0
+/**
+  * @brief  The define for WWDG DEBUG
+  */
+#define WWDG_DEBUG		0
+/** @}
+*/
+/*----------------------------------------WatchDog Private define----------------------------------*/
 /* Private macros ---------------------------------------------------------------------------------*/
 /* Private types ----------------------------------------------------------------------------------*/
 /* Private variables ------------------------------------------------------------------------------*/
@@ -46,7 +60,7 @@
   */
 /**
   * @brief  WatchDog Macro definition
-	* @note		WatchDog
+	* @note	WatchDog
   */
 	//CODE HERE
 /** @}

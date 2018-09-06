@@ -41,13 +41,17 @@
   * @{
   */
 /**
+  * @brief  The define for Interrupt RNG enable
+  */
+#define RNG_IT_ENABLE		0
+/**
+  * @brief  The define for RNG DEBUG
+  */
+#define RNG_DEBUG		0
+/**
   * @brief  The size of databuffer that store the Random Number
   */
-  
-#define RNG_IT_ENABLE		0
-
 #define RANDOM_SIZE		8
-
 /** @}
 */
 /*----------------------------------------RNG Private define---------------------------------------*/

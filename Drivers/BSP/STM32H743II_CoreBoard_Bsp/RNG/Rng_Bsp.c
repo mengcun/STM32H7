@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/RNG/Rng_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 01-September-2018
   * @brief   This file provides set of firmware functions to manage:
@@ -186,7 +186,7 @@ void RNG_Get_RandomNum(void)
 	uint32_t random32bit; 
 	HAL_RNG_GenerateRandomNumber(&Rng_Handler,&random32bit);
 	POLL_Random32bit = random32bit;
-#if SYSTEM_DEBUG == 1
+#if RNG_DEBUG == 1
 	Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
 #endif	
 }
@@ -200,7 +200,7 @@ void RNG_Get_RandomRange(uint32_t min,uint32_t max)
     uint32_t random32bit;
 	HAL_RNG_GenerateRandomNumber(&Rng_Handler,&random32bit);
 	POLL_Random32bit = random32bit % (max-min+1) + min;
-#if SYSTEM_DEBUG == 1
+#if RNG_DEBUG == 1
 	Bsp_Printf("The Random32bit is generated in Polling Mode between [%d,%d], RNG = %X! \r\n",min,max,POLL_Random32bit);
 #endif
 }
@@ -223,7 +223,7 @@ void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32bit)
 { 
 	__HAL_RNG_DISABLE_IT(hrng);		/*Disable the RNG IT*/
 	IT_Random32bit = random32bit;
-#if SYSTEM_DEBUG == 1
+#if RNG_DEBUG == 1
 	Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
 #endif	
 }
@@ -234,7 +234,7 @@ void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32bit)
 void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng)
 {
 	__HAL_RNG_DISABLE_IT(hrng);			/*Disable the RNG IT*/
-#if SYSTEM_DEBUG == 1
+#if RNG_DEBUG == 1
 		Bsp_Printf("RNG Error Occured! \r\n");
 #endif		
 

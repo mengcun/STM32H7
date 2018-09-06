@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/AppUser/Utilities/Debug/user_dbg_str.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    31-August-2018
   * @brief   This file provides set of firmware functions to manage:

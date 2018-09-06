@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/HARD_TIMER/Hardware_Timer_Bsp.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    21-August-2018
   * @brief   This file provides set of firmware functions to manage:
@@ -16,6 +16,7 @@
   *			 TIM3的通道1用于2KHz PWM生成，输出在PB4引脚，定时器3为16位最大计数65535，PWM最小频率为1/65535 KHz
   *			 TIM4早USER_DEBUG中用于计算函数执行时间，定时器4为16位最大计数65535，计时周期为10KHz(0.1ms)，所以最长计时时间为13.1s
   *			 TIM5做单次定时器使用,精度为正负2us
+  *			 TIM6用于触发PA4 DAC_CHANNEL1的输出，每TIM6CLK/(TIM_Period + 1)/(TIM_Prescaler + 1)= TIM6CLK / 256更新一次
   @verbatim
  ===============================================================================
                         ##### How to use this file #####
@@ -52,26 +53,62 @@
 /**
   * @brief		TIM1 Private Handle
   */
-TIM_HandleTypeDef 		TIM1_Handler;      //定时器1句柄 
+TIM_HandleTypeDef 			TIM1_Handler;     
+
+/**
+  * @brief		TIM3 Private Handle
+  */
+TIM_HandleTypeDef 			TIM3_Handler;
 
 /**
   * @brief		TIM4 Private Handle
   */
-TIM_HandleTypeDef 		TIM4_Handler;      //定时器4句柄 
+TIM_HandleTypeDef 			TIM4_Handler;    
 
 /**
-  * @brief		Generic TIMx Private Handle
+  * @brief		TIM5 Private Handle
   */
-TIM_HandleTypeDef 		TIM5_Handler;      //定时器5句柄 
-/**
-  * @brief		Timer Output Compare Configuration Structure declaration
-  */
-TIM_OC_InitTypeDef 		sOCConfig;
+TIM_HandleTypeDef 			TIM5_Handler;  
 
 /**
-  * @brief		Timer Input Capture Configuration Structure declaration
+  * @brief 		The TIM6 Handler
+  */ 
+TIM_HandleTypeDef  			TIM6_Handler;
+
+/**
+  * @brief 		The HRTIM Handler
+  */ 
+HRTIM_HandleTypeDef 		HRTIM_Handler;
+
+/**
+  * @brief		Timer Output Compare Configuration for TIM1
   */
-TIM_IC_InitTypeDef     	sICConfig;
+TIM_OC_InitTypeDef 			sOCConfig;
+
+/**
+  * @brief		TIM3_CHANNE1 used for PWM
+  */
+TIM_OC_InitTypeDef 			PWMCConfig; 
+
+/**
+  * @brief		Timer Input Capture Configuration for TIM5
+  */
+TIM_IC_InitTypeDef     		sICConfig;
+
+/**
+  * @brief 		Timer TRGO Configuration for TIM6
+  */ 
+TIM_MasterConfigTypeDef 	sMasterConfig;
+
+/**
+  * @brief 		The HRTIM TIME_BASE configuration
+  */ 
+HRTIM_TimeBaseCfgTypeDef 	HRTime_Base_Config_Master;
+	
+/**
+  * @brief 		The HRTIM TIMER configuration
+  */ 
+HRTIM_TimerCfgTypeDef 		HRTimer_Config_Master;
 
 /**
 * @brief		uwFrequency: External signal Frequency Value computation by TIM1, uwFrequency = TIM1 counter clock / uwDiffCapture (Hz)
@@ -176,12 +213,37 @@ static void (*s_TIM_CallBack_CC4)(void);
 	}
  } 
 
- #if USMART_ENTIMX_SCAN == 1
+/**
+  * @brief  通用定时器TIM3的初始化，是一个32位定时器，用于在PB4上生成特定周期和特定占空比的PWM
+  *			TIM3 PWM Init 
+  * @param 	Frequence: The PWM Frequence(KHz)。
+  * @param 	Prescaler: CLK divide
+  * @param 	PWM_Duty: duty
+  */
+
+void Bsp_InitHardTimer_TIM3(uint16_t Frequence,uint16_t Prescaler,uint32_t PWM_Duty)
+{ 
+    TIM3_Handler.Instance=TIM3;            										//定时器3
+    TIM3_Handler.Init.Prescaler=Prescaler - 1;       							//定时器分频
+    TIM3_Handler.Init.CounterMode=TIM_COUNTERMODE_UP;							//向上计数模式
+    TIM3_Handler.Init.Period=1000 / Frequence;          						//自动重装载值
+    TIM3_Handler.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;
+    HAL_TIM_PWM_Init(&TIM3_Handler);       										//初始化PWM
+    
+    PWMCConfig.OCMode=TIM_OCMODE_PWM1; 									//模式选择PWM1
+    PWMCConfig.Pulse=(TIM3_Handler.Init.Period - 1) * 0.5;            		//设置比较值,此值用来确定占空比,默认比较值为自动重装载值的一半,即占空比为50%
+    PWMCConfig.OCPolarity=TIM_OCPOLARITY_LOW; 								//输出比较极性为低 
+    HAL_TIM_PWM_ConfigChannel(&TIM3_Handler,&PWMCConfig,TIM_CHANNEL_1);	//配置TIM3通道1
+    HAL_TIM_PWM_Start(&TIM3_Handler,TIM_CHANNEL_1);								//开启PWM通道1
+	
+	Bsp_SetTIM3Compare1(Frequence,PWM_Duty);									//设置新的占空比
+} 
  
 /**
   * @brief	通用定时器4中断初始化,确保计数器计数频率为:10Khz即可.另外,定时器不要开启自动重装载功能!!
   *			用于USER_DEBUG模块中的usmart_reset_runtime() usmart_get_runtime 
   */   
+ #if USMART_ENTIMX_SCAN == 1
 
 void Bsp_InitHardTimer_TIM4(uint16_t Period,uint16_t Prescaler)
 { 
@@ -220,25 +282,130 @@ void Bsp_InitHardTimer_TIM4(uint16_t Period,uint16_t Prescaler)
 }
 
 /**
+  * @brief  定时器TIM6初始化，用于DAC在PA4上的触发，每TIM6CLK/256更新一次	TIM6CLK = 100MHz
+  *			TIM6 Configuration used for DAC in PA4, 
+  * @note   TIM6 configuration is based on APB1 frequency
+  * @note   TIM6 Update event occurs each TIM6CLK / (TIM_Period + 1)/(TIM_Prescaler + 1) 
+* @note   The Period generated is T = 2 * TIM6CLK / (TIM_Period + 1) / (TIM_Prescaler + 1) / Databits(32:define is Dac_Bsp.c)
+  */
+void Bsp_InitHardTimer_TIM6(void)
+{
+  TIM6_Handler.Instance = TIM6;		  						/* TIM6 base configuration */
+  TIM6_Handler.Init.Period            = 0x40;
+  TIM6_Handler.Init.Prescaler         = 0;
+  TIM6_Handler.Init.ClockDivision     = 0;
+  TIM6_Handler.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  TIM6_Handler.Init.RepetitionCounter = 0;
+  HAL_TIM_Base_Init(&TIM6_Handler);
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;		/* TIM6 TRGO selection */
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+
+  HAL_TIMEx_MasterConfigSynchronization(&TIM6_Handler, &sMasterConfig);
+
+  HAL_TIM_Base_Start(&TIM6_Handler);						/*Enable TIM peripheral counter*/
+}
+
+/**
+  * @brief  定时器HRTIM初始化，用在DAC双通道的触发，每HRTIMCLK / 512 = HRTIMCLK / (TIM_Period + 1)/(TIM_Prescaler + 1);	HRTIMCLK = 200MHz
+  *			HRTIM Configuration
+  */
+void Bsp_InitHardTimer_HRTIM(void)
+{  
+	/* HRTIM Initialization */
+	HRTIM_Handler.Instance = (HRTIM_TypeDef *)NULL;
+	
+	HRTIM_Handler.hdmaMaster = (DMA_HandleTypeDef *)NULL;    
+	HRTIM_Handler.hdmaTimerA = (DMA_HandleTypeDef *)NULL;     
+	HRTIM_Handler.hdmaTimerB = (DMA_HandleTypeDef *)NULL;  
+	HRTIM_Handler.hdmaTimerC = (DMA_HandleTypeDef *)NULL;  
+	HRTIM_Handler.hdmaTimerD = (DMA_HandleTypeDef *)NULL;  
+	HRTIM_Handler.hdmaTimerE = (DMA_HandleTypeDef *)NULL;
+		
+	HRTIM_Handler.Instance = HRTIM1;
+	HRTIM_Handler.Init.HRTIMInterruptResquests = HRTIM_IT_NONE;
+	HAL_HRTIM_Init(&HRTIM_Handler);
+
+	/* Time base master configuration */
+	HRTime_Base_Config_Master.Mode = HRTIM_MODE_CONTINUOUS;
+	HRTime_Base_Config_Master.Period = 0x200;		
+	HRTime_Base_Config_Master.PrescalerRatio = 0;
+	HRTime_Base_Config_Master.RepetitionCounter = 0;
+	
+	HAL_HRTIM_TimeBaseConfig(&HRTIM_Handler,HRTIM_TIMERINDEX_MASTER,&HRTime_Base_Config_Master);
+													 
+	/* Master Time configuration */
+	HRTimer_Config_Master.InterruptRequests = HRTIM_MASTER_IT_MUPD;
+	HRTimer_Config_Master.DMARequests = HRTIM_TIM_DMA_NONE;
+	HRTimer_Config_Master.HalfModeEnable = HRTIM_HALFMODE_DISABLED;
+	HRTimer_Config_Master.StartOnSync = HRTIM_SYNCSTART_DISABLED;
+	HRTimer_Config_Master.ResetOnSync = HRTIM_SYNCRESET_DISABLED;
+	HRTimer_Config_Master.DACSynchro = HRTIM_DACSYNC_DACTRIGOUT_1;
+	HRTimer_Config_Master.PreloadEnable = HRTIM_PRELOAD_ENABLED;
+	HRTimer_Config_Master.UpdateGating = HRTIM_UPDATEGATING_INDEPENDENT;
+	HRTimer_Config_Master.BurstMode = HRTIM_TIMERBURSTMODE_MAINTAINCLOCK;
+	HRTimer_Config_Master.RepetitionUpdate = HRTIM_UPDATEONREPETITION_ENABLED;
+	HRTimer_Config_Master.PushPull = HRTIM_TIMPUSHPULLMODE_DISABLED;
+	HRTimer_Config_Master.FaultEnable = HRTIM_TIMFAULTENABLE_NONE;
+	HRTimer_Config_Master.FaultLock = HRTIM_TIMFAULTLOCK_READWRITE;
+	HRTimer_Config_Master.DeadTimeInsertion = HRTIM_TIMDEADTIMEINSERTION_DISABLED;
+	HRTimer_Config_Master.DelayedProtectionMode = HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_DISABLED;
+	HRTimer_Config_Master.UpdateTrigger= HRTIM_TIMUPDATETRIGGER_NONE;
+	HRTimer_Config_Master.ResetTrigger = HRTIM_TIMRESETTRIGGER_NONE;
+	HRTimer_Config_Master.ResetUpdate = HRTIM_TIMUPDATEONRESET_DISABLED;
+	
+	HAL_HRTIM_WaveformTimerConfig(&HRTIM_Handler,HRTIM_TIMERINDEX_MASTER,&HRTimer_Config_Master);
+	/*Enable HRTIM peripheral counter*/
+	HAL_HRTIM_WaveformCounterStart(&HRTIM_Handler, HRTIM_TIMERID_MASTER);			
+
+}
+
+/**
   * @brief	通用定时器底册驱动，开启时钟，设置中断优先级
   *			此函数会被HAL_TIM_Base_Init()函数调用
   */  
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
-    if(htim->Instance==TIM5)				//通用定时器
+	
+    if(htim->Instance==TIM3)				//用于PWM
+	{
+		__HAL_RCC_TIM3_CLK_ENABLE();        //使能TIM3时钟
+		HAL_NVIC_SetPriority(TIM3_IRQn,3,4);//设置TIM3_PWM 中断优先级,抢占优先级3,子优先级4, 注意比串口优先级低
+		HAL_NVIC_EnableIRQ(TIM3_IRQn);      //开启ITM3中断   
+	}  
+
+    if(htim->Instance==TIM5)				//通用定时器5
 	{
 		__HAL_RCC_TIM5_CLK_ENABLE();        //使能TIMx时钟
 		HAL_NVIC_SetPriority(TIM5_IRQn,4,1);//设置通用定时器中断优先级，抢占优先级4，子优先级1, 注意比串口优先级低
 		HAL_NVIC_EnableIRQ(TIM5_IRQn);      //开启ITMx中断   
 	} 
-	
-    if(htim->Instance==TIM3)					//用于PWM
+
+    if(htim->Instance==TIM6)				//用于DAC 触发
 	{
-		__HAL_RCC_TIM3_CLK_ENABLE();        //使能TIM3时钟
-		HAL_NVIC_SetPriority(TIM3_IRQn,3,4);//设置TIM3_PWM 中断优先级,抢占优先级3,子优先级4, 注意比串口优先级低
-		HAL_NVIC_EnableIRQ(TIM3_IRQn);      //开启ITM3中断   
+		__HAL_RCC_TIM6_CLK_ENABLE();		 /* TIM6 Periph clock enable */
 	}  	
 }
+
+/**
+  * @brief 	Low level BSP
+  * @param 	htim: The timer handle
+  */
+//定时器底层驱动，时钟使能，引脚配置,此函数会被HAL_TIM_PWM_Init()调用
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
+{
+    GPIO_InitTypeDef GPIO_Initure;
+	__HAL_RCC_TIM3_CLK_ENABLE();						//使能定时器3
+    __HAL_RCC_GPIOB_CLK_ENABLE();						//开启GPIOB时钟
+	
+    GPIO_Initure.Pin=GPIO_PIN_4;           				//PB4 
+    GPIO_Initure.Mode=GPIO_MODE_AF_PP;  				//复用推完输出
+    GPIO_Initure.Pull=GPIO_PULLUP;          			//上拉
+    GPIO_Initure.Speed=GPIO_SPEED_FREQ_VERY_HIGH;     	//高速
+	GPIO_Initure.Alternate=GPIO_AF2_TIM3;				//PB3复用为TIM3_CH1
+    HAL_GPIO_Init(GPIOB,&GPIO_Initure);
+}
+
 /**
   * @brief TIM MSP Initialization 用于TIM1的外部输入时钟频率计算，注意核心板将PE11接到了FMC上，不能同时使用
   * @param htim: TIM handle pointer
@@ -269,6 +436,61 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
 
   /* Enable the TIMx global Interrupt */
   HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+}
+
+/**
+  * @brief TIM MSP De-Initialization
+  *        This function frees the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  *          - Revert GPIO to their default state
+  * @param htim: TIM handle pointer
+  */
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
+{
+    if(htim->Instance==TIM3)				//通用定时器
+	{
+		__HAL_RCC_TIM3_FORCE_RESET();
+		__HAL_RCC_TIM3_RELEASE_RESET();	
+	}
+    if(htim->Instance==TIM5)				//通用定时器
+	{
+		__HAL_RCC_TIM5_FORCE_RESET();
+		__HAL_RCC_TIM5_RELEASE_RESET();	
+	}
+  
+	if(htim->Instance==TIM6)				//通用定时器
+	{
+		__HAL_RCC_TIM6_FORCE_RESET();
+		__HAL_RCC_TIM6_RELEASE_RESET();	
+	}
+}
+
+/**
+  * @brief HRTIM MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration
+  * @param hhrtim: HRTIM handle pointer
+  */
+void HAL_HRTIM_MspInit(HRTIM_HandleTypeDef *hhrtim)
+{
+  /* TIM6 Periph clock enable */
+  __HAL_RCC_HRTIM1_CLK_ENABLE();
+}
+
+/**
+  * @brief HRTIM MSP De-Initialization
+  *        This function frees the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  *          - Revert GPIO to their default state
+  * @param hhrtim: HRTIM handle pointer
+  */
+void HAL_HRTIM_MspDeInit(HRTIM_HandleTypeDef *hhrtim)
+{
+
+  /*##-1- Reset peripherals ##################################################*/
+  __HAL_RCC_HRTIM1_CLK_DISABLE();
+
 }
 
 /**
@@ -313,7 +535,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim==(&TIM5_Handler))
     {
-#if SYSTEM_DEBUG == 1
+#if HARDWARE_TIMER_DEBUG == 1
 		Bsp_Printf("TIM5 Timeout Occured! \r\n");
 #endif
 		if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
@@ -342,7 +564,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim==(&TIM5_Handler))
     {
-#if SYSTEM_DEBUG == 1
+#if HARDWARE_TIMER_DEBUG == 1
 		Bsp_Printf("TIM5 Period Elapsed every 1s! \r\n");
 #endif
     }
@@ -354,7 +576,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
 	{
-#if SYSTEM_DEBUG == 1
+#if HARDWARE_TIMER_DEBUG == 1
 		Bsp_Printf("TIM1 External Input Frequence \r\n");
 #endif
 		if(uhCaptureIndex == 0)
@@ -523,7 +745,7 @@ void Bsp_StarGenerictHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBa
 
 void _pFunctionHardTimeout(void)
 {
-#if SYSTEM_DEBUG == 1
+#if HARDWARE_TIMER_DEBUG == 1
 	Bsp_Printf("TIM5 Delay TimeOut! User can add functions here when timeout! \r\n");
 #endif
 }
@@ -536,7 +758,7 @@ void _pFunctionHardTimeout(void)
 uint32_t TIM1_ComputeInputFreq(void)
 {
 	extern uint32_t	uwFrequency;
-#if SYSTEM_DEBUG == 1
+#if HARDWARE_TIMER_DEBUG == 1
 	Bsp_Printf("Initial TIM1_CHANNEL2 to Compute the input Frequence in PE11 ! \r\n");
 #endif	
 	/* 初始化TIM1定时器 */		

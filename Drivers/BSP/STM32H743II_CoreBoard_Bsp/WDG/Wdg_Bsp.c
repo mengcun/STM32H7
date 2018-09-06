@@ -246,7 +246,7 @@ void WWDG_IRQHandler(void)
 void HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
 	HAL_WWDG_Refresh(&WWDG_Handler);//更新窗口看门狗值
-#if SYSTEM_DEBUG == 1
+#if WWDG_DEBUG == 1
 	Bsp_Printf("WWDG feed in HAL_WWDG_EarlyWakeupCallback() every 11 ms!\r\n");
 #endif
 }

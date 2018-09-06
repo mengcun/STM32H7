@@ -18,12 +18,12 @@
 #endif
 
 /* Includes ---------------------------------------------------------------------------------------*/
+#include "includes.h"
 /***************************************Include StdLib**********************************************/
 #include "stdint.h"
 #include "stm32h7xx_hal.h"
 #include "stm32h743xx.h"
 /*******************************************APP/BSP*************************************************/
-#include "includes.h"
 #include "Led_Bsp.h"
 #include "Mpu_Bsp.h"
 #include "Lcd_Bsp.h"
@@ -36,6 +36,7 @@
 #include "Pwm_Bsp.h"
 #include "Crc_Bsp.h"
 #include "Rng_Bsp.h"
+#include "Dac_Bsp.h"
 	 
 #include "user_dbg.h"
 #include "user_dbg_str.h"

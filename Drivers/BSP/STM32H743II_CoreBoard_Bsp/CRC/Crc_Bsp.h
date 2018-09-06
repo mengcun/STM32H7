@@ -49,7 +49,10 @@
   */
 #define CRC_POLYNOMIAL_USER_DEFINE		0x9B		/* X^8 + X^7 + X^4 + X^3 + X + 1 */
 #define CRC_POLYNOMIAL_TRAIN_COMM  		0x65  		/* X^7 + X^6 + X^5 + X^2 + 1, used in Train Communication Network, IEC 60870-5[17] */
-
+/**
+  * @brief  The define for CRC DEBUG
+  */
+#define CRC_DEBUG		0
 /** @}
 */
 /*----------------------------------------CRC Private define---------------------------------------*/

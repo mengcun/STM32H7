@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    STM32H7_CoreBoard/AppUser/Utilities/Debug/user_dbg.c
-  * @author  MCD Application Team
+  * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    31-August-2018
   * @brief   This file provides set of firmware functions to manage:
@@ -89,22 +89,16 @@ uint8_t usmart_sys_cmd_exe(uint8_t *str)
 			Bsp_Printf("\r\n");
 #if USMART_USE_HELP 
 			Bsp_Printf("------------------------USER_DEBUG V1.0------------------------ \r\n");
-			Bsp_Printf("USER_DEBUG是从ALIENTEK移植过来的一个灵巧的串口调试互交组件,通过 \r\n");
-			Bsp_Printf("它,你可以通过串口助手调用程序里面的任何函数,并执行.因此,你可\r\n");
-			Bsp_Printf("以随意更改函数的输入参数(支持数字(10/16进制,支持负数)、字符串\r\n"),
-			Bsp_Printf("、函数入口地址等作为参数),单个函数最多支持10个输入参数,并支持\r\n"),  
-			Bsp_Printf("函数返回值显示.支持参数显示进制设置功能,支持进制转换功能.\r\n");
-			Bsp_Printf("USMART有7个系统命令(必须小写):\r\n");
-			Bsp_Printf("?:      获取帮助信息\r\n");
-			Bsp_Printf("help:   获取帮助信息\r\n");
-			Bsp_Printf("list:   可用的函数列表\r\n\n");
-			Bsp_Printf("id:     可用函数的ID列表\r\n\n");
-			Bsp_Printf("hex:    参数16进制显示,后跟空格+数字即执行进制转换\r\n\n");
-			Bsp_Printf("dec:    参数10进制显示,后跟空格+数字即执行进制转换\r\n\n");
-			Bsp_Printf("runtime:1,开启函数运行计时;0,关闭函数运行计时;\r\n\n");
-			Bsp_Printf("请按照程序编写格式输入函数名及参数并以回车键结束.\r\n");    
+			Bsp_Printf("USER_DEBUG is transplated from ALIENTEK. It can provide users to manage some basis functions on-chip-fly.\r\n");
+			Bsp_Printf("There are six instructs for USER_DEBUG modules:\r\n\r\n");
+			Bsp_Printf("help:   	Get the help information.\r\n");
+			Bsp_Printf("list:   	Avaiable functions.\r\n");
+			Bsp_Printf("id:     	The ID of the avaiable functions.\r\n");
+			Bsp_Printf("hex:    	Display as HEX.\r\n");
+			Bsp_Printf("dec:    	Display as DEC.\r\n");
+			Bsp_Printf("runtime:	1,Start time keeping.;0,Close time keeping.\r\n");
 #else
-			Bsp_Printf("指令失效\r\n");
+			Bsp_Printf("Please enable the USMART_USE_HELP .\r\n");
 #endif
 			break;
 		case 2://查询指令
