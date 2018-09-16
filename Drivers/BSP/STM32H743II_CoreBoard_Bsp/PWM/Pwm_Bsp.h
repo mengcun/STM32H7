@@ -37,16 +37,6 @@
 	 
 /* Private constants ------------------------------------------------------------------------------*/
 /* Private define ---------------------------------------------------------------------------------*/
-/** @defgroup PWM_Private define PWM Private define
-  * @{
-  */
-/**
-  * @brief  The define for PWM DEBUG
-  */
-#define PWM_DEBUG		0
-/** @}
-*/
-/*----------------------------------------PWM Private define---------------------------------------*/
 /* Private macros ---------------------------------------------------------------------------------*/
 /** @defgroup RTC_Calendar_Exported_Macro RTC_Calendar Exported Macro
   * @{
@@ -80,7 +70,8 @@ extern TIM_HandleTypeDef TIM3_Handler;
   * @{
   */
   
-void Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty);
+void Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, uint32_t TIM_CHANNEL_X);
+
 /** @}
 */
 /**********************PWM Exported Functions Group2**************************/

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/DAC/Dac_LfsrNoise_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/DAC/Dac_Bsp.c
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date    14-July-2018
@@ -38,7 +38,7 @@
   * @{
   */
 
-/* Private functions Prototypes -------------------------------------------------------------------*/
+/* Private variables -------------------------------------------------------------------*/
 /** @defgroup DAC_LFSR_NOISE_Private_c DAC_LFSR_NOISE Private variables
   * @{
   */
@@ -46,16 +46,7 @@
 /**
   * @brief The DAC handler
   */  
-static DAC_HandleTypeDef    	DAC_Handler;
-/**
-  * @brief The DAC DMA handler
-  */ 
-static DMA_HandleTypeDef  		DMA_ADC1_Handler;
-/**
-  * @brief The DAC PA4 structure
-  */ 
-static GPIO_InitTypeDef   		GPIO_InitStruct;
-
+DAC_HandleTypeDef    	DAC_Handler;
 /**
   * @brief The DAC Channel Configurtion
   */  
@@ -63,9 +54,8 @@ static DAC_ChannelConfTypeDef 	sConfig;
 /**
   * @brief Used for DAC WAVE TEST
   */ 
-#if DAC_WAVE_DEBUG == 1
 uint8_t iTestDAC = 0;
-#endif
+
 /**
   * @brief Unmask DAC channel LFSR for noise wave generation
   */
@@ -161,7 +151,6 @@ const uint16_t Sine12bit[32] = {
 
 void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS)
 {
-	Bsp_InitHardTimer_TIM6();
 	DAC_Ch1_NoiseConfig(DAC_LFSRUNMASK_BITS);
 }
 
@@ -184,7 +173,6 @@ void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS)
   */
 void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE)
 {
-	Bsp_InitHardTimer_TIM6();
 	DAC_Ch1_TriangleConfig(DAC_TRIANGLEAMPLITUDE);
 }
 
@@ -193,7 +181,6 @@ void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE)
   */
 void Bsp_InitEscalatorDAC(void)
 {
-	Bsp_InitHardTimer_TIM6();
 	DAC_Ch1_EscalatorConfig();
 }
 
@@ -202,7 +189,6 @@ void Bsp_InitEscalatorDAC(void)
   */
 void Bsp_InitSinWaveDAC(void)
 {
-	Bsp_InitHardTimer_TIM6();
 	DAC_Ch1_SinWaveConfig();
 }
 
@@ -222,34 +208,42 @@ void Bsp_InitDualWaveDAC(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK
   *           - Peripheral's GPIO Configuration
   * @param hdac: DAC handle pointer
   */
-void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac)
+void HAL_DAC_MspInit(DAC_HandleTypeDef *DACx_Handler)
 {
+
+	DMA_HandleTypeDef  		DMA_DAC1_Handler;
+	GPIO_InitTypeDef   		GPIO_InitStruct;
 	
 	__HAL_RCC_GPIOA_CLK_ENABLE();		  	/* Enable GPIO clock */
 	__HAL_RCC_DAC12_CLK_ENABLE();		 	/* DAC Periph clock enable */
-	__HAL_RCC_DMA1_CLK_ENABLE();		  	/* DMA1 clock enable */
 	
-	GPIO_InitStruct.Pin = GPIO_PIN_4 | GPIO_PIN_5;		/* DAC Channel1 GPIO pin configuration */
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pin 	= GPIO_PIN_4 | GPIO_PIN_5;		/* DAC Channel1 GPIO pin configuration */
+	GPIO_InitStruct.Mode 	= GPIO_MODE_ANALOG;
+	GPIO_InitStruct.Pull 	= GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	
-	DMA_ADC1_Handler.Instance = DMA1_Stream5;
-	DMA_ADC1_Handler.Init.Request  = DMA_REQUEST_DAC1;
-	DMA_ADC1_Handler.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	DMA_ADC1_Handler.Init.PeriphInc = DMA_PINC_DISABLE;
-	DMA_ADC1_Handler.Init.MemInc = DMA_MINC_ENABLE;
-	DMA_ADC1_Handler.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	DMA_ADC1_Handler.Init.MemDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	DMA_ADC1_Handler.Init.Mode = DMA_CIRCULAR;
-	DMA_ADC1_Handler.Init.Priority = DMA_PRIORITY_HIGH;
+#if SINWAVE_GEN_FOR_TEST == 1	
+	__HAL_RCC_DMA1_CLK_ENABLE();		  	/* DMA1 clock enable */
+	DMA_DAC1_Handler.Instance 					= DMA1_Stream5;
+	DMA_DAC1_Handler.Init.Request  				= DMA_REQUEST_DAC1;
+	DMA_DAC1_Handler.Init.Direction			 	= DMA_MEMORY_TO_PERIPH;
+	DMA_DAC1_Handler.Init.PeriphInc 			= DMA_PINC_DISABLE;
+	DMA_DAC1_Handler.Init.MemInc 				= DMA_MINC_ENABLE;
+	DMA_DAC1_Handler.Init.PeriphDataAlignment 	= DMA_PDATAALIGN_HALFWORD;/* Transfer to DAC by byte to match with DAC configuration: DAC resolution 32 bits */
+	DMA_DAC1_Handler.Init.MemDataAlignment 		= DMA_MDATAALIGN_HALFWORD;/* Transfer to DAC by byte to match with DAC configuration: DAC resolution 32 bits */
+	DMA_DAC1_Handler.Init.Mode 					= DMA_CIRCULAR;
+	DMA_DAC1_Handler.Init.Priority 				= DMA_PRIORITY_HIGH;
 
-	HAL_DMA_Init(&DMA_ADC1_Handler);
+	HAL_DMA_Init(&DMA_DAC1_Handler);
 
-	__HAL_LINKDMA(hdac, DMA_Handle1, DMA_ADC1_Handler);			/* Associate the initialized DMA handle to the DAC handle */
+	__HAL_LINKDMA(DACx_Handler, DMA_Handle1, DMA_DAC1_Handler);			/* Associate the initialized DMA handle to the DAC handle */
 
-	HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 3, 0);	//设置DMA_Stream中断优先级，抢占优先级3，子优先级0。
+	HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 2, 4);						//设置DMA_Stream5用与DAC中断优先级，抢占优先级3，子优先级1。ADC > DMA > DAC
 	HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+	
+	HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 3, 0);							//设置TIM6用于DAC中断优先级，抢占优先级3，子优先级0，ADC > DMA > DAC
+	HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+#endif	/*SINWAVE_GEN_FOR_TEST*/
 
 }
 
@@ -258,13 +252,18 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac)
   * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
   *         the configuration information for the specified DAC.
   */
-void HAL_DAC_MspDeInit(DAC_HandleTypeDef *hdac)
+void HAL_DAC_MspDeInit(DAC_HandleTypeDef *DACx_Handler)
 {
 	__HAL_RCC_DAC12_FORCE_RESET();		  /* Enable DAC reset state */
 	__HAL_RCC_DAC12_RELEASE_RESET();	  /* Release DAC from reset state */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
-    HAL_DMA_DeInit(hdac->DMA_Handle1);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);	
+
+#if SINWAVE_GEN_FOR_TEST == 1	
+	HAL_DMA_DeInit(DACx_Handler->DMA_Handle1);
+	HAL_DMA_DeInit(DACx_Handler->DMA_Handle2);
+	
     HAL_NVIC_DisableIRQ(DMA1_Stream5_IRQn);
+#endif	/*SINWAVE_GEN_FOR_TEST*/
 }
 
 /** @}
@@ -306,18 +305,22 @@ void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS)
 	{
 		Error_Handler();
 	}
-	if (HAL_DAC_Start(&DAC_Handler, DAC_CHANNEL_1) != HAL_OK)	/*Enable DAC Channel1*/
-	{
-		Error_Handler();
-	}	
-	if (HAL_DAC_SetValue(&DAC_Handler, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0) != HAL_OK)		/*Set DAC Channel1 DHR register */
-	{
-		Error_Handler();
-	}
+	
 	if (HAL_DACEx_NoiseWaveGenerate(&DAC_Handler, DAC_CHANNEL_1, DAC_LFSRUNMASK_BITS) != HAL_OK)
 	{
 		Error_Handler();										/* Triangle wave generation Error */
 	}
+	
+	if (HAL_DAC_Start(&DAC_Handler, DAC_CHANNEL_1) != HAL_OK)	/*Enable DAC Channel1*/
+	{
+		Error_Handler();
+	}	
+	
+	if (HAL_DAC_SetValue(&DAC_Handler, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0) != HAL_OK)		/*Set DAC Channel1 DHR register */
+	{
+		Error_Handler();
+	}
+
 }
 
 /**
@@ -325,29 +328,17 @@ void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS)
   */
 void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE)
 {
-	DAC_Handler.Instance = DAC1;
+	DAC_Handler.Instance = DAC1; 
 	
-	if (HAL_DAC_DeInit(&DAC_Handler) != HAL_OK)	  				/*DeInit the DAC peripheral*/
-	{
-		Error_Handler();
-	}  
 	if (HAL_DAC_Init(&DAC_Handler) != HAL_OK)		  			/*Configure the DAC peripheral*/
 	{
 		Error_Handler();
 	}
+	
 	sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;		  			/*##-2- Configure DAC channel1*/
 	sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 	
 	if (HAL_DAC_ConfigChannel(&DAC_Handler, &sConfig, DAC_CHANNEL_1) != HAL_OK)
-	{
-		Error_Handler();
-	}
-
-	if (HAL_DAC_Start(&DAC_Handler, DAC_CHANNEL_1) != HAL_OK)	/*Enable DAC Channel1*/
-	{
-		Error_Handler();
-	}	
-	if (HAL_DAC_SetValue(&DAC_Handler, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0) != HAL_OK)		/*Set DAC Channel1 DHR register */
 	{
 		Error_Handler();
 	}
@@ -356,6 +347,16 @@ void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE)
 	{
 		Error_Handler();										/* Triangle wave generation Error */
 	}	
+
+	if (HAL_DAC_Start(&DAC_Handler, DAC_CHANNEL_1) != HAL_OK)	/*Enable DAC Channel1*/
+	{
+		Error_Handler();
+	}
+	
+	if (HAL_DAC_SetValue(&DAC_Handler, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0x100) != HAL_OK)		/*Set DAC Channel1 DHR register */
+	{
+		Error_Handler();
+	}
 }
 
 /**
@@ -401,13 +402,17 @@ void DAC_Ch1_SinWaveConfig(void)
 	{
 		Error_Handler();
 	}
-	sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;		  			/*##-2- Configure DAC channel1*/
+	sConfig.DAC_Trigger		 = DAC_TRIGGER_T6_TRGO;		  			/*##-2- Configure DAC channel1*/
 	sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+	sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
+	sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
+	sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
 	
 	if (HAL_DAC_ConfigChannel(&DAC_Handler, &sConfig, DAC_CHANNEL_1) != HAL_OK)
 	{
 		Error_Handler();
 	}
+
 	if (HAL_DAC_Start_DMA(&DAC_Handler, DAC_CHANNEL_1, (uint32_t *)Sine12bit, 32, DAC_ALIGN_12B_R) != HAL_OK)
 	{
 		Error_Handler();		    /* Start DMA Error */
@@ -448,7 +453,7 @@ void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUN
 	{
 		Error_Handler();
 	}
-	if (HAL_DACEx_DualSetValue(&DAC_Handler, DAC_ALIGN_12B_R, 0, 0) != HAL_OK)
+	if (HAL_DACEx_DualSetValue(&DAC_Handler, DAC_ALIGN_12B_R, 0xFF, 0xFF) != HAL_OK)
 	{
 		Error_Handler();										
 	}
@@ -469,9 +474,9 @@ void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUN
 void DMA1_Stream5_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(DAC_Handler.DMA_Handle1);
-#if DAC_WAVE_DEBUG == 1
+#if SINWAVE_GEN_FOR_TEST == 1
 	Bsp_Printf("DMA_Stream5 sendout the data of wave! \r\n");
-#endif
+#endif	/*SINWAVE_GEN_FOR_TEST*/
 }
 
 /** @}

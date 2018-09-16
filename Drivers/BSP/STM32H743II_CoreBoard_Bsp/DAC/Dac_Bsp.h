@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/DAC/Dac_LfsrNoise_Bsp.h
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/DAC/Dac_Bsp.h
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 14-Junly-2018
@@ -41,15 +41,14 @@
   * @{
   */
 /**
-  * @brief  The define for DAC_LFSR_NOISE DEBUG
-  */
-#define DAC_WAVE_DEBUG		0
+  * @brief The DAC handler
+  */  
+extern DAC_HandleTypeDef    	DAC_Handler;
 /**
   * @brief Used for DAC WAVE TEST
   */ 
-#if DAC_WAVE_DEBUG == 1
-extern uint8_t iTestDAC;
-#endif
+extern uint8_t 					iTestDAC;
+
 /** @}
 */
 /*-----------------------------------DAC_LFSR_NOISE Private define---------------------------------*/
@@ -82,7 +81,6 @@ extern uint32_t DAC_TriangleAmpTbl[12];
 	* @{
   */
 
-void Bsp_InitHardTimer_TIM6(void);
 void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS);  
 void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE);
 void Bsp_InitEscalatorDAC(void);

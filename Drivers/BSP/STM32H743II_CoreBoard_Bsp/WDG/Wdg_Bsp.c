@@ -169,9 +169,9 @@ uint32_t Bsp_WWDG_Init(uint8_t timer_counter,uint8_t Window_counter,uint32_t pre
 //与IWDG不同，WWDG没有专用32KHz时钟，使用的是PCLK = 100MHz的时钟
 void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
-    __HAL_RCC_WWDG1_CLK_ENABLE();           					//使能窗口看门狗时钟
-    HAL_NVIC_SetPriority(WWDG_IRQn,2,4);    					//设置窗口看门狗中断优先级，抢占优先级2，子优先级4，窗口看门狗大约每11ms喂狗一次，优先级最高，可抢占串口中断。
-    HAL_NVIC_EnableIRQ(WWDG_IRQn);          					//使能窗口看门狗中断
+    __HAL_RCC_WWDG1_CLK_ENABLE();           							//使能窗口看门狗时钟
+    HAL_NVIC_SetPriority(WWDG_IRQn,0,0);    							//设置窗口看门狗中断优先级，抢占优先级0，子优先级0，窗口看门狗大约每11ms喂狗一次，优先级最高，可抢占串口中断。
+    HAL_NVIC_EnableIRQ(WWDG_IRQn);          							//使能窗口看门狗中断
 }
 
 /**
@@ -245,8 +245,8 @@ void WWDG_IRQHandler(void)
 
 void HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
-	HAL_WWDG_Refresh(&WWDG_Handler);//更新窗口看门狗值
 #if WWDG_DEBUG == 1
+	HAL_WWDG_Refresh(&WWDG_Handler);//更新窗口看门狗值
 	Bsp_Printf("WWDG feed in HAL_WWDG_EarlyWakeupCallback() every 11 ms!\r\n");
 #endif
 }

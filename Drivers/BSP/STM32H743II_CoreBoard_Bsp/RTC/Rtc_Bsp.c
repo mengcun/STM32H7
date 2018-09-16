@@ -279,7 +279,7 @@ void Bsp_RTC_Set_AlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)
 		Error_Handler();
 	}
        
-    HAL_NVIC_SetPriority(RTC_Alarm_IRQn,4,3);					//设置RTC闹钟中断优先级,抢占优先级4,子优先级3,注意比串口优先级低
+    HAL_NVIC_SetPriority(RTC_Alarm_IRQn,4,3);							//设置RTC闹钟中断优先级,抢占优先级4,子优先级3,注意比串口优先级低
     HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
 }
 
@@ -298,7 +298,7 @@ void Bsp_RTC_Set_WakeUp(uint32_t wksel,uint16_t cnt)
 		Error_Handler();
 	}
     
-	HAL_NVIC_SetPriority(RTC_WKUP_IRQn,4,4);					//设置RTC周期唤醒中断优先级,抢占优先级4,子优先级4,注意比串口优先级低
+	HAL_NVIC_SetPriority(RTC_WKUP_IRQn,4,4);							//设置RTC周期唤醒中断优先级,抢占优先级4,子优先级4,注意比串口优先级低
     HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
 }
 
@@ -315,7 +315,7 @@ void Bsp_RTC_Set_TimeStamp(void)
 		Error_Handler();
 	}
 	
-	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);				//设置RTC时间戳中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
+	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);						//设置RTC时间戳中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
 	HAL_NVIC_EnableIRQ(TAMP_STAMP_IRQn);
 }
 
@@ -345,7 +345,7 @@ void Bsp_RTC_Set_Tamper(void)
 	Error_Handler();
 	}
 	
-	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);				//设置RTC入侵加测 中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
+	HAL_NVIC_SetPriority(TAMP_STAMP_IRQn, 4, 0);						//设置RTC入侵加测 中断优先级,抢占优先级4,子优先级0, 注意比串口优先级低
 	HAL_NVIC_EnableIRQ(TAMP_STAMP_IRQn);	
 }
 
@@ -407,7 +407,7 @@ void GetInfo_Calendar(void)
 	sprintf((char*)aShowTime,"Time:%02d:%02d:%02d",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
 	sprintf((char*)aShowDate,"Date:20%02d-%02d-%02d",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
 	sprintf((char*)aShowWeek,"Week:%d",RTC_DateStruct.WeekDay);
-#if RTC_DEBUG == 1	
+#if RTC_GET_TIME == 1	
 	Bsp_Printf("The Current Time:%02d:%02d:%02d\r\n",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
 	Bsp_Printf("The Current Date:20%02d-%02d-%02d\r\n",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
 	Bsp_Printf("The Current Week:%d\r\n",RTC_DateStruct.WeekDay); 
@@ -543,7 +543,9 @@ void TAMP_STAMP_IRQHandler(void)
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
+#if RTC_ALARMA_DEBUG == 1 
     Bsp_Printf("RTC_AlarmAEventCallback!\r\n");
+#endif
 }
 
 /**
@@ -552,7 +554,7 @@ void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 
 void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
-#if RTC_DEBUG == 1 
+#if RTC_WAKEUP_DEBUG == 1 
 	Bsp_Printf("RTCEx_WakeUpTimerEventCallback!\r\n");
 #endif
 }
@@ -564,10 +566,12 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 {  
-  HAL_RTCEx_GetTimeStamp(&RTC_Handler, &RTC_TimeStruct, &RTC_DateStruct, RTC_FORMAT_BIN);
-  Bsp_Printf("TimeStamp Event detected, the time is saved in RTC_TimeStruct! \r\n");
-  Bsp_Printf("%.2d:%.2d:%.2d \r\n", RTC_TimeStruct.Hours, RTC_TimeStruct.Minutes, RTC_TimeStruct.Seconds);
-  Bsp_Printf("%.2d-%.2d-%.2d \r\n", RTC_DateStruct.Year, RTC_DateStruct.Month, RTC_DateStruct.Date);	
+	HAL_RTCEx_GetTimeStamp(&RTC_Handler, &RTC_TimeStruct, &RTC_DateStruct, RTC_FORMAT_BIN);
+#if RTC_TIMESTAMP_DEBUG == 1 
+	Bsp_Printf("TimeStamp Event detected, the time is saved in RTC_TimeStruct! \r\n");
+	Bsp_Printf("%.2d:%.2d:%.2d \r\n", RTC_TimeStruct.Hours, RTC_TimeStruct.Minutes, RTC_TimeStruct.Seconds);
+	Bsp_Printf("%.2d-%.2d-%.2d \r\n", RTC_DateStruct.Year, RTC_DateStruct.Month, RTC_DateStruct.Date);	
+#endif
 }
 
 /**
@@ -577,8 +581,8 @@ void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 
 void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 {
-  /* LED1 On: Tamper button pressed */
-  Bsp_Printf("Tamper1 Event detected, all the BKR will be reset! \r\n");
+#if RTC_TAMPER_DEBUG == 1 
+	Bsp_Printf("Tamper1 Event detected, all the BKR will be reset! \r\n");
 	if(Bsp_IsBackupRegReset() == 0)
 	{
 		Bsp_Printf("\n\r RTC备份寄存器复位成功 \n\r");				/* 清除成功 */
@@ -587,6 +591,7 @@ void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 	{
 		Bsp_Printf("\n\r RTC备份寄存器复位失败 \n\r");				/*清除失败 */
 	}
+#endif
 	/*在进入中断后要关闭中断，否则会一直进中断*/
     __HAL_RTC_TAMPER_CLEAR_FLAG(&RTC_Handler,RTC_FLAG_TAMP1F); 	/* 清除标志 */
 	__HAL_RTC_TAMPER1_DISABLE(&RTC_Handler);					/* 禁止 Tamper 引脚1 */

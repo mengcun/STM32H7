@@ -42,7 +42,6 @@
 /**
   * @brief USER_DEBUG Defines
   */
-  
 #define USMART_ENTIMX_SCAN 	1	//使用TIM的定时中断来扫描SCAN函数,如果设置为0,需要自己实现隔一段时间扫描一次scan函数.
 								//注意:如果要用runtime统计功能,必须设置USMART_ENTIMX_SCAN为1!!!!
 								

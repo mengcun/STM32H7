@@ -246,7 +246,7 @@ uint32_t usmart_get_runtime(void)
 void usmart_init(void)
 {
 #if USMART_ENTIMX_SCAN==1
-	Bsp_InitHardTimer_TIM4(1000,(uint32_t)200*100-1);//分频,时钟为10K ,100ms中断一次,注意,计数频率必须为10Khz,以和runtime单位(0.1ms)同步.
+	Bsp_InitHardTimer_TIM4(1000, 20000);//分频,时钟为10Hz ,100ms中断一次,注意,计数频率必须为10Khz,以和runtime单位(0.1ms)同步.
 #endif
 	usmart_dev.sptype=1;	//十六进制显示参数
 }		

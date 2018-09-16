@@ -37,6 +37,8 @@
 #include "Crc_Bsp.h"
 #include "Rng_Bsp.h"
 #include "Dac_Bsp.h"
+#include "Adc_Bsp.h"
+#include "Adc_DualMode_Bsp.h"
 	 
 #include "user_dbg.h"
 #include "user_dbg_str.h"
@@ -55,6 +57,85 @@
 /** @defgroup STM32H743II_CoreBoard_Private_Defines STM32H743II CoreBoard Private Defines
   * @{
   */
+
+/**
+  * @brief  The define for ADC Single Mode.
+  */
+#define	ADC12_Single_POLL_Mode		0
+#define	ADC12_Single_DMA1_Mode		0
+#define ADC12_TRIGGER_BY_TIMER 		0		/* 1: ADC is operating in not continuous mode and conversions are triggered by external trigger: timer3*/
+#define	ADC3_SINGLE_CHANNEL_CONVERT	0
+#define	ADC3_MULTI_CHANNEL_CONVERT	1
+
+/**
+  * @brief  The define for ADC Dual Mode Interleaved.
+  */
+#define	ADC_DualMode_Interleaved	0
+#define ADC_DUAL_TRIGGER_FROM_TIMER 0		/* 1: ADC is operating in not continuous mode and conversions are triggered by external trigger: timer3*/
+											/* 0: ADC is operating in continuous mode and first conversion is triggered by software trigger*/
+											/*Timer instance must be on APB1 (clocked by PCLK1) due to frequency computation in function "Bsp_InitHardTimer_TIM1()*/
+#define	ADC_DUAL_DEBUG				0  
+
+/**
+  * @brief  The define for DAC_LFSR_NOISE DEBUG
+  */
+#define DAC_WAVE_DEBUG				0
+#define SINWAVE_GEN_FOR_TEST		0
+
+/**
+  * @brief  The define for Hardware_Timer DEBUG
+  */
+#define HARDWARE_TIM1_DEBUG			0
+#define HARDWARE_TIM5_DEBUG			0
+#define HARDWARE_TIM2PWM_DEBUG		1
+
+/**
+  * @brief  The define for IWDG DEBUG
+  */
+#define IWDG_DEBUG					0
+
+/**
+  * @brief  The define for WWDG DEBUG
+  */
+#define WWDG_DEBUG					0 
+ 
+/**
+  * @brief  The define for CRC DEBUG
+  */
+#define CRC_DEBUG					0
+
+/**
+  * @brief  The define for RNG DEBUG
+  */
+#define RNG_DEBUG					0
+
+/**
+  * @brief  The define for RTC DEBUG
+  */
+#define RTC_GET_TIME				1
+#define RTC_ALARMA_DEBUG			0
+#define RTC_BKRAM_DEBUG				0
+#define RTC_WAKEUP_DEBUG			0
+#define RTC_TIMESTAMP_DEBUG			0
+#define RTC_TAMPER_DEBUG			0
+
+/**
+  * @brief  The define for WWDG DEBUG
+  * @brief  This should be opened always
+  */
+#define SDRAM_DEBUG					1
+
+/**
+  * @brief  The define for LCD DEBUG
+  * @brief  This should be opened always
+  */ 
+#define RGBLCD_DEBUG				1
+
+/**
+  * @brief  The define for USER DEBUG
+  */  
+#define USMART_DEBUG				1
+
 /**
   * @brief STM32H743II_CoreBoard BSP Driver version number V1.0.0
   */	

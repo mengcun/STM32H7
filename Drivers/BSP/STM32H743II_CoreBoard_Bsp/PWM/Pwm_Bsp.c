@@ -76,20 +76,32 @@
   */
 
 /**
-  * @brief 	Set TIMER CHANNEL 1
-  * @param 	PWM_Duty: Duty
+  * @brief 	Set PWM_Duty TIM3 Compare1 For PWM. PWM输出频率Frequence = TIM3CLK /  (Prescaler * Period)
+  * @param 	PWM_Duty: 0 -100
   */
 
-void Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty)
+void Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, uint32_t TIM_CHANNEL_X)
 {
-	TIM3->ARR=1000 / Frequence;          							 //自动重装载值,周期
-    TIM3->CCR1=(TIM3_Handler.Init.Period - 1) * PWM_Duty * 0.01;     //设置比较值,此值用来确定占空比，
-#if PWM_DEBUG == 1		
-	Bsp_Printf("The PWM in PB4 is generated as %d Khz, %d%% \r\n",Frequence,PWM_Duty);
+	if(TIM_CHANNEL_X == TIM_CHANNEL_3)
+	{
+		TIM2->ARR  = Period - 1;          					//自动重装载值,从0开始当计数到Period - 1时重新开始从0计数,总共计数为Period
+		TIM2->PSC  = Prescaler - 1;          				//分频系数
+		TIM2->CCR3 = (uint32_t)(Period * PWM_Duty * 0.01);  //设置比较值,此值用来确定占空比，	
+#if HARDWARE_TIM2PWM_DEBUG == 1		
+		Bsp_Printf("The PWM in PA2, TIM_CHANNEL_3 is generated as %d Hz, %d%% \r\n",(uint32_t)(200000000 / (Period * Prescaler)), PWM_Duty);	
 #endif
+	}
+	if(TIM_CHANNEL_X == TIM_CHANNEL_4)
+	{
+		TIM2->ARR  = Period - 1;          					//自动重装载值,从0开始当计数到Period - 1时重新开始从0计数,总共计数为Period
+		TIM2->PSC  = Prescaler - 1;          				//分频系数
+		TIM2->CCR4 = (uint32_t)(Period * PWM_Duty * 0.01);  //设置比较值,此值用来确定占空比，
+#if HARDWARE_TIM2PWM_DEBUG == 1		
+		Bsp_Printf("The PWM in PA3, TIM_CHANNEL_4 is generated as %d Hz, %d%% \r\n",(uint32_t)(200000000 / (Period * Prescaler)), PWM_Duty);	
+#endif
+	}
 }
-//设置TIM通道4的占空比
-//compare:比较值
+
 /** @}
 */
 /****************************PWM Exported Functions Group2*********************/

@@ -138,9 +138,9 @@ void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng)
 	__HAL_RCC_RNG_CLK_ENABLE();
 	
 #if RNG_IT_ENABLE == 1	
-	HAL_NVIC_SetPriority(RNG_IRQn,3,1);    						//设置随机数生成器中断优先级,抢占优先级3,子优先级1,中断优先级比串口优先级高,但是在中断处理完成后会关闭中断.
-																//只有在需要生成随机数时候才会开启中断,所以合理规划程序会避免中断嵌套造成的系统不稳定
-	HAL_NVIC_EnableIRQ(RNG_IRQn);          						//使能随机数生成器中断
+	HAL_NVIC_SetPriority(RNG_IRQn,3,1);    								//设置随机数生成器中断优先级,抢占优先级3,子优先级1,中断优先级比串口优先级高,但是在中断处理完成后会关闭中断.
+																		//只有在需要生成随机数时候才会开启中断,所以合理规划程序会避免中断嵌套造成的系统不稳定
+	HAL_NVIC_EnableIRQ(RNG_IRQn);          								//使能随机数生成器中断
 #endif
 
 }

@@ -90,7 +90,7 @@ Infor_CoreBoard CoreBoard_Infor;
   * @brief Initialize the all hardware of the coreboard according to the specified
   */
 void Coreboard_BSP_Init(void)
-{		
+{
 	/* -1- Enable the CPU Cache */
 	CPU_CACHE_Enable();
 
@@ -122,37 +122,63 @@ void Coreboard_BSP_Init(void)
 	/* -6- Initialize SysTick (use system clock 400MHz) mounted on STM32H743II_CoreBoard*/
 	Bsp_InitSoftTimer(400);
 	
-	/* -7- Initialize General Hard_Timer mounted on STM32H743II_CoreBoard*/
-	Bsp_InitHardTimer_TIM5();	 
-	
+#if HARDWARE_TIM5_DEBUG == 1
+	/* -7- Initialize General Hard_Timer_ TIM5 mounted on STM32H743II_CoreBoard*/
+	Bsp_InitHardTimer_TIM5(1000000, 200);	//输出频率Frequence = 200 000 000 / 1000000 / 200 = 1Hz	 
+#endif	/*HARDWARE_TIM5_DEBUG*/
+
+#if IWDG_DEBUG == 1
 	/* -8- Initialize IWatchDog as 1s timeout mounted on STM32H743II_CoreBoard*/			
 	Bsp_IWDG_Init(IWDG_PRESCALER_64, 500);
-	
+#endif	/*IWDG_DEBUG*/
+
+#if WWDG_DEBUG == 1
 	/* -8- Initialize Window WatchDog as 11ms WWDG_Timeout mounted on STM32H743II_CoreBoard*/			
 	Bsp_WWDG_Init(0X7F, 0X5F, WWDG_PRESCALER_8);
+#endif	/*WWDG_DEBUG*/
 
+#if RTC_GET_TIME == 1 
 	/* -9- Initialize RTC mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Init();
-	
+#endif	/*RTC_GET_TIME*/
+
+#if RTC_WAKEUP_DEBUG == 1 
 	/* -10- Initialize RTC WAKE UP as 1s mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Set_WakeUp(RTC_WAKEUPCLOCK_CK_SPRE_16BITS,0); 
-	
+#endif	/*RTC_WAKEUP_DEBUG*/	
+
+#if RTC_ALARMA_DEBUG == 1 
 	/* -11- Initialize RTC ALARM as Wednesday AM 11:00:00 mounted on STM32H743II_CoreBoard*/			
     Bsp_RTC_Set_AlarmA(3,11,00,00);	
-		
+#endif	/*RTC_ALARMA_DEBUG*/
+
+#if RTC_TIMESTAMP_DEBUG == 1 
 	/* -12- Initialize RTC TIME STAMP as rising edge on PC.13 mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Set_TimeStamp();
-	
+#endif	/*RTC_TIMESTAMP_DEBUG*/
+
+#if RTC_TAMPER_DEBUG == 1 
 	/* -13- Initialize RTC TIME STAMP as failing edge on PC.13 mounted on STM32H743II_CoreBoard*/				
 	Bsp_RTC_Set_Tamper();
+#endif	/*RTC_TAMPER_DEBUG*/
 
+#if RTC_BKRAM_DEBUG == 1
 	/* -14- Initialize RTC BackUp RAM mounted on STM32H743II_CoreBoard*/				
 	Bsp_RTC_Set_BackupRAM();
+#endif	/*RTC_BKRAM_DEBUG*/
+
+#if HARDWARE_TIM2PWM_DEBUG == 1
+	/* -15.1- Initialize TIM2_CHANNEL3_PWM as 100 000 Hz and remaping to PA2 mounted on STM32H743II_CoreBoard*/	
+	/*Frequence(Hz) = TIM2CLK / Period / Prescaler = 200 000 000 / param1 / param2 */
+	Bsp_InitHardTimer_TIM2(100, 20, 20, TIM_CHANNEL_3);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz
 	
-	/* -15- Initialize TIM3_CHANNEL1_PWM as 2000Hz and remaping to PB3 mounted on STM32H743II_CoreBoard*/	
-	/*Frequence(KHz) = 2;Prescaler = 200;计数频率 = 200M / 200 = 1M ;Period = 1000 / 2 = 500, PWM = 1M / 500 = 2KHz;PWM_Duty : 设置占空比*/
-	Bsp_InitHardTimer_TIM3(2, 200, 50);
-	
+	/* -15.2- Initialize TIM2_CHANNEL4_PWM as 100 000 Hz and remaping to PA2 mounted on STM32H743II_CoreBoard*/	
+	/*Frequence(Hz) = TIM2CLK / Period / Prescaler = 200 000 000 / param1 / param2 */
+	Bsp_InitHardTimer_TIM2(100, 20, 50, TIM_CHANNEL_4);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz
+		
+#endif	/*HARDWARE_TIM2PWM_DEBUG*/
+
+#if CRC_DEBUG == 1
 	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
 	Bsp_InitDefautCRC();
 	Bsp_ComputeCRCDefault();
@@ -160,51 +186,99 @@ void Coreboard_BSP_Init(void)
 	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitUserDefineCRC();
 	Bsp_ComputeCRCAccumulate();
+#endif	/*CRC_DEBUG*/
+
+#if DAC_WAVE_DEBUG == 1	
+	/* -18- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
+	Bsp_InitHardTimer_TIM6(2000, 0);		//输出频率Frequence = 200 000 000 / 2000 / 1 = 100 000Hz
 	
-	/* -18- Initialize DAC_CHANNEL1 on PA4 as NOISE mode mounted on STM32H743II_CoreBoard*/						
+	/* -19- Initialize DAC_CHANNEL1 on PA4 as NOISE mode mounted on STM32H743II_CoreBoard*/						
 	Bsp_InitNoiseDAC(DAC_LFSRUNMASK_BITS11_0);
 	
-	/* -19- Initialize DAC_CHANNEL1 on PA4 as TRIANGLE mode mounted on STM32H743II_CoreBoard*/							
+	/* -20- Initialize DAC_CHANNEL1 on PA4 as TRIANGLE mode mounted on STM32H743II_CoreBoard*/							
 	Bsp_InitTriangleDAC(DAC_TRIANGLEAMPLITUDE_4095);
 	
-	/* -20- Initialize DAC_CHANNEL1 on PA4 as ESCALATOR DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
+	/* -21- Initialize DAC_CHANNEL1 Triangle and DAC_CHANNEL2 Noise on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
+	Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);
+	
+#endif	/*DAC_WAVE_DEBUG*/
+
+#if SINWAVE_GEN_FOR_TEST == 1	
+	/* -22- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
+	Bsp_InitHardTimer_TIM6(20000, 2000);		//输出频率Frequence = 200 000 000 / 20000 / 2000 = 5Hz
+	
+	/* -23- Initialize DAC_CHANNEL1 on PA4 as ESCALATOR DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
 	//Bsp_InitEscalatorDAC();		//The Escalator and the Sin wave are used DMA,can not test them at the same time.
 	
-	/* -21- Initialize DAC_CHANNEL1 on PA4 as SIN DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
+	/* -24- Initialize DAC_CHANNEL1 on PA4 as SIN DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
 	Bsp_InitSinWaveDAC();
 	
-	/* -22- Initialize DAC_CHANNEL1 and DAC_CHANNEL2 on PA4 and PB5 mounted on STM32H743II_CoreBoard*/								
-	//Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);
+#endif	/*SINWAVE_GEN_FOR_TEST*/
+
+
+#if ADC3_SINGLE_CHANNEL_CONVERT == 1
+	/* -24- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
+	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_TEMPSENSOR);
+	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VREFINT);
+	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VBAT_DIV4);
+#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
+
+#if ADC3_MULTI_CHANNEL_CONVERT == 1
+	/* -24- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
+	Bsp_Init_ADC3_MULTI_CHANNEL();
+#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
+
+#if ADC_DualMode_Interleaved == 1
+	/* -25- Initialize ADC12 CHANNEL 18 Connected on PA4 as Dual Mode mounted on STM32H743II_CoreBoard*/							
+	Bsp_Init_DualModeADC(ADC1, ADC_CHANNEL_18, ADC2, ADC_CHANNEL_18);
 	
+#if ADC_DUAL_TRIGGER_FROM_TIMER == 1
+	
+	Bsp_InitHardTimer_TIM3(1000, 200);
+	if (HAL_TIM_Base_Start(&TIM2_Handler) != HAL_OK)
+	{
+		Error_Handler();
+	}
+#endif	/*ADC_DUAL_TRIGGER_FROM_TIMER*/
+	  
+	if (HAL_ADCEx_MultiModeStart_DMA(&ADC_Handler_Master, (uint32_t *)aADCDualConvertedValues, ADCCONVERTEDVALUES_BUFFER_SIZE) != HAL_OK)
+	{
+		Error_Handler();
+	}	
+	
+#endif	/*ADC_DualMode_Interleaved*/
+
+#if USMART_DEBUG == 1			
 	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
 	usmart_dev.init(); 	
-	
+#endif	/*USMART_DEBUG*/	
+
+#if SDRAM_DEBUG == 1			
 	/* -27- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
-	Bsp_SDRAM_Init();          
-	
+	Bsp_SDRAM_Init();   
+#endif	/*SDRAM_DEBUG*/
+
+#if RGBLCD_DEBUG == 1			
 	/* -28- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
 	Bsp_RGB_LCD_Init(); 
-	
-	/* -29- Get the Information about STM32H743II_CoreBoard*/
-	GetInfo_CoreBoard();
-	
-	/* -30- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
+#endif	/*RGBLCD_DEBUG*/
+
+#if RNG_DEBUG == 1	
+	/* -28- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitRNG();		/*It produces four 32-bit random samples every 16*FAHB/FRNG AHB clock cycles, if value is higher than 213 cycles (213 cycles otherwise).*/
 						/*After enabling the RNG for the first time, random data is first available after either */
 						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
+#endif	/*RNG_DEBUG*/	
 
-	POINT_COLOR=RED; 
-				
+	/* -29- Get the Information about STM32H743II_CoreBoard*/
+	GetInfo_CoreBoard();
+	POINT_COLOR=RED; 		
 	while(1)
 	{	
-#if RNG_IT_ENABLE == 1	
-		__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断,为了保证系统稳定运行,在中断中将其中断关闭,只有在需要随机数时候重新开启*/
-		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
-#endif
 		Bsp_LCD_Clear(BLUE);
-		POINT_COLOR=RED;
 		
 		GetInfo_Calendar();
+		
 		Bsp_LCD_ShowString(10,40,800,32,32,CoreBoard_Infor.BOARD_NAME); 	
 		Bsp_LCD_ShowString(10,80,800,24,24,CoreBoard_Infor.CPU_NAME);
 		Bsp_LCD_ShowString(10,120,800,24,24,CoreBoard_Infor.CPU_ID);
@@ -214,15 +288,8 @@ void Coreboard_BSP_Init(void)
 		Bsp_LCD_ShowString(10,280,800,24,24,aShowDate);
 		Bsp_LCD_ShowString(10,320,800,24,24,aShowWeek);
 		
-#if RNG_DEBUG == 1		
-		RNG_Get_RandomNum();
-		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
-		RNG_Get_RandomRange(0x00000000,0x00000020);
-		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG = %X! \r\n",POLL_Random32bit);
-		Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
-		Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
-#endif
-
+		Bsp_Delay_ms(1000);	
+		
 #if DAC_WAVE_DEBUG == 1	
 		DAC_Ch1_NoiseConfig(DAC_LFSRUnmaskTbl[iTestDAC]);
 		Bsp_Printf("The DAC LFSR Noise Config Selected as %X! \r\n",DAC_LFSRUnmaskTbl[iTestDAC]);
@@ -234,6 +301,12 @@ void Coreboard_BSP_Init(void)
 		
 		Bsp_Delay_ms(5000);	
 		
+		iTestDAC ++;
+		if(iTestDAC == 11)
+		{
+			iTestDAC = 0;
+		}
+
 		Bsp_Ch12_DualWaveConfig(DAC_TriangleAmpTbl[8],DAC_LFSRUnmaskTbl[8]);
 		
 		Bsp_Printf("The CH1 is generate the triangle as %X! \r\n",DAC_TriangleAmpTbl[8]);
@@ -241,13 +314,43 @@ void Coreboard_BSP_Init(void)
 		
 		Bsp_Delay_ms(5000);	
 		
-		iTestDAC ++;
-		if(iTestDAC == 11)
-		{
-			iTestDAC = 0;
-		}
-#endif
-		Bsp_Delay_ms(1000);	
+#endif	/*DAC_WAVE_DEBUG*/
+		
+#if ADC3_SINGLE_CHANNEL_CONVERT == 1	
+
+		Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_TEMPSENSOR);
+		Bsp_Get_CPU_Intern_Temperature();
+		
+		Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VREFINT);
+		Bsp_Get_CPU_Intern_VerfInt();	
+		
+		Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VBAT_DIV4);
+		Bsp_Get_Board_VBAT();
+#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
+
+#if ADC3_MULTI_CHANNEL_CONVERT == 1
+		Bsp_Printf("The Temperature in CPU is %d degress! \r\n",ADCxConvertedData[0]);
+		Bsp_Printf("The CPU_Intern_VerfInt is %d mV! \r\n",ADCxConvertedData[1]);
+		Bsp_Printf("The Board Vbat is %d mV! \r\n",ADCxConvertedData[2]);
+		Bsp_Printf("The ADC Value in PA4 ADC1 is %d! \r\n",ADCxConvertedData[3]);
+		Bsp_Printf("The ADC Value in PA6 ADC2 is %d! \r\n",ADCxConvertedData[4]);
+
+#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
+
+#if RNG_DEBUG == 1		
+		RNG_Get_RandomNum();
+		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG= %X! \r\n",POLL_Random32bit);
+		RNG_Get_RandomRange(0x00000000,0x00000020);
+		Bsp_Printf("The Random32bit is generated in Polling Mode, RNG = %X! \r\n",POLL_Random32bit);
+		Bsp_Printf("Computed The CRC by re-initialized with the default polynomial 0x4C11DB7! CRC = %X \r\n", DefaultCRCValue);
+		Bsp_Printf("Computed The CRC by the previously computed CRC! CRC = %X \r\n", AccumulateCRCValue);
+#endif	/*RNG_DEBUG*/
+		
+#if RNG_IT_ENABLE == 1	
+		__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断,为了保证系统稳定运行,在中断中将其中断关闭,只有在需要随机数时候重新开启*/
+		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
+#endif	/*RNG_IT_ENABLE*/
+		
 	}
 }
 /*********************CoreBoard_BSP Exported Functions_Group1**************************/
@@ -397,10 +500,10 @@ void BSP_RunPer10ms(void)
 	if(CountEvery10ms == 60)	//由于LSI时钟范围为17KHz-47KHz, 程序使用32KHz来进行理论计算，
 	{							//其误差为0.68s - 1.88s,为了及时喂狗保证系统正常运行，这里每隔0.6s喂狗
 		CountEvery10ms = 0;
-		/* --- 喂狗 */
-		Bsp_IWDG_Feed();
 		Bsp_LED_Toggled(LED1_Green); 	//每秒LED1_Green闪烁表明系统运行正常
 #if IWDG_DEBUG == 1
+		/* --- 喂狗 */
+		Bsp_IWDG_Feed();
 		Bsp_Printf("IWDG feed in BSP_RunPer10ms() every 0.6s!\r\n");
 #endif
 	}	
@@ -420,9 +523,9 @@ void BSP_RunPer1ms(void)
   */
 void BSP_Idle(void)
 {
+#if IWDG_DEBUG == 1
 	/* --- 喂狗 */
     Bsp_IWDG_Feed();
-#if IWDG == 1
 	Bsp_Printf("IWDG feed in BSP_Idle() when calling the Bsp_Delay_ms(), This time is less then 1ms!\r\n");
 #endif
 	/* --- 让CPU进入休眠，由Systick定时中断唤醒或者其他中断唤醒 */

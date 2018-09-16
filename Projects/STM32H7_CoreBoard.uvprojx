@@ -335,7 +335,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32H743xx,USE_STM32H743II_COREBOARD</Define>
               <Undefine></Undefine>
-              <IncludePath>..\AppUser\Core;..\AppUser\Utilities\CPU;..\AppUser\Utilities\Fonts;..\AppUser\Utilities\Debug;..\Drivers\CMSIS\Include;..\Drivers\CMSIS\Device\ST\STM32H7xx\Include;..\Drivers\STM32H7xx_HAL_Driver\Inc;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\COREBOARD_BSP;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\LED;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\USART1;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RGB_LCD;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\MPU;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SOFT_TIMER;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\HARD_TIMER;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\WDG;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RTC;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\PWM;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\CRC;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC</IncludePath>
+              <IncludePath>..\AppUser\Core;..\AppUser\Utilities\CPU;..\AppUser\Utilities\Fonts;..\AppUser\Utilities\Debug;..\Drivers\CMSIS\Include;..\Drivers\CMSIS\Device\ST\STM32H7xx\Include;..\Drivers\STM32H7xx_HAL_Driver\Inc;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\COREBOARD_BSP;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\LED;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\USART1;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RGB_LCD;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\MPU;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SOFT_TIMER;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\HARD_TIMER;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\WDG;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RTC;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\PWM;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\CRC;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC;..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -456,6 +456,16 @@
           <GroupName>Drivers/BSP/STM32H7_CoreBoard</GroupName>
           <Files>
             <File>
+              <FileName>Adc_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Adc_DualMode_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_DualMode_Bsp.c</FilePath>
+            </File>
+            <File>
               <FileName>Coreboard_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\COREBOARD_BSP\Coreboard_Bsp.c</FilePath>
@@ -464,6 +474,21 @@
               <FileName>Crc_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\CRC\Crc_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Dac_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC\Dac_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Hardware_Timer_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\Hard_Timer\Hardware_Timer_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Lcd_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RGB_LCD\Lcd_Bsp.c</FilePath>
             </File>
             <File>
               <FileName>Led_Bsp.c</FileName>
@@ -476,9 +501,24 @@
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\MPU\Mpu_Bsp.c</FilePath>
             </File>
             <File>
-              <FileName>Lcd_Bsp.c</FileName>
+              <FileName>Pwm_Bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RGB_LCD\Lcd_Bsp.c</FilePath>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\PWM\Pwm_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Rng_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG\Rng_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Rtc_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RTC\Rtc_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Sdram_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM\Sdram_Bsp.c</FilePath>
             </File>
             <File>
               <FileName>Software_Timer_Bsp.c</FileName>
@@ -491,39 +531,9 @@
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\USART1\Usart1_Bsp.c</FilePath>
             </File>
             <File>
-              <FileName>Hardware_Timer_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\Hard_Timer\Hardware_Timer_Bsp.c</FilePath>
-            </File>
-            <File>
               <FileName>Wdg_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\WDG\Wdg_Bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>Rtc_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RTC\Rtc_Bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>Pwm_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\PWM\Pwm_Bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>Rng_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG\Rng_Bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>Sdram_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SDRAM\Sdram_Bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>Dac_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC\Dac_Bsp.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -85,7 +85,7 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(HAL_StatusTypeDef*)Bsp_RTC_Set_Date,"Bsp_RTC_Set_Date(uint8_t year,uint8_t month,uint8_t date,uint8_t week)",
 	(void*)Bsp_RTC_Set_AlarmA,"Bsp_RTC_Set_AlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)",
 
-	(void*)Bsp_SetTIM3Compare1,"Bsp_SetTIM3Compare1(uint16_t Frequence,uint8_t PWM_Duty)",
+	(void*)Bsp_SetTIM2Compare1,"Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, uint32_t TIM_CHANNEL_X)",
 
 };						  
 ///////////////////////////////////END///////////////////////////////////////////////
