@@ -110,6 +110,5 @@
 .\objects\user_dbg_str.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG\Rng_Bsp.h
 .\objects\user_dbg_str.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC\Dac_Bsp.h
 .\objects\user_dbg_str.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_Bsp.h
-.\objects\user_dbg_str.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_DualMode_Bsp.h
 .\objects\user_dbg_str.o: ..\AppUser\Utilities\Debug\user_dbg.h
 .\objects\user_dbg_str.o: ..\AppUser\Utilities\Debug\user_dbg_str.h

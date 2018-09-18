@@ -38,7 +38,6 @@
 #include "Rng_Bsp.h"
 #include "Dac_Bsp.h"
 #include "Adc_Bsp.h"
-#include "Adc_DualMode_Bsp.h"
 	 
 #include "user_dbg.h"
 #include "user_dbg_str.h"
@@ -61,20 +60,9 @@
 /**
   * @brief  The define for ADC Single Mode.
   */
-#define	ADC12_Single_POLL_Mode		0
-#define	ADC12_Single_DMA1_Mode		0
-#define ADC12_TRIGGER_BY_TIMER 		0		/* 1: ADC is operating in not continuous mode and conversions are triggered by external trigger: timer3*/
-#define	ADC3_SINGLE_CHANNEL_CONVERT	0
-#define	ADC3_MULTI_CHANNEL_CONVERT	1
 
-/**
-  * @brief  The define for ADC Dual Mode Interleaved.
-  */
-#define	ADC_DualMode_Interleaved	0
-#define ADC_DUAL_TRIGGER_FROM_TIMER 0		/* 1: ADC is operating in not continuous mode and conversions are triggered by external trigger: timer3*/
-											/* 0: ADC is operating in continuous mode and first conversion is triggered by software trigger*/
-											/*Timer instance must be on APB1 (clocked by PCLK1) due to frequency computation in function "Bsp_InitHardTimer_TIM1()*/
-#define	ADC_DUAL_DEBUG				0  
+#define	ADC12_MULTI_CHANNEL_CONVERT	0
+#define	ADC3_SINGLE_CHANNEL_CONVERT	1
 
 /**
   * @brief  The define for DAC_LFSR_NOISE DEBUG

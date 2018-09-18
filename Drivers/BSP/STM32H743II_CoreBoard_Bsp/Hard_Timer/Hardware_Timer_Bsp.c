@@ -375,12 +375,9 @@ void Bsp_InitHardTimer_TIM6(uint16_t Period,uint16_t Prescaler)
 	{
 		Error_Handler();
 	}
-	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;		/* TIM6 TRGO selection */
-	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;	
-
-#if SINWAVE_GEN_FOR_TEST == 1	
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;	
 	
 	if (HAL_TIMEx_MasterConfigSynchronization(&TIM6_Handler, &sMasterConfig) != HAL_OK)
 	{

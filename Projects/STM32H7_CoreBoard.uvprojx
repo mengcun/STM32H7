@@ -461,11 +461,6 @@
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_Bsp.c</FilePath>
             </File>
             <File>
-              <FileName>Adc_DualMode_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_DualMode_Bsp.c</FilePath>
-            </File>
-            <File>
               <FileName>Coreboard_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\COREBOARD_BSP\Coreboard_Bsp.c</FilePath>

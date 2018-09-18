@@ -44,12 +44,11 @@
 /**
   * @brief  Size of array aADCxConvertedData[] 
   */
-#define ADC_CONVERTED_DATA_BUFFER_SIZE   ((uint32_t)  5)
+#define ADC_CONVERTED_DATA_BUFFER_SIZE   ((uint32_t)  32)
 
 /**
   * @brief  The resolution of the ADC12 = 2 ^ Resolution (in the Bsp_Init_ADC())
   */
-#define VDD_APPLI                      ((uint32_t) 3300)    /* Value of analog voltage supply Vdda (unit: mV) */
 #define RANGE_8BITS                    ((uint32_t)  255)    /* Max digital value with a full range of 8 bits */
 #define RANGE_12BITS                   ((uint32_t) 4095)    /* Max digital value with a full range of 12 bits */
 #define RANGE_16BITS                   ((uint32_t)65535)    /* Max digital value with a full range of 16 bits */
@@ -73,6 +72,17 @@ extern ADC_HandleTypeDef    	ADC1_Handler;
   */ 
 extern __IO uint32_t ADCxConvertedData[ADC_CONVERTED_DATA_BUFFER_SIZE];
 
+/**
+  * @brief Variable about the result of Conversion.
+  */
+extern uint8_t ADC_Conversion_Complete;
+
+
+/**
+  * @brief Variable about the status of nalogWatchdog.
+  */
+extern uint8_t ADC_AnalogWatchdogStatus;
+
 /** @}
 */		
 /*----------------------------ADC Private variables--------------------------------*/ 
@@ -87,7 +97,7 @@ extern __IO uint32_t ADCxConvertedData[ADC_CONVERTED_DATA_BUFFER_SIZE];
 	* @{
   */
 void Bsp_Init_ADC3_SINGLE_CHANNEL(uint32_t Channelx);
-void Bsp_Init_ADC3_MULTI_CHANNEL(void);
+void Bsp_Init_ADC12_MULTI_CHANNEL(void);
 
 /** @}
 */

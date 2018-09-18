@@ -6,7 +6,6 @@
 ".\objects\user_dbg_str.o"
 ".\objects\user_dbg_config.o"
 ".\objects\adc_bsp.o"
-".\objects\adc_dualmode_bsp.o"
 ".\objects\coreboard_bsp.o"
 ".\objects\crc_bsp.o"
 ".\objects\dac_bsp.o"

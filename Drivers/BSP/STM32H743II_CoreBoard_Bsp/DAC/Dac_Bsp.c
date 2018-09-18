@@ -151,7 +151,7 @@ const uint16_t Sine12bit[32] = {
 
 void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS)
 {
-	DAC_Ch1_NoiseConfig(DAC_LFSRUNMASK_BITS);
+	Bsp_DAC_Ch1_NoiseConfig(DAC_LFSRUNMASK_BITS);
 }
 
 /**
@@ -173,7 +173,7 @@ void Bsp_InitNoiseDAC(uint32_t DAC_LFSRUNMASK_BITS)
   */
 void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE)
 {
-	DAC_Ch1_TriangleConfig(DAC_TRIANGLEAMPLITUDE);
+	Bsp_DAC_Ch1_TriangleConfig(DAC_TRIANGLEAMPLITUDE);
 }
 
 /**
@@ -181,7 +181,7 @@ void Bsp_InitTriangleDAC(uint32_t DAC_TRIANGLEAMPLITUDE)
   */
 void Bsp_InitEscalatorDAC(void)
 {
-	DAC_Ch1_EscalatorConfig();
+	Bsp_DAC_Ch1_EscalatorConfig();
 }
 
 /**
@@ -189,7 +189,7 @@ void Bsp_InitEscalatorDAC(void)
   */
 void Bsp_InitSinWaveDAC(void)
 {
-	DAC_Ch1_SinWaveConfig();
+	Bsp_DAC_Ch1_SinWaveConfig();
 }
 
 /**
@@ -238,7 +238,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef *DACx_Handler)
 
 	__HAL_LINKDMA(DACx_Handler, DMA_Handle1, DMA_DAC1_Handler);			/* Associate the initialized DMA handle to the DAC handle */
 
-	HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 2, 4);						//设置DMA_Stream5用与DAC中断优先级，抢占优先级3，子优先级1。ADC > DMA > DAC
+	HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 2, 4);						//设置DMA_Stream5用与DAC中断优先级，抢占优先级2，子优先级4。ADC > DMA > DAC
 	HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 	
 	HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 3, 0);							//设置TIM6用于DAC中断优先级，抢占优先级3，子优先级0，ADC > DMA > DAC
@@ -285,7 +285,7 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef *DACx_Handler)
 /**
   * @brief  DAC Channel1 Noise Configuration
   */
-void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS)
+void Bsp_DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS)
 {
 	DAC_Handler.Instance = DAC1;
 	
@@ -326,7 +326,7 @@ void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS)
 /**
   * @brief  DAC Channel1 Triangle Configuration
   */
-void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE)
+void Bsp_DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE)
 {
 	DAC_Handler.Instance = DAC1; 
 	
@@ -362,7 +362,7 @@ void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE)
 /**
   * @brief  DAC Channel1 Escalator Configuration
   */
-void DAC_Ch1_EscalatorConfig(void)
+void Bsp_DAC_Ch1_EscalatorConfig(void)
 {
 	DAC_Handler.Instance = DAC1;
 	
@@ -390,7 +390,7 @@ void DAC_Ch1_EscalatorConfig(void)
 /**
   * @brief  DAC Channel1 SIN wave Configuration
   */
-void DAC_Ch1_SinWaveConfig(void)
+void Bsp_DAC_Ch1_SinWaveConfig(void)
 {
 	DAC_Handler.Instance = DAC1;
 	
@@ -420,7 +420,43 @@ void DAC_Ch1_SinWaveConfig(void)
 }
 
 /**
-  * @brief  DAC Channel1 SIN wave Configuration
+  * @brief  For this example, generate a waveform voltage on a spare DAC
+  *         channel, so user has just to connect a wire between DAC channel 
+  *         (pin PA.04) and ADC channel (pin PA.04) to run this example.
+  *         (this prevents the user from resorting to an external signal generator)
+  *         This function configures the DAC and generates a constant voltage of Vdda/2.
+  *         To modify the voltage level, use function "WaveformVoltageGenerationForTest_Update"
+  */
+void Bsp_WaveformVoltageGenerationForTest_Config(uint32_t Resulotion)
+{
+
+	DAC_Handler.Instance = DAC1;
+	if (HAL_DAC_Init(&DAC_Handler) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+	sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+
+	if (HAL_DAC_ConfigChannel(&DAC_Handler, &sConfig, DAC_CHANNEL_1) != HAL_OK)
+	{
+		Error_Handler();
+	}
+  
+	if (HAL_DAC_SetValue(&DAC_Handler, DAC_CHANNEL_1, DAC_ALIGN_12B_R, Resulotion) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	if (HAL_DAC_Start(&DAC_Handler, DAC_CHANNEL_1) != HAL_OK)
+	{
+		Error_Handler();
+	}
+}
+
+/**
+  * @brief  DAC Channel12 Dual wave Configuration
   */
 void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK_BITS)
 {

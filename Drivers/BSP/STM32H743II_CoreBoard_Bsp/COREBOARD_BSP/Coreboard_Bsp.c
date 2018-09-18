@@ -104,7 +104,7 @@ void Coreboard_BSP_Init(void)
 	- Low Level Initialization
 	*/
 	HAL_Init();
-
+	
 	/* -3- Configure the system clock to 400 MHz*/
 	SystemClock_Config();
 	
@@ -215,38 +215,19 @@ void Coreboard_BSP_Init(void)
 	
 #endif	/*SINWAVE_GEN_FOR_TEST*/
 
-
 #if ADC3_SINGLE_CHANNEL_CONVERT == 1
 	/* -24- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_TEMPSENSOR);
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VREFINT);
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VBAT_DIV4);
+	
 #endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
 
-#if ADC3_MULTI_CHANNEL_CONVERT == 1
-	/* -24- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
-	Bsp_Init_ADC3_MULTI_CHANNEL();
+#if ADC12_MULTI_CHANNEL_CONVERT == 1
+	/* -25- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
+	Bsp_Init_ADC12_MULTI_CHANNEL();
+	
 #endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
-
-#if ADC_DualMode_Interleaved == 1
-	/* -25- Initialize ADC12 CHANNEL 18 Connected on PA4 as Dual Mode mounted on STM32H743II_CoreBoard*/							
-	Bsp_Init_DualModeADC(ADC1, ADC_CHANNEL_18, ADC2, ADC_CHANNEL_18);
-	
-#if ADC_DUAL_TRIGGER_FROM_TIMER == 1
-	
-	Bsp_InitHardTimer_TIM3(1000, 200);
-	if (HAL_TIM_Base_Start(&TIM2_Handler) != HAL_OK)
-	{
-		Error_Handler();
-	}
-#endif	/*ADC_DUAL_TRIGGER_FROM_TIMER*/
-	  
-	if (HAL_ADCEx_MultiModeStart_DMA(&ADC_Handler_Master, (uint32_t *)aADCDualConvertedValues, ADCCONVERTEDVALUES_BUFFER_SIZE) != HAL_OK)
-	{
-		Error_Handler();
-	}	
-	
-#endif	/*ADC_DualMode_Interleaved*/
 
 #if USMART_DEBUG == 1			
 	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
@@ -291,12 +272,12 @@ void Coreboard_BSP_Init(void)
 		Bsp_Delay_ms(1000);	
 		
 #if DAC_WAVE_DEBUG == 1	
-		DAC_Ch1_NoiseConfig(DAC_LFSRUnmaskTbl[iTestDAC]);
+		Bsp_DAC_Ch1_NoiseConfig(DAC_LFSRUnmaskTbl[iTestDAC]);
 		Bsp_Printf("The DAC LFSR Noise Config Selected as %X! \r\n",DAC_LFSRUnmaskTbl[iTestDAC]);
 		
 		Bsp_Delay_ms(5000);	
 		
-		DAC_Ch1_TriangleConfig(DAC_TriangleAmpTbl[iTestDAC]);
+		Bsp_DAC_Ch1_TriangleConfig(DAC_TriangleAmpTbl[iTestDAC]);
 		Bsp_Printf("The DAC Triangle Config Selected as %X! \r\n",DAC_TriangleAmpTbl[iTestDAC]);
 		
 		Bsp_Delay_ms(5000);	
@@ -326,15 +307,6 @@ void Coreboard_BSP_Init(void)
 		
 		Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VBAT_DIV4);
 		Bsp_Get_Board_VBAT();
-#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
-
-#if ADC3_MULTI_CHANNEL_CONVERT == 1
-		Bsp_Printf("The Temperature in CPU is %d degress! \r\n",ADCxConvertedData[0]);
-		Bsp_Printf("The CPU_Intern_VerfInt is %d mV! \r\n",ADCxConvertedData[1]);
-		Bsp_Printf("The Board Vbat is %d mV! \r\n",ADCxConvertedData[2]);
-		Bsp_Printf("The ADC Value in PA4 ADC1 is %d! \r\n",ADCxConvertedData[3]);
-		Bsp_Printf("The ADC Value in PA6 ADC2 is %d! \r\n",ADCxConvertedData[4]);
-
 #endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
 
 #if RNG_DEBUG == 1		

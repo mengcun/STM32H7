@@ -94,10 +94,11 @@ void Bsp_InitDualWaveDAC(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK
   * @{
   */
   
-void DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS);
-void DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE);
-void DAC_Ch1_EscalatorConfig(void);
-void DAC_Ch1_SinWaveConfig(void);
+void Bsp_DAC_Ch1_NoiseConfig(uint32_t DAC_LFSRUNMASK_BITS);
+void Bsp_DAC_Ch1_TriangleConfig(uint32_t DAC_TRIANGLEAMPLITUDE);
+void Bsp_DAC_Ch1_EscalatorConfig(void);
+void Bsp_DAC_Ch1_SinWaveConfig(void);
+void Bsp_WaveformVoltageGenerationForTest_Config(uint32_t Resulotion);
 void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUNMASK_BITS);
 
 /** @}

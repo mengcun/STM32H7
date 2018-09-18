@@ -110,7 +110,6 @@
 .\objects\lcd_bsp.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\RNG\Rng_Bsp.h
 .\objects\lcd_bsp.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\DAC\Dac_Bsp.h
 .\objects\lcd_bsp.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_Bsp.h
-.\objects\lcd_bsp.o: ..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\ADC\Adc_DualMode_Bsp.h
 .\objects\lcd_bsp.o: ..\AppUser\Utilities\Debug\user_dbg.h
 .\objects\lcd_bsp.o: ..\AppUser\Utilities\Debug\user_dbg_str.h
 .\objects\lcd_bsp.o: ..\AppUser\Utilities\Fonts\font.h
