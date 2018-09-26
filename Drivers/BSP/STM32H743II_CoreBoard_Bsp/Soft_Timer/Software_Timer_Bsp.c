@@ -37,7 +37,7 @@
   * @brief	Creat the Software timer by systick
   * @{
   */
-// 我们利用是钟摘取.以Bsp_Delay_us为例,比如Bsp_Delay_us(50),在刚进入 Bsp_Delay_us的时候先计算好这段延需要等待的 
+// 利用是钟摘取.以Bsp_Delay_us为例,比如Bsp_Delay_us(50),在刚进入 Bsp_Delay_us的时候先计算好这段延需要等待的 
 // systick计数次数,这里为50*400(假设系统时钟为 400Mhz,因为我们设置 systick的频率为系统时钟,那么systick每增加1，
 // 就是1/400us)，然后我们就一直统计systick的计数变化,直到这个值变化了50*400,一旦检测到变化达或超过这个值，那么50us时间到了。
 // 这样我们只是抓取SysTick计数器的变化,并不需要修改计数器,并不需要修改SysTick的任何状态,完全不影响态,完全不影响SysTick作为UCOS时钟节拍的功能,
@@ -60,7 +60,8 @@ static SOFT_TMR s_tTmr[TMR_COUNT];
 	全局运行时间，单位1ms
 	最长可以表示 24.85天，如果你的产品连续运行时间超过这个数，则必须考虑溢出问题
 */
-__IO int32_t g_iRunTime = 0;
+__IO uint32_t g_iRunTime = 0;
+__IO uint32_t CPU_Runtime = 0;
 
 /** @}
 */	
@@ -156,8 +157,10 @@ void Bsp_InitSoftTimer(uint16_t SYSCLK)
   */
 void SysTick_Handler(void)
 {
+#if SYSTEM_SUPPORT_OS == 0
 	static uint8_t s_count = 0;
 	uint8_t i;
+	HAL_IncTick();		//This is used for HAL_Delay
 	/* 每隔1ms进来1次 （仅用于 bsp_DelayMS） */
 	if (s_uiDelayCount > 0)
 	{
@@ -183,7 +186,8 @@ void SysTick_Handler(void)
 	{
 		s_count = 0;
 		BSP_RunPer10ms();	/* 每隔10ms调用一次此函数，此函数在 Coreboard_Bsp.c */
-	}	
+	}
+#endif	/*SYSTEM_SUPPORT_OS*/	
 }
 /**
   * @brief  This function is delay for nus, and the nus must be less then 1000.
@@ -226,9 +230,16 @@ void Bsp_Delay_us(uint32_t nus)
   */
 void Bsp_Delay_ms(uint32_t nms)
 {
-//	uint32_t i;
-//	for(i=0;i<nms;i++)
-//		Bsp_Delay_us(1000);
+#if SYSTEM_SUPPORT_OS == 1
+
+	uint32_t i;
+	for(i=0;i<nms;i++)
+		Bsp_Delay_us(1000);
+	
+#endif	/*SYSTEM_SUPPORT_OS*/
+	
+#if SYSTEM_SUPPORT_OS == 0
+
 	if (nms == 0)
 	{
 		return;
@@ -256,7 +267,10 @@ void Bsp_Delay_ms(uint32_t nms)
 		{
 			break;
 		}
-	}	
+	}
+	
+#endif	/*SYSTEM_SUPPORT_OS*/
+	
 }
 
 /**
@@ -384,22 +398,20 @@ uint8_t Bsp_CheckSoftwareTimer(uint8_t _id)
 */
 
 //获取CPU运行时间，单位1ms。最长可以表示 24.85天，如果你的产品连续运行时间超过这个数，则必须考虑溢出问题.
-int32_t Bsp_GetCPURunTime(void)
+uint32_t Bsp_GetCPURunTime(void)
 {
-	int32_t runtime;
-
 	DISABLE_INT();  	/* 关中断 */
 
-	runtime = g_iRunTime;	/* 这个变量在Systick中断中被改写，因此需要关中断进行保护 */
+	CPU_Runtime = g_iRunTime;	/* 这个变量在Systick中断中被改写，因此需要关中断进行保护 */
 
 	ENABLE_INT();  		/* 开中断 */
 
-	return runtime;
+	return CPU_Runtime;
 }
 
 /** @}
 */
-/****************************XXXX Exported Functions Group2*********************/
+/****************************Software_Timer Exported Functions Group2*********************/
 /** @}
 */
 /*----------------------------------Software_Timer Exported Functions------------------------------------*/

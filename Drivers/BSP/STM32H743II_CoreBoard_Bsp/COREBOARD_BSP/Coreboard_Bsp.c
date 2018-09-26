@@ -118,10 +118,12 @@ void Coreboard_BSP_Init(void)
 			
 	/* -5- Initialize USART1 as baund 115200mounted on STM32H743II_CoreBoard for */
 	Bsp_InitUsart1(115200);
-	
+
+#if SYSTEM_SUPPORT_OS == 0
 	/* -6- Initialize SysTick (use system clock 400MHz) mounted on STM32H743II_CoreBoard*/
-	Bsp_InitSoftTimer(400);
-	
+	Bsp_InitSoftTimer(400);	/*SYSTEM_SUPPORT_OS*/
+#endif	/*SYSTEM_SUPPORT_OS*/
+
 #if HARDWARE_TIM5_DEBUG == 1
 	/* -7- Initialize General Hard_Timer_ TIM5 mounted on STM32H743II_CoreBoard*/
 	Bsp_InitHardTimer_TIM5(1000000, 200);	//输出频率Frequence = 200 000 000 / 1000000 / 200 = 1Hz	 
@@ -174,15 +176,13 @@ void Coreboard_BSP_Init(void)
 	
 	/* -15.2- Initialize TIM2_CHANNEL4_PWM as 100 000 Hz and remaping to PA2 mounted on STM32H743II_CoreBoard*/	
 	/*Frequence(Hz) = TIM2CLK / Period / Prescaler = 200 000 000 / param1 / param2 */
-	Bsp_InitHardTimer_TIM2(100, 20, 50, TIM_CHANNEL_4);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz
-		
+	Bsp_InitHardTimer_TIM2(100, 20, 50, TIM_CHANNEL_4);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz		
 #endif	/*HARDWARE_TIM2PWM_DEBUG*/
 
 #if CRC_DEBUG == 1
 	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
 	Bsp_InitDefautCRC();
 	Bsp_ComputeCRCDefault();
-	
 	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitUserDefineCRC();
 	Bsp_ComputeCRCAccumulate();
@@ -191,32 +191,25 @@ void Coreboard_BSP_Init(void)
 #if DAC_WAVE_DEBUG == 1	
 	/* -18- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
 	Bsp_InitHardTimer_TIM6(2000, 0);		//输出频率Frequence = 200 000 000 / 2000 / 1 = 100 000Hz
-	
 	/* -19- Initialize DAC_CHANNEL1 on PA4 as NOISE mode mounted on STM32H743II_CoreBoard*/						
 	Bsp_InitNoiseDAC(DAC_LFSRUNMASK_BITS11_0);
-	
 	/* -20- Initialize DAC_CHANNEL1 on PA4 as TRIANGLE mode mounted on STM32H743II_CoreBoard*/							
 	Bsp_InitTriangleDAC(DAC_TRIANGLEAMPLITUDE_4095);
-	
 	/* -21- Initialize DAC_CHANNEL1 Triangle and DAC_CHANNEL2 Noise on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
-	Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);
-	
+	Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);	
 #endif	/*DAC_WAVE_DEBUG*/
 
 #if SINWAVE_GEN_FOR_TEST == 1	
 	/* -22- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
 	Bsp_InitHardTimer_TIM6(20000, 2000);		//输出频率Frequence = 200 000 000 / 20000 / 2000 = 5Hz
-	
 	/* -23- Initialize DAC_CHANNEL1 on PA4 as ESCALATOR DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
 	//Bsp_InitEscalatorDAC();		//The Escalator and the Sin wave are used DMA,can not test them at the same time.
-	
 	/* -24- Initialize DAC_CHANNEL1 on PA4 as SIN DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
-	Bsp_InitSinWaveDAC();
-	
+	Bsp_InitSinWaveDAC();	
 #endif	/*SINWAVE_GEN_FOR_TEST*/
 
 #if ADC3_SINGLE_CHANNEL_CONVERT == 1
-	/* -24- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
+	/* -25- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_TEMPSENSOR);
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VREFINT);
 	Bsp_Init_ADC3_SINGLE_CHANNEL(ADC_CHANNEL_VBAT_DIV4);
@@ -224,40 +217,85 @@ void Coreboard_BSP_Init(void)
 #endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
 
 #if ADC12_MULTI_CHANNEL_CONVERT == 1
-	/* -25- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
-	Bsp_Init_ADC12_MULTI_CHANNEL();
-	
+	/* -26- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
+	Bsp_Init_ADC12_MULTI_CHANNEL();	
 #endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
 
 #if USMART_DEBUG == 1			
-	/* -26- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
+	/* -27- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
 	usmart_dev.init(); 	
 #endif	/*USMART_DEBUG*/	
 
 #if SDRAM_DEBUG == 1			
-	/* -27- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
-	Bsp_SDRAM_Init();   
+	/* -28- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
+	Bsp_SDRAM_Init();
+    Bsp_my_mem_init(SRAMIN);            		//初始化内部内存池
+    Bsp_my_mem_init(SRAMEX);            		//初始化外部SDRAM内存池	
+	Bsp_my_mem_init(SRAMDTCM);		    		//初始化CCM内存池 
 #endif	/*SDRAM_DEBUG*/
 
+#if W25QXX_DEBUG == 1
+	/* -29- Initialize QSPI mounted on STM32H743II_CoreBoard*/
+	Bsp_QSPI_Init();
+	
+	/* -30- Initialize W25Q256 mounted on STM32H743II_CoreBoard*/
+	Bsp_W25QXX_Init();
+#endif	/*W25QXX_DEBUG*/
+
+#if SD_MMC_DEBUG == 1
+	/* -31- Initialize SD CARD mounted on STM32H743II_CoreBoard*/
+	Bsp_SD_Init();
+
+#endif	/*SD_MMC_DEBUG*/
+
+#if MOUNT_SD_CARD == 1
+	/* -32- Initialize SD CARD and mounted to STM32H743II_CoreBoard*/
+	uint32_t total,free;
+	Bsp_FatFs_Init();
+  	Bsp_fmount_SDCARD("0:",1); 						//挂载SD卡 
+#endif	/*MOUNT_SD_CARD*/
+
+#if USE_FLASH_AS_VOLUM == 1
+	/* -33- Initialize FLASH and mounted to STM32H743II_CoreBoard*/
+	if(Bsp_fmount_FLASH("1:",1)==0X0D)				//挂载FLASH磁盘,FAT文件系统错误,重新格式化FLASH
+	{
+		Bsp_Printf("Flash Disk Formatting...\r\n");	//格式化FLASH
+		if(Bsp_fmkfs("1:",FM_FAT,4096,Buff,4096)==0)//格式化FLASH,1,盘符;1,不需要引导区,8个扇区为1个簇
+		{
+			f_setlabel((const TCHAR *)"1:ALIENTEK");//设置Flash磁盘的名字为：ALIENTEK
+			Bsp_Printf("Flash Disk Format Finish.\r\n");//格式化完成
+		}
+		else 
+		{
+			Bsp_Printf("Flash Disk Format Error.\r\n");	//格式化失败
+		}
+		Bsp_Delay_ms(1000);
+	}
+#endif	/*USE_FLASH_AS_VOLUM*/
+	
 #if RGBLCD_DEBUG == 1			
-	/* -28- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
+	/* -31- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
 	Bsp_RGB_LCD_Init(); 
 #endif	/*RGBLCD_DEBUG*/
 
 #if RNG_DEBUG == 1	
-	/* -28- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
+	/* -32- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitRNG();		/*It produces four 32-bit random samples every 16*FAHB/FRNG AHB clock cycles, if value is higher than 213 cycles (213 cycles otherwise).*/
 						/*After enabling the RNG for the first time, random data is first available after either */
 						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
 #endif	/*RNG_DEBUG*/	
 
-	/* -29- Get the Information about STM32H743II_CoreBoard*/
+/* -33- Get the Information about STM32H743II_CoreBoard*/
 	GetInfo_CoreBoard();
 	POINT_COLOR=RED; 		
 	while(1)
 	{	
 		Bsp_LCD_Clear(BLUE);
-		
+#if MOUNT_SD_CARD == 1		
+		Bsp_GetDisk_Volume("0:",&total,&free);
+		Bsp_Printf("The SD Card Total Size are %d KB! \r\n",total);
+		Bsp_Printf("The SD Card Free Size are %d KB! \r\n",free);
+#endif	/*MOUNT_SD_CARD*/		
 		GetInfo_Calendar();
 		
 		Bsp_LCD_ShowString(10,40,800,32,32,CoreBoard_Infor.BOARD_NAME); 	
@@ -268,7 +306,7 @@ void Coreboard_BSP_Init(void)
 		Bsp_LCD_ShowString(10,240,800,24,24,aShowTime);
 		Bsp_LCD_ShowString(10,280,800,24,24,aShowDate);
 		Bsp_LCD_ShowString(10,320,800,24,24,aShowWeek);
-		
+
 		Bsp_Delay_ms(1000);	
 		
 #if DAC_WAVE_DEBUG == 1	
@@ -322,7 +360,18 @@ void Coreboard_BSP_Init(void)
 		__HAL_RNG_ENABLE_IT(&Rng_Handler);/*因为RNG的中断优先级仅次于窗口看门狗,而RNG数据一旦就绪就会产生中断,为了保证系统稳定运行,在中断中将其中断关闭,只有在需要随机数时候重新开启*/
 		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
 #endif	/*RNG_IT_ENABLE*/
-		
+
+#if W25QXX_TEST == 1
+		Bsp_ReadSpeedTest(0,0x00,4096);
+		Bsp_Delay_ms(1000);
+		Bsp_Write_With_Check_Test(0,0x00,4096);
+		Bsp_Delay_ms(1000);
+		Bsp_Erase_ChipTest();
+#endif	/*W25QXX_TEST*/
+
+#if SD_MMC_DEBUG == 1
+	Bsp_Show_SD_Info();
+#endif	/*SD_MMC_DEBUG*/
 	}
 }
 /*********************CoreBoard_BSP Exported Functions_Group1**************************/
@@ -435,6 +484,7 @@ static void SystemClock_Config(void)
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2; 
 	RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2; 
 	ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4);
+	__HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_CLKP);		
 	if(ret != HAL_OK)
 	{
 		while(1) { ; }

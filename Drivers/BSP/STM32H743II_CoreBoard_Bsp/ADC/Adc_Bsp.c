@@ -270,7 +270,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *ADCx_Handler)
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 		
 		DMA_Handler.Instance                 = DMA1_Stream1;
-		DMA_Handler.Init.Request             = DMA_REQUEST_ADC2;
+		DMA_Handler.Init.Request             = DMA_REQUEST_ADC1;
 		DMA_Handler.Init.Direction           = DMA_PERIPH_TO_MEMORY;
 		DMA_Handler.Init.PeriphInc           = DMA_PINC_DISABLE;
 		DMA_Handler.Init.MemInc              = DMA_MINC_ENABLE;

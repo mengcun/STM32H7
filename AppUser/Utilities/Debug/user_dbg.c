@@ -96,7 +96,7 @@ uint8_t usmart_sys_cmd_exe(uint8_t *str)
 			Bsp_Printf("id:     	The ID of the avaiable functions.\r\n");
 			Bsp_Printf("hex:    	Display as HEX.\r\n");
 			Bsp_Printf("dec:    	Display as DEC.\r\n");
-			Bsp_Printf("runtime:	1,Start time keeping.;0,Close time keeping.\r\n");
+			Bsp_Printf("runtime:	1,Start time keeping.The Max are 13.1s;0,Close time keeping.\r\n");
 #else
 			Bsp_Printf("Please enable the USMART_USE_HELP .\r\n");
 #endif

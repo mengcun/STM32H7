@@ -27,7 +27,7 @@
 #include "Led_Bsp.h"
 #include "Mpu_Bsp.h"
 #include "Lcd_Bsp.h"
-#include "SDRAM_Bsp.h" 
+#include "Sdram_Bsp.h" 
 #include "Software_Timer_Bsp.h"
 #include "Usart1_Bsp.h"
 #include "Hardware_Timer_Bsp.h"
@@ -38,6 +38,11 @@
 #include "Rng_Bsp.h"
 #include "Dac_Bsp.h"
 #include "Adc_Bsp.h"
+#include "Spi_Flash_Bsp.h"
+#include "Sd_Bsp.h"
+#include "Malloc_Bsp.h"
+#include "Bsp_FatFs_BasicFunction.h"	 
+#include "Bsp_FatFs_ExtendFunctions.h"
 	 
 #include "user_dbg.h"
 #include "user_dbg_str.h"
@@ -62,7 +67,7 @@
   */
 
 #define	ADC12_MULTI_CHANNEL_CONVERT	0
-#define	ADC3_SINGLE_CHANNEL_CONVERT	1
+#define	ADC3_SINGLE_CHANNEL_CONVERT	0
 
 /**
   * @brief  The define for DAC_LFSR_NOISE DEBUG
@@ -75,7 +80,7 @@
   */
 #define HARDWARE_TIM1_DEBUG			0
 #define HARDWARE_TIM5_DEBUG			0
-#define HARDWARE_TIM2PWM_DEBUG		1
+#define HARDWARE_TIM2PWM_DEBUG		0
 
 /**
   * @brief  The define for IWDG DEBUG
@@ -100,7 +105,7 @@
 /**
   * @brief  The define for RTC DEBUG
   */
-#define RTC_GET_TIME				1
+#define RTC_GET_TIME				0
 #define RTC_ALARMA_DEBUG			0
 #define RTC_BKRAM_DEBUG				0
 #define RTC_WAKEUP_DEBUG			0
@@ -108,7 +113,19 @@
 #define RTC_TAMPER_DEBUG			0
 
 /**
-  * @brief  The define for WWDG DEBUG
+  * @brief  The define for W25QXX DEBUG
+  */
+#define W25QXX_DEBUG				1
+#define W25QXX_TEST					0
+
+/**
+  * @brief  The define for SD_MMC_DEBUG
+  */
+#define SD_MMC_DEBUG    			1
+#define SD_DMA_MODE     			0	//1：DMA模式，0：查询模式
+
+/**
+  * @brief  The define for SDRAM DEBUG
   * @brief  This should be opened always
   */
 #define SDRAM_DEBUG					1
@@ -123,6 +140,17 @@
   * @brief  The define for USER DEBUG
   */  
 #define USMART_DEBUG				1
+
+/**
+  * @brief  The define for MOUNT_SD_CARD
+  */  
+#define MOUNT_SD_CARD				1
+
+/**
+  * @brief  The define for USE_FLASH_AS_VOLUM
+  *			This should be always 0 unless we indeed need it.
+  */  
+#define USE_FLASH_AS_VOLUM			0
 
 /**
   * @brief STM32H743II_CoreBoard BSP Driver version number V1.0.0

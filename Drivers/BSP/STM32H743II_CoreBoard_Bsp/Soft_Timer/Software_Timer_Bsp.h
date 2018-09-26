@@ -101,7 +101,7 @@ void Bsp_StartSoftwareTimerOnce(uint8_t _id, uint32_t _period);
 void Bsp_StartSoftwareTimerAuto(uint8_t _id, uint32_t _period);
 void Bsp_StopSoftwareTimer(uint8_t _id);
 uint8_t Bsp_CheckSoftwareTimer(uint8_t _id);
-int32_t Bsp_GetCPURunTime(void);
+uint32_t Bsp_GetCPURunTime(void);
 
 /** @}
 */

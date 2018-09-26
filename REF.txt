@@ -14,3 +14,5 @@ https://blog.csdn.net/ACdreamers/article/details/44656743
 https://blog.csdn.net/liyuanbhu/article/details/7882789
 7.关于FFT,傅里叶变换的一个快速算法
 https://blog.csdn.net/zhaopeizhaopeipei/article/details/53908238
+8.关于W25Q256 FLASH的学习
+https://blog.csdn.net/ye_wei_yang/article/details/72901711

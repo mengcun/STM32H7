@@ -72,17 +72,6 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 #endif
 /** @}
 */		
-/* Private functions Prototypes -------------------------------------------------------------------*/
-/** @defgroup USART1_Private_Functions_Prototypes USART1 Private Functions Prototypes
-  * @{
-  */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart);
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
-void CPU_CACHE_Enable(void);
-
-/** @}
-*/	
-/*----------------------------USART1 Private Functions Prototypes--------------------------------*/ 
 /* Exported functions -----------------------------------------------------------------------------*/
 /** @defgroup USART1_Exported_Functions USART1 Exported Functions
   * @{
@@ -238,7 +227,7 @@ void USART1_IRQHandler(void)
     uint32_t maxDelay=0x1FFFF;
 #if SYSTEM_SUPPORT_OS == 1	 	//使用OS
 	OSIntEnter();    
-#endif
+#endif	/*SYSTEM_SUPPORT_OS*/
 	
 	HAL_UART_IRQHandler(&UartHandle);	//调用HAL库中断处理公用函数
 	
@@ -257,7 +246,7 @@ void USART1_IRQHandler(void)
 	}
 #if SYSTEM_SUPPORT_OS == 1	 	//使用OS
 	OSIntExit();  											 
-#endif
+#endif	/*SYSTEM_SUPPORT_OS*/
 } 
 
 /**
@@ -360,6 +349,13 @@ int fputc(int ch, FILE *f)
 	return ch;
 }
 
+//重定义fgetc函数 
+
+int fgetc(FILE *f)
+{
+	while ((USARTx->ISR&0X20)==0);
+	return (int)(USARTx->RDR & (uint8_t)0x01FF); 	
+}
 #endif 
 
 /** @}

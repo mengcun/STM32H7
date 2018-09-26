@@ -87,6 +87,15 @@ struct _m_usmart_nametab usmart_nametab[]=
 
 	(void*)Bsp_SetTIM2Compare1,"Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, uint32_t TIM_CHANNEL_X)",
 
+	(void*) Bsp_Read_FLASH_Info,"Bsp_Read_FLASH_Info(void)",
+	(void*) Bsp_ReadTest,"Bsp_ReadTest(uint8_t* pBuffer,uint32_t ReadAddr,uint16_t NumByteToRead)",
+	(void*) Bsp_ReadSpeedTest,"Bsp_ReadSpeedTest(uint8_t* pBuffer,uint32_t ReadAddr,uint16_t NumByteToRead)",
+	(void*) Bsp_Write_With_Check_Test,"Bsp_Write_With_Check_Test(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite)",
+	(void*) Bsp_Write_Without_Check_Test,"Bsp_Write_Without_Check_Test(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite)",
+	(void*) Bsp_Write_All_Page_Test,"Bsp_Write_All_Page_Test(uint8_t _data, uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite)",
+	(void*) Bsp_Erase_ChipTest,"Bsp_Erase_ChipTest(void)",
+	(void*) Bsp_Erase_Page_Test,"Bsp_Erase_Page_Test(uint32_t Dst_Addr)",
+
 };						  
 ///////////////////////////////////END///////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

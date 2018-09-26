@@ -128,6 +128,7 @@ extern uint8_t aRxBuffer[RXBUFFERSIZE];
   * @{
   */
 void Bsp_InitUsart1(uint32_t bound);
+void CPU_CACHE_Enable(void);
 /** @}
 */
 /**********************USART1 Exported Functions Group2**************************/
