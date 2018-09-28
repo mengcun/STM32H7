@@ -124,52 +124,56 @@ void Coreboard_BSP_Init(void)
 	Bsp_InitSoftTimer(400);	/*SYSTEM_SUPPORT_OS*/
 #endif	/*SYSTEM_SUPPORT_OS*/
 
-#if HARDWARE_TIM5_DEBUG == 1
+#if HARDWARE_TIM1_ENABLE == 1
+	Bsp_InitHardTimer_TIM1(0xFFFF, 0, TIM_CHANNEL_2);
+#endif	/*HARDWARE_TIM1_ENABLE*/
+
+#if HARDWARE_TIM5_ENABLE == 1
 	/* -7- Initialize General Hard_Timer_ TIM5 mounted on STM32H743II_CoreBoard*/
 	Bsp_InitHardTimer_TIM5(1000000, 200);	//输出频率Frequence = 200 000 000 / 1000000 / 200 = 1Hz	 
-#endif	/*HARDWARE_TIM5_DEBUG*/
+#endif	/*HARDWARE_TIM5_ENABLE*/
 
-#if IWDG_DEBUG == 1
+#if IWDG_ENABLE == 1
 	/* -8- Initialize IWatchDog as 1s timeout mounted on STM32H743II_CoreBoard*/			
 	Bsp_IWDG_Init(IWDG_PRESCALER_64, 500);
-#endif	/*IWDG_DEBUG*/
+#endif	/*IWDG_ENABLE*/
 
-#if WWDG_DEBUG == 1
+#if WWDG_ENABLE == 1
 	/* -8- Initialize Window WatchDog as 11ms WWDG_Timeout mounted on STM32H743II_CoreBoard*/			
 	Bsp_WWDG_Init(0X7F, 0X5F, WWDG_PRESCALER_8);
-#endif	/*WWDG_DEBUG*/
+#endif	/*WWDG_ENABLE*/
 
-#if RTC_GET_TIME == 1 
+#if RTC_ENABLE == 1 
 	/* -9- Initialize RTC mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Init();
-#endif	/*RTC_GET_TIME*/
+#endif	/*RTC_ENABLE*/
 
-#if RTC_WAKEUP_DEBUG == 1 
+#if RTC_WAKEUP_ENABLE == 1 
 	/* -10- Initialize RTC WAKE UP as 1s mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Set_WakeUp(RTC_WAKEUPCLOCK_CK_SPRE_16BITS,0); 
-#endif	/*RTC_WAKEUP_DEBUG*/	
+#endif	/*RTC_WAKEUP_ENABLE*/	
 
-#if RTC_ALARMA_DEBUG == 1 
+#if RTC_ALARMA_ENABLE == 1 
 	/* -11- Initialize RTC ALARM as Wednesday AM 11:00:00 mounted on STM32H743II_CoreBoard*/			
     Bsp_RTC_Set_AlarmA(3,11,00,00);	
-#endif	/*RTC_ALARMA_DEBUG*/
+#endif	/*RTC_ALARMA_ENABLE*/
 
-#if RTC_TIMESTAMP_DEBUG == 1 
+#if RTC_TIMESTAMP_ENABLE == 1 
 	/* -12- Initialize RTC TIME STAMP as rising edge on PC.13 mounted on STM32H743II_CoreBoard*/			
 	Bsp_RTC_Set_TimeStamp();
-#endif	/*RTC_TIMESTAMP_DEBUG*/
+#endif	/*RTC_TIMESTAMP_ENABLE*/
 
-#if RTC_TAMPER_DEBUG == 1 
+#if RTC_TAMPER_ENABLE == 1 
 	/* -13- Initialize RTC TIME STAMP as failing edge on PC.13 mounted on STM32H743II_CoreBoard*/				
 	Bsp_RTC_Set_Tamper();
-#endif	/*RTC_TAMPER_DEBUG*/
+#endif	/*RTC_TAMPER_ENABLE*/
 
-#if RTC_BKRAM_DEBUG == 1
+#if RTC_BKRAM_ENABLE == 1
 	/* -14- Initialize RTC BackUp RAM mounted on STM32H743II_CoreBoard*/				
 	Bsp_RTC_Set_BackupRAM();
-#endif	/*RTC_BKRAM_DEBUG*/
+#endif	/*RTC_BKRAM_ENABLE*/
 
-#if HARDWARE_TIM2PWM_DEBUG == 1
+#if HARDWARE_TIM2PWM_ENABLE == 1
 	/* -15.1- Initialize TIM2_CHANNEL3_PWM as 100 000 Hz and remaping to PA2 mounted on STM32H743II_CoreBoard*/	
 	/*Frequence(Hz) = TIM2CLK / Period / Prescaler = 200 000 000 / param1 / param2 */
 	Bsp_InitHardTimer_TIM2(100, 20, 20, TIM_CHANNEL_3);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz
@@ -177,18 +181,18 @@ void Coreboard_BSP_Init(void)
 	/* -15.2- Initialize TIM2_CHANNEL4_PWM as 100 000 Hz and remaping to PA2 mounted on STM32H743II_CoreBoard*/	
 	/*Frequence(Hz) = TIM2CLK / Period / Prescaler = 200 000 000 / param1 / param2 */
 	Bsp_InitHardTimer_TIM2(100, 20, 50, TIM_CHANNEL_4);		//输出频率Frequence = 200 000 000 / 100 / 20 = 100 000Hz		
-#endif	/*HARDWARE_TIM2PWM_DEBUG*/
+#endif	/*HARDWARE_TIM2PWM_ENABLE*/
 
-#if CRC_DEBUG == 1
+#if CRC_ENABLE == 1
 	/* -16- Initialize CRC and Cumpute CRC by re-initialized default polynomial 0x4C11DB7, and default init value mounted on STM32H743II_CoreBoard*/				
 	Bsp_InitDefautCRC();
 	Bsp_ComputeCRCDefault();
 	/* -17- Initialize CRC and Cumpute CRC by user define polynomial 0x9B without re-initialized, default init value mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitUserDefineCRC();
 	Bsp_ComputeCRCAccumulate();
-#endif	/*CRC_DEBUG*/
+#endif	/*CRC_ENABLE*/
 
-#if DAC_WAVE_DEBUG == 1	
+#if DAC_WAVE_ENABLE == 1	
 	/* -18- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
 	Bsp_InitHardTimer_TIM6(2000, 0);		//输出频率Frequence = 200 000 000 / 2000 / 1 = 100 000Hz
 	/* -19- Initialize DAC_CHANNEL1 on PA4 as NOISE mode mounted on STM32H743II_CoreBoard*/						
@@ -197,16 +201,16 @@ void Coreboard_BSP_Init(void)
 	Bsp_InitTriangleDAC(DAC_TRIANGLEAMPLITUDE_4095);
 	/* -21- Initialize DAC_CHANNEL1 Triangle and DAC_CHANNEL2 Noise on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
 	Bsp_InitDualWaveDAC(DAC_TRIANGLEAMPLITUDE_4095,DAC_LFSRUNMASK_BITS11_0);	
-#endif	/*DAC_WAVE_DEBUG*/
+#endif	/*DAC_WAVE_ENABLE*/
 
-#if SINWAVE_GEN_FOR_TEST == 1	
+#if SINWAVE_GEN_FOR_TEST_ENABLE == 1	
 	/* -22- Initialize TIM6 for DAC_CHANNEL2 on PA4 and PA5 mounted on STM32H743II_CoreBoard*/								
 	Bsp_InitHardTimer_TIM6(20000, 2000);		//输出频率Frequence = 200 000 000 / 20000 / 2000 = 5Hz
 	/* -23- Initialize DAC_CHANNEL1 on PA4 as ESCALATOR DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
 	//Bsp_InitEscalatorDAC();		//The Escalator and the Sin wave are used DMA,can not test them at the same time.
 	/* -24- Initialize DAC_CHANNEL1 on PA4 as SIN DMA_STREAM5 mode mounted on STM32H743II_CoreBoard*/							
 	Bsp_InitSinWaveDAC();	
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+#endif	/*SINWAVE_GEN_FOR_TEST_ENABLE*/
 
 #if ADC3_SINGLE_CHANNEL_CONVERT == 1
 	/* -25- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
@@ -219,48 +223,47 @@ void Coreboard_BSP_Init(void)
 #if ADC12_MULTI_CHANNEL_CONVERT == 1
 	/* -26- Initialize ADC12 CHANNEL 6 Connected on PA6 mounted on STM32H743II_CoreBoard*/							
 	Bsp_Init_ADC12_MULTI_CHANNEL();	
-#endif	/*ADC3_SINGLE_CHANNEL_CONVERT*/
+#endif	/*ADC12_MULTI_CHANNEL_CONVERT*/
 
-#if USMART_DEBUG == 1			
+#if USMART_ENABLE == 1			
 	/* -27- Initialize USER_DEBUG mounted on STM32H743II_CoreBoard*/			
 	usmart_dev.init(); 	
-#endif	/*USMART_DEBUG*/	
+#endif	/*USMART_ENABLE*/	
 
-#if SDRAM_DEBUG == 1			
+#if SDRAM_ENABLE == 1			
 	/* -28- Initialize SDRAM mounted on STM32H743II_CoreBoard*/
 	Bsp_SDRAM_Init();
     Bsp_my_mem_init(SRAMIN);            		//初始化内部内存池
     Bsp_my_mem_init(SRAMEX);            		//初始化外部SDRAM内存池	
 	Bsp_my_mem_init(SRAMDTCM);		    		//初始化CCM内存池 
-#endif	/*SDRAM_DEBUG*/
+#endif	/*SDRAM_ENABLE*/
 
-#if W25QXX_DEBUG == 1
+#if W25QXX_ENABLE == 1
 	/* -29- Initialize QSPI mounted on STM32H743II_CoreBoard*/
 	Bsp_QSPI_Init();
 	
 	/* -30- Initialize W25Q256 mounted on STM32H743II_CoreBoard*/
 	Bsp_W25QXX_Init();
-#endif	/*W25QXX_DEBUG*/
+#endif	/*W25QXX_ENABLE*/
 
-#if SD_MMC_DEBUG == 1
+#if SD_MMC_ENABLE == 1
 	/* -31- Initialize SD CARD mounted on STM32H743II_CoreBoard*/
 	Bsp_SD_Init();
 
-#endif	/*SD_MMC_DEBUG*/
+#endif	/*SD_MMC_ENABLE*/
 
-#if MOUNT_SD_CARD == 1
+#if MOUNT_SD_CARD_ENABLE == 1
 	/* -32- Initialize SD CARD and mounted to STM32H743II_CoreBoard*/
-	uint32_t total,free;
 	Bsp_FatFs_Init();
-  	Bsp_fmount_SDCARD("0:",1); 						//挂载SD卡 
-#endif	/*MOUNT_SD_CARD*/
+  	f_mount(fs[0],"0:",1); 						//挂载SD卡 
+#endif	/*MOUNT_SD_CARD_ENABLE*/
 
 #if USE_FLASH_AS_VOLUM == 1
 	/* -33- Initialize FLASH and mounted to STM32H743II_CoreBoard*/
-	if(Bsp_fmount_FLASH("1:",1)==0X0D)				//挂载FLASH磁盘,FAT文件系统错误,重新格式化FLASH
+	if(f_mount(fs[1],"1:",1)==0X0D)				//挂载FLASH磁盘,FAT文件系统错误,重新格式化FLASH
 	{
 		Bsp_Printf("Flash Disk Formatting...\r\n");	//格式化FLASH
-		if(Bsp_fmkfs("1:",FM_FAT,4096,Buff,4096)==0)//格式化FLASH,1,盘符;1,不需要引导区,8个扇区为1个簇
+		if(f_mkfs("1:",FM_FAT,4096,Buff,4096)==0)//格式化FLASH,1,盘符;1,不需要引导区,8个扇区为1个簇
 		{
 			f_setlabel((const TCHAR *)"1:ALIENTEK");//设置Flash磁盘的名字为：ALIENTEK
 			Bsp_Printf("Flash Disk Format Finish.\r\n");//格式化完成
@@ -273,17 +276,19 @@ void Coreboard_BSP_Init(void)
 	}
 #endif	/*USE_FLASH_AS_VOLUM*/
 	
-#if RGBLCD_DEBUG == 1			
+#if RGBLCD_ENABLE == 1			
 	/* -31- Initialize RGB_LCD mounted on STM32H743II_CoreBoard*/
 	Bsp_RGB_LCD_Init(); 
-#endif	/*RGBLCD_DEBUG*/
+	tp_dev.init();				 
 
-#if RNG_DEBUG == 1	
+#endif	/*RGBLCD_ENABLE*/
+
+#if RNG_ENABLE == 1	
 	/* -32- Initialize and enable RNG by Interrupt Mode mounted on STM32H743II_CoreBoard*/					
 	Bsp_InitRNG();		/*It produces four 32-bit random samples every 16*FAHB/FRNG AHB clock cycles, if value is higher than 213 cycles (213 cycles otherwise).*/
 						/*After enabling the RNG for the first time, random data is first available after either */
 						/*128 RNG clock cycles + 426 AHB cycles, if fAHB < fthreshold;	192 RNG clock cycles + 213 AHB cycles, if fAHB >= fthreshold*/
-#endif	/*RNG_DEBUG*/	
+#endif	/*RNG_ENABLE*/	
 
 /* -33- Get the Information about STM32H743II_CoreBoard*/
 	GetInfo_CoreBoard();
@@ -291,11 +296,22 @@ void Coreboard_BSP_Init(void)
 	while(1)
 	{	
 		Bsp_LCD_Clear(BLUE);
-#if MOUNT_SD_CARD == 1		
-		Bsp_GetDisk_Volume("0:",&total,&free);
+#if MOUNT_SD_CARD_DEBUG == 1		
+		uint32_t total,free;
+		Bsp_FatFs_GetDisk_Volume("0:",&total,&free);
 		Bsp_Printf("The SD Card Total Size are %d KB! \r\n",total);
 		Bsp_Printf("The SD Card Free Size are %d KB! \r\n",free);
-#endif	/*MOUNT_SD_CARD*/		
+		Bsp_FatFs_ViewRootDir("/");
+		
+		Bsp_FatFs_CreateDir("/TEST");
+		Bsp_FatFs_CreateNewFile("/TEST", "/TEST/IEEInfo.txt");
+		
+		Bsp_FatFs_WriteFileData("/TEST", "/TEST/IEEInfo.txt",WriteDataBuff);
+		Bsp_FatFs_ReadFileData("/TEST", "/TEST/IEEInfo.txt", ReadDataBuff);
+		
+		Bsp_FatFs_DeleteDirFile("/TEST", "/TEST/IEEInfo.txt");
+		Bsp_FatFs_DeleteDirFile("/", "TEST");
+#endif	/*MOUNT_SD_CARD_DEBUG*/		
 		GetInfo_Calendar();
 		
 		Bsp_LCD_ShowString(10,40,800,32,32,CoreBoard_Infor.BOARD_NAME); 	
@@ -361,13 +377,13 @@ void Coreboard_BSP_Init(void)
 		Bsp_Printf("The Random32bit is generated with Interrupt, RNG = %X! \r\n",IT_Random32bit);
 #endif	/*RNG_IT_ENABLE*/
 
-#if W25QXX_TEST == 1
+#if W25QXX_DEBUG == 1
 		Bsp_ReadSpeedTest(0,0x00,4096);
 		Bsp_Delay_ms(1000);
 		Bsp_Write_With_Check_Test(0,0x00,4096);
 		Bsp_Delay_ms(1000);
 		Bsp_Erase_ChipTest();
-#endif	/*W25QXX_TEST*/
+#endif	/*W25QXX_DEBUG*/
 
 #if SD_MMC_DEBUG == 1
 	Bsp_Show_SD_Info();
@@ -523,11 +539,13 @@ void BSP_RunPer10ms(void)
 	{							//其误差为0.68s - 1.88s,为了及时喂狗保证系统正常运行，这里每隔0.6s喂狗
 		CountEvery10ms = 0;
 		Bsp_LED_Toggled(LED1_Green); 	//每秒LED1_Green闪烁表明系统运行正常
-#if IWDG_DEBUG == 1
+#if IWDG_ENABLE == 1
 		/* --- 喂狗 */
 		Bsp_IWDG_Feed();
+#endif	/*IWDG_ENABLE*/
+#if IWDG_DEBUG == 1
 		Bsp_Printf("IWDG feed in BSP_RunPer10ms() every 0.6s!\r\n");
-#endif
+#endif	/*IWDG_DEBUG*/
 	}	
 }
 
@@ -545,11 +563,13 @@ void BSP_RunPer1ms(void)
   */
 void BSP_Idle(void)
 {
-#if IWDG_DEBUG == 1
+#if IWDG_ENABLE == 1
 	/* --- 喂狗 */
     Bsp_IWDG_Feed();
+#endif	/*IWDG_ENABLE*/
+#if IWDG_DEBUG == 1
 	Bsp_Printf("IWDG feed in BSP_Idle() when calling the Bsp_Delay_ms(), This time is less then 1ms!\r\n");
-#endif
+#endif	/*IWDG_DEBUG*/
 	/* --- 让CPU进入休眠，由Systick定时中断唤醒或者其他中断唤醒 */
 
 	/* 对于 emWin 图形库，可以插入图形库需要的轮询函数 */
@@ -577,7 +597,7 @@ void GetInfo_CoreBoard(void)
 	sprintf((char*)CoreBoard_Infor.CPU_NAME, "CPU NAME : STM32H743II16 LQFP176");
 	sprintf((char*)CoreBoard_Infor.CPU_ID, "CPU ID : %08X %08X %08X", CPU_Sn2, CPU_Sn1, CPU_Sn0);
 	sprintf((char*)CoreBoard_Infor.BSP_VERSION,"BSP VERSION : %08X", __STM32H743II_COREBOARD_BSP_VERSION);
-	sprintf((char*)CoreBoard_Infor.LCD_ID,"LCD ID : %04X",lcddev.id);	
+	sprintf((char*)CoreBoard_Infor.LCD_ID,"LCD ID : %X",lcddev.id);	
 	
 	Bsp_Printf("%s \r\n",CoreBoard_Infor.BOARD_NAME);
 	Bsp_Printf("%s \r\n",CoreBoard_Infor.CPU_NAME);

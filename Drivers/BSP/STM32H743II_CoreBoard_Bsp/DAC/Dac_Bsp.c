@@ -222,7 +222,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef *DACx_Handler)
 	GPIO_InitStruct.Pull 	= GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	
-#if SINWAVE_GEN_FOR_TEST == 1	
+#if SINWAVE_GEN_FOR_TEST_ENABLE == 1	
 	__HAL_RCC_DMA1_CLK_ENABLE();		  	/* DMA1 clock enable */
 	DMA_DAC1_Handler.Instance 					= DMA1_Stream5;
 	DMA_DAC1_Handler.Init.Request  				= DMA_REQUEST_DAC1;
@@ -243,7 +243,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef *DACx_Handler)
 	
 	HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 3, 0);							//设置TIM6用于DAC中断优先级，抢占优先级3，子优先级0，ADC > DMA > DAC
 	HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+#endif	/*SINWAVE_GEN_FOR_TEST_ENABLE*/
 
 }
 
@@ -258,12 +258,12 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef *DACx_Handler)
 	__HAL_RCC_DAC12_RELEASE_RESET();	  /* Release DAC from reset state */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);	
 
-#if SINWAVE_GEN_FOR_TEST == 1	
+#if SINWAVE_GEN_FOR_TEST_ENABLE == 1	
 	HAL_DMA_DeInit(DACx_Handler->DMA_Handle1);
 	HAL_DMA_DeInit(DACx_Handler->DMA_Handle2);
 	
     HAL_NVIC_DisableIRQ(DMA1_Stream5_IRQn);
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+#endif	/*SINWAVE_GEN_FOR_TEST_ENABLE*/
 }
 
 /** @}
@@ -510,9 +510,9 @@ void Bsp_Ch12_DualWaveConfig(uint32_t DAC_TRIANGLEAMPLITUDE, uint32_t DAC_LFSRUN
 void DMA1_Stream5_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(DAC_Handler.DMA_Handle1);
-#if SINWAVE_GEN_FOR_TEST == 1
+#if SINWAVE_GEN_FOR_TEST_DEBUG == 1
 	Bsp_Printf("DMA_Stream5 sendout the data of wave! \r\n");
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+#endif	/*SINWAVE_GEN_FOR_TEST_DEBUG*/
 }
 
 /** @}

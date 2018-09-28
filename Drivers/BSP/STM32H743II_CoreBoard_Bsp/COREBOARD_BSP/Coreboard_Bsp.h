@@ -27,10 +27,12 @@
 #include "Led_Bsp.h"
 #include "Mpu_Bsp.h"
 #include "Lcd_Bsp.h"
+#include "Touch_Bsp.h"
+#include "CT_IIC_Bsp.h"
+#include "IIC_Bsp.h"
+#include "24CXX_Bsp.h"
 #include "Sdram_Bsp.h" 
-#include "Software_Timer_Bsp.h"
 #include "Usart1_Bsp.h"
-#include "Hardware_Timer_Bsp.h"
 #include "Wdg_Bsp.h"
 #include "Rtc_Bsp.h"
 #include "Pwm_Bsp.h"
@@ -41,9 +43,17 @@
 #include "Spi_Flash_Bsp.h"
 #include "Sd_Bsp.h"
 #include "Malloc_Bsp.h"
-#include "Bsp_FatFs_BasicFunction.h"	 
-#include "Bsp_FatFs_ExtendFunctions.h"
-	 
+#include "Hardware_Timer_Bsp.h"
+#include "Software_Timer_Bsp.h"
+
+#include "FatFs_ExtendFunctions_Bsp.h"
+
+#include "GT9271_Bsp.h"
+#include "GT9147_Bsp.h"
+#include "FT5206_Bsp.h"
+#include "OTT2001A_Bsp.h"
+
+#include "user_lib.h"
 #include "user_dbg.h"
 #include "user_dbg_str.h"
 /********************************************Macro**************************************************/
@@ -72,79 +82,103 @@
 /**
   * @brief  The define for DAC_LFSR_NOISE DEBUG
   */
+#define DAC_WAVE_ENABLE				0
 #define DAC_WAVE_DEBUG				0
-#define SINWAVE_GEN_FOR_TEST		0
+
+#define SINWAVE_GEN_FOR_TEST_ENABLE	0
+#define SINWAVE_GEN_FOR_TEST_DEBUG	0
 
 /**
   * @brief  The define for Hardware_Timer DEBUG
   */
+#define HARDWARE_TIM1_ENABLE		0
 #define HARDWARE_TIM1_DEBUG			0
+
+#define HARDWARE_TIM5_ENABLE		0
 #define HARDWARE_TIM5_DEBUG			0
+
+#define HARDWARE_TIM2PWM_ENABLE		0
 #define HARDWARE_TIM2PWM_DEBUG		0
 
 /**
   * @brief  The define for IWDG DEBUG
   */
+#define IWDG_ENABLE					0
 #define IWDG_DEBUG					0
 
 /**
   * @brief  The define for WWDG DEBUG
   */
+#define WWDG_ENABLE					0 
 #define WWDG_DEBUG					0 
  
 /**
   * @brief  The define for CRC DEBUG
   */
+#define CRC_ENABLE					0
 #define CRC_DEBUG					0
 
 /**
   * @brief  The define for RNG DEBUG
   */
+#define RNG_ENABLE					0
 #define RNG_DEBUG					0
 
 /**
   * @brief  The define for RTC DEBUG
   */
+#define RTC_ENABLE					0
 #define RTC_GET_TIME				0
+
+#define RTC_ALARMA_ENABLE			0
 #define RTC_ALARMA_DEBUG			0
-#define RTC_BKRAM_DEBUG				0
+
+#define RTC_BKRAM_ENABLE			0
+
+#define RTC_WAKEUP_ENABLE			0
 #define RTC_WAKEUP_DEBUG			0
+
+#define RTC_TIMESTAMP_ENABLE		0
 #define RTC_TIMESTAMP_DEBUG			0
+
+#define RTC_TAMPER_ENABLE			0
 #define RTC_TAMPER_DEBUG			0
 
 /**
   * @brief  The define for W25QXX DEBUG
   */
-#define W25QXX_DEBUG				1
-#define W25QXX_TEST					0
-
-/**
-  * @brief  The define for SD_MMC_DEBUG
-  */
-#define SD_MMC_DEBUG    			1
-#define SD_DMA_MODE     			0	//1：DMA模式，0：查询模式
+#define W25QXX_ENABLE				1
+#define W25QXX_DEBUG				0
 
 /**
   * @brief  The define for SDRAM DEBUG
   * @brief  This should be opened always
   */
-#define SDRAM_DEBUG					1
+#define SDRAM_ENABLE				1
 
 /**
   * @brief  The define for LCD DEBUG
   * @brief  This should be opened always
   */ 
-#define RGBLCD_DEBUG				1
+#define RGBLCD_ENABLE				1
 
 /**
   * @brief  The define for USER DEBUG
   */  
-#define USMART_DEBUG				1
+#define USMART_ENABLE				1
 
 /**
   * @brief  The define for MOUNT_SD_CARD
   */  
-#define MOUNT_SD_CARD				1
+#define MOUNT_SD_CARD_ENABLE		1
+#define MOUNT_SD_CARD_DEBUG			0
+
+#define SD_MMC_ENABLE    			1
+#define SD_MMC_DEBUG    			0
+
+#define SD_DMA_MODE     			0	//1：DMA模式，0：查询模式
+
+
 
 /**
   * @brief  The define for USE_FLASH_AS_VOLUM

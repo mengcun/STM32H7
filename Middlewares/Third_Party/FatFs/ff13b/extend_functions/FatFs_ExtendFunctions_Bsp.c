@@ -1,7 +1,10 @@
 #include "string.h"
-#include "Bsp_FatFs_ExtendFunctions.h"
-#include "Bsp_FatFs_BasicFunction.h"	
+#include "FatFs_ExtendFunctions_Bsp.h"
 
+BYTE Buff[4096] __attribute__ ((aligned (4))) ;	/* Working buffer */  
+
+char ReadDataBuff[BUF_SIZE];
+char WriteDataBuff[BUF_SIZE] = {"This is the test for the write file."};
 
  //文件类型列表
 uint8_t*const FILE_TYPE_TBL[FILE_MAX_TYPE_NUM][FILE_MAX_SUBT_NUM]=
@@ -43,18 +46,12 @@ uint8_t Bsp_FatFs_Init(void)
 	else return 1;	
 }
 
-//将小写字母转为大写字母,如果是数字,则保持不变.
-uint8_t char_upper(uint8_t c)
-{
-	if(c<'A')return c;//数字,保持不变.
-	if(c>='a')return c-0x20;//变为大写.
-	else return c;//大写,保持不变
-}	      
+      
 //报告文件的类型
 //fname:文件名
 //返回值:0XFF,表示无法识别的文件类型编号.
 //		 其他,高四位表示所属大类,低四位表示所属小类.
-uint8_t Bsp_File_Tell(uint8_t *fname)
+uint8_t Bsp_FatFs_File_Tell(uint8_t *fname)
 {
 	uint8_t tbuf[5];
 	uint8_t *attr='\0';//后缀名
@@ -97,7 +94,7 @@ uint8_t Bsp_File_Tell(uint8_t *fname)
 //total:总容量	 （单位KB）
 //free:剩余容量	 （单位KB）
 //返回值:0,正常.其他,错误代码
-uint8_t Bsp_GetDisk_Volume(uint8_t *drv,uint32_t *total,uint32_t *free)
+uint8_t Bsp_FatFs_GetDisk_Volume(uint8_t *drv,uint32_t *total,uint32_t *free)
 {
 	FATFS *fs1;
 	uint8_t res;
@@ -137,7 +134,7 @@ uint8_t Bsp_GetDisk_Volume(uint8_t *drv,uint32_t *total,uint32_t *free)
 //1:覆盖原有的文件
 //返回值:0,正常
 //    其他,错误,0XFF,强制退出
-uint8_t Bsp_CopyFile(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode),uint8_t *psrc,uint8_t *pdst,uint32_t totsize,uint32_t cpdsize,uint8_t fwmode)
+uint8_t Bsp_FatFs_CopyFile(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode),uint8_t *psrc,uint8_t *pdst,uint32_t totsize,uint32_t cpdsize,uint8_t fwmode)
 {
 	uint8_t res;
     uint16_t br=0;
@@ -197,7 +194,7 @@ uint8_t Bsp_CopyFile(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode),u
 //得到路径下的文件夹
 //返回值:0,路径就是个卷标号.
 //    其他,文件夹名字首地址
-uint8_t* Bsp_GetSrc_Dname(uint8_t* dpfn)
+uint8_t* Bsp_FatFs_GetSrc_Dname(uint8_t* dpfn)
 {
 	uint16_t temp=0;
  	while(*dpfn!=0)
@@ -213,8 +210,8 @@ uint8_t* Bsp_GetSrc_Dname(uint8_t* dpfn)
 //注意文件夹大小不要超过4GB.
 //返回值:0,文件夹大小为0,或者读取过程中发生了错误.
 //    其他,文件夹大小.
-uint32_t Bsp_GetFile_Size(uint8_t *fdname)
-{
+uint32_t Bsp_FatFs_GetFile_Size(uint8_t *fdname)
+ {
 #define MAX_PATHNAME_DEPTH	512+1	//最大目标文件路径+文件名深度
 	uint8_t res=0;	  
     DIR *fddir=0;		//目录
@@ -248,7 +245,7 @@ uint32_t Bsp_GetFile_Size(uint8_t *fdname)
 						strcat((char*)pathname,(const char*)"/");	//加斜杠
 						strcat((char*)pathname,(const char*)finfo->fname);	//源路径加上子目录名字
  						//Bsp_Printf("\r\nsub folder:%s\r\n",pathname);	//打印子目录名
-						fdsize+=Bsp_GetFile_Size(pathname);				//得到子目录大小,递归调用
+						fdsize+=Bsp_FatFs_GetFile_Size(pathname);				//得到子目录大小,递归调用
 						pathname[pathlen]=0;						//加入结束符
 					}else fdsize+=finfo->fsize;						//非目录,直接加上文件的大小
 						
@@ -282,7 +279,7 @@ uint32_t Bsp_GetFile_Size(uint8_t *fdname)
 //1:覆盖原有的文件
 //返回值:0,成功
 //    其他,错误代码;0XFF,强制退出
-uint8_t Bsp_CopyFolder(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode),uint8_t *psrc,uint8_t *pdst,uint32_t *totsize,uint32_t *cpdsize,uint8_t fwmode)
+uint8_t Bsp_FatFs_CopyFolder(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode),uint8_t *psrc,uint8_t *pdst,uint32_t *totsize,uint32_t *cpdsize,uint8_t fwmode)
 {
 #define MAX_PATHNAME_DEPTH	512+1	//最大目标文件路径+文件名深度
 	uint8_t res=0;	  
@@ -318,7 +315,7 @@ uint8_t Bsp_CopyFolder(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode)
 		    if(res==0)//打开目录成功 
 			{
   				strcat((char*)dstpathname,(const char*)"/");//加入斜杠
- 				fn=Bsp_GetSrc_Dname(psrc);
+ 				fn=Bsp_FatFs_GetSrc_Dname(psrc);
 				if(fn==0)//卷标拷贝
 				{
 					dstpathlen=strlen((const char*)dstpathname);
@@ -341,14 +338,14 @@ uint8_t Bsp_CopyFolder(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode)
  					if(finfo->fattrib&0X10)//是子目录(文件属性,0X20,归档文件;0X10,子目录;)
 					{
 						strcat((char*)srcpathname,(const char*)fn);		//源路径加上子目录名字
-						res=Bsp_CopyFolder(fcpymsg,srcpathname,dstpathname,totsize,cpdsize,fwmode);	//拷贝文件夹
+						res=Bsp_FatFs_CopyFolder(fcpymsg,srcpathname,dstpathname,totsize,cpdsize,fwmode);	//拷贝文件夹
 					}else //非目录
 					{
 						strcat((char*)dstpathname,(const char*)"/");//目标路径加斜杠
 						strcat((char*)dstpathname,(const char*)fn);	//目标路径加文件名
 						strcat((char*)srcpathname,(const char*)fn);	//源路径加文件名
  						fcpymsg(fn,0,0X01);//更新文件名
-						res=Bsp_CopyFile(fcpymsg,srcpathname,dstpathname,*totsize,*cpdsize,fwmode);//复制文件
+						res=Bsp_FatFs_CopyFile(fcpymsg,srcpathname,dstpathname,*totsize,*cpdsize,fwmode);//复制文件
 						*cpdsize+=finfo->fsize;//增加一个文件大小
 					}
 					srcpathname[srcpathlen]=0;//加入结束符
@@ -365,6 +362,244 @@ uint8_t Bsp_CopyFolder(uint8_t(*fcpymsg)(uint8_t*pname,uint8_t pct,uint8_t mode)
     return res;	  
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+*********************************************************************************************************
+*	函 数 名: ViewRootDir
+*	功能说明: 显示SD卡根目录下的文件名
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void Bsp_FatFs_ViewRootDir(const TCHAR* path)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+	DIR DirInf;
+	FILINFO FileInf;
+	uint32_t cnt = 0;
+
+	result = f_opendir(&DirInf, path); 
+	if (result != FR_OK)
+	{
+		Bsp_Printf("Open the directory %s failed (%d).\r\n", path, result);
+		return;
+	}
+	Bsp_Printf("Attribute		|	size	|	Primary file name	|	Altenative file name\r\n");
+	for (cnt = 0; ;cnt++)
+	{
+		result = f_readdir(&DirInf,&FileInf); 		/* 读取目录项，索引会自动下移 */
+		if (result != FR_OK || FileInf.fname[0] == 0)
+		{
+			break;
+		}
+		if (FileInf.fname[0] == '.')
+		{
+			continue;
+		}
+		if (FileInf.fattrib & AM_DIR)
+		{
+			Bsp_Printf("(0x%02d)contents	|	%llud	|	%s	|	%s\r\n", FileInf.fattrib, FileInf.fsize, FileInf.fname, FileInf.altname);
+		}
+		else
+		{
+			Bsp_Printf("(0x%02d)files		|	%llud	|	%s	|	%s\r\n", FileInf.fattrib, FileInf.fsize, FileInf.fname, FileInf.altname);
+		}
+	}
+	
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: CreateNewFile
+*	功能说明: 在SD卡创建一个新文件，文件内容填写“www.armfly.com”
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void Bsp_FatFs_CreateNewFile(const TCHAR* path, const TCHAR* fname)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+	FIL file;
+	DIR DirInf;
+	uint32_t bw;
+	
+	result = f_opendir(&DirInf, path);
+	if (result != FR_OK)
+	{
+		Bsp_Printf("Open the directory %s failed (%d).\r\n", path, result);
+		return;
+	}
+	result = f_open(&file, fname, FA_CREATE_ALWAYS | FA_WRITE);
+	if (result ==  FR_OK)
+	{
+		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
+		return;
+	}
+	result = f_write(&file, "FatFS Write Test \r\n www.IEECHN.com \r\n", 34, &bw);
+	if (result == FR_OK)
+	{
+		Bsp_Printf("Creat file %s and write data success (%d).\r\n", fname, result);
+	}
+	else
+	{
+		Bsp_Printf("Creat file %s and write data failure (%d).\r\n", fname, result);
+	}	
+	f_close(&file);
+	
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: CreateDir
+*	功能说明: 在SD卡根目录创建Dir1和Dir2目录，在Dir1目录下创建子目录Dir1_1
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void Bsp_FatFs_CreateDir(const TCHAR* path)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+
+	result = f_mkdir(path);
+	if (result == FR_OK)
+	{
+		Bsp_Printf("Creat Directoy %s Success (%d).\r\n", path, result);
+	}
+	else if (result == FR_EXIST)
+	{
+		Bsp_Printf("The directory %s already existt (%d).\r\n", path, result);
+	}
+	else
+	{
+		Bsp_Printf("Creat Directoy %s Fail (%d).\r\n", path, result);
+		return;
+	}
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: DeleteDirFile
+*	功能说明: 删除SD卡根目录下的 armfly.txt 文件和 Dir1，Dir2 目录
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void Bsp_FatFs_DeleteDirFile(const TCHAR* path, const TCHAR* fname)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+	DIR DirInf;
+
+	result = f_opendir(&DirInf, path);
+	if (result != FR_OK)
+	{
+		Bsp_Printf("Open the directory %s failed (%d).\r\n", path, result);
+		return;
+	}
+	result = f_unlink(fname);
+	if (result == FR_OK)
+	{
+		Bsp_Printf("Delte The Directory %s sucess (%d).\r\n", fname, result);
+	}
+	else if (result == FR_NO_FILE)
+	{
+		Bsp_Printf("The Directory %s don't exist (%d). \r\n", fname, result);
+	}
+	else
+	{
+		Bsp_Printf("Delete The File Fail, The File Ready Only or the Directory isn't Empty (%d).\r\n", result);
+	}
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: ReadFileData
+*	功能说明: 读取文件armfly.txt前128个字符，并打印到串口
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+
+void Bsp_FatFs_ReadFileData(const TCHAR* path, const TCHAR* fname, char* ReadDataBuff)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+	FIL file;
+	DIR DirInf;
+	uint32_t bw;
+
+	result = f_opendir(&DirInf, path);
+	if (result != FR_OK)
+	{
+		Bsp_Printf("Open the directory %s failed (%d).\r\n", path, result);
+		return;
+	}
+	result = f_open(&file, fname, FA_OPEN_EXISTING | FA_READ);
+	if (result ==  FR_OK)
+	{
+		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
+		return;
+	}
+	result = f_read(&file, ReadDataBuff, strlen(WriteDataBuff), &bw);
+	if (bw > 0)
+	{
+		ReadDataBuff[bw] = 0;
+		Bsp_Printf("The contents in the file %s are : \r\n%s\r\n", fname, ReadDataBuff);
+	}
+	else
+	{
+		Bsp_Printf("The file %s is empty. \r\n", fname);
+	}
+	f_close(&file);
+
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: WriteFileTest
+*	功能说明: 测试文件读写速度
+*	形    参：无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void Bsp_FatFs_WriteFileData(const TCHAR* path, const TCHAR* fname, char* WriteDataBuff)
+{
+	/* 本函数使用的局部变量占用较多，请修改启动文件，保证堆栈空间够用 */
+	FRESULT result;
+	FIL file;
+	DIR DirInf;
+	uint32_t bw;
+
+	result = f_opendir(&DirInf, path);
+	if (result != FR_OK)
+	{
+		Bsp_Printf("Open the directory %s failed (%d).\r\n", path, result);
+		return;
+	}
+	result = f_open(&file, fname, FA_CREATE_ALWAYS | FA_WRITE);
+	if (result ==  FR_OK)
+	{
+		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
+		return;
+	}	
+	result = f_write(&file, WriteDataBuff, strlen(WriteDataBuff), &bw);
+	if (bw > 0)
+	{
+		Bsp_Printf("Write The Contents to the file %s sucess (%d).\r\n", fname, result);
+	}
+	else
+	{
+		Bsp_Printf("The file %s is empty. \r\n", fname);
+	}
+	f_close(&file);
+
+}
+
+
 
 
 

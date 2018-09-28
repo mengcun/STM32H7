@@ -89,7 +89,7 @@ void Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, 
 		TIM2->CCR3 = (uint32_t)(Period * PWM_Duty * 0.01);  //设置比较值,此值用来确定占空比，	
 #if HARDWARE_TIM2PWM_DEBUG == 1		
 		Bsp_Printf("The PWM in PA2, TIM_CHANNEL_3 is generated as %d Hz, %d%% \r\n",(uint32_t)(200000000 / (Period * Prescaler)), PWM_Duty);	
-#endif
+#endif	/*HARDWARE_TIM2PWM_DEBUG*/
 	}
 	if(TIM_CHANNEL_X == TIM_CHANNEL_4)
 	{
@@ -98,7 +98,7 @@ void Bsp_SetTIM2Compare1(uint32_t Period, uint16_t Prescaler, uint8_t PWM_Duty, 
 		TIM2->CCR4 = (uint32_t)(Period * PWM_Duty * 0.01);  //设置比较值,此值用来确定占空比，
 #if HARDWARE_TIM2PWM_DEBUG == 1		
 		Bsp_Printf("The PWM in PA3, TIM_CHANNEL_4 is generated as %d Hz, %d%% \r\n",(uint32_t)(200000000 / (Period * Prescaler)), PWM_Duty);	
-#endif
+#endif	/*HARDWARE_TIM2PWM_DEBUG*/
 	}
 }
 

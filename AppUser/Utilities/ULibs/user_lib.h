@@ -70,7 +70,10 @@ uint16_t BEBufToUint16(uint8_t *_pBuf);
 uint16_t LEBufToUint16(uint8_t *_pBuf);
 
 uint16_t CRC16_Modbus(uint8_t *_pBuf, uint16_t _usLen) ;
-int32_t  CaculTwoPoint(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x);/** @}
+int32_t  CaculTwoPoint(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x);
+uint8_t char_upper(uint8_t c);
+
+/** @}
 */
 /**********************User_Lib Exported Functions Group2**************************/
 /** @}

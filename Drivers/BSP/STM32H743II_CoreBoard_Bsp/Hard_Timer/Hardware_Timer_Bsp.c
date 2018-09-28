@@ -560,9 +560,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
 	{
 		__HAL_RCC_TIM6_FORCE_RESET();
 		__HAL_RCC_TIM6_RELEASE_RESET();	
-#if SINWAVE_GEN_FOR_TEST == 1
+#if SINWAVE_GEN_FOR_TEST_ENABLE == 1
 		HAL_NVIC_DisableIRQ(TIM6_DAC_IRQn);
-#endif	/*SINWAVE_GEN_FOR_TEST*/
+#endif	/*SINWAVE_GEN_FOR_TEST_ENABLE*/
 	}
 }
 
@@ -858,9 +858,11 @@ uint32_t TIM1_ComputeInputFreq(void)
 	extern uint32_t	uwFrequency;
 #if HARDWARE_TIM1_DEBUG == 1
 	Bsp_Printf("Initial TIM1_CHANNEL2 to Compute the input Frequence in PE11 ! \r\n");
-#endif	
+#endif
+#if HARDWARE_TIM1_ENABLE == 1	
 	/* 初始化TIM1定时器 */		
 	Bsp_InitHardTimer_TIM1(0xFFFF, 0, TIM_CHANNEL_2);
+#endif 	/*HARDWARE_TIM1_ENABLE*/
 	return uwFrequency;
 }
 

@@ -1,0 +1,65 @@
+﻿Field=#~Integer~#~50|Field=Comment~String~Comment~100|Field=Description~String~Description~100|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=LibRef~String~LibRef~100|Field=Quantity~Integer~Quantity~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb|ReportField=ProjectFullPath~C:\Users\cme\Desktop\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb|ReportField=Title~Bill of Materials For Project [90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb] (No PCB Document Selected)|ReportField=TotalQuantity~165|ReportField=ReportTime~17:03:40|ReportField=ReportDate~26/09/2018|ReportField=ReportDateTime~26/09/2018 17:03:40|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=Application_BuildNumber~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=ConfigurationParameters~|ReportField=ConfiguratorName~|ReportField=CurrentDate~26/09/2018|ReportField=CurrentTime~17:03:31|ReportField=Date~07/5/2016 10:12:37|ReportField=DocumentFullPathAndName~C:\Users\cme\Desktop\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0_Cover.SchDoc|ReportField=DocumentName~90042_Cool_Demo_IPS_Driver_Main_Board_V2.0_Cover.SchDoc|ReportField=DocumentNumber~1|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=IsUserConfigurable~|ReportField=ModifiedDate~05/07/2018|ReportField=Organization~|ReportField=PageSetup~Record=PageOptions:CenterHorizontal=True:CenterVertical=True:PrintScale=0.73:XCorrection=1.00:YCorrection=1.00:PrintKind=0:BorderSize=5000000:LeftOffset=0:BottomOffset=0:Orientation=2:PaperLength=1000:PaperWidth=1000:Scale=100:PaperSource=7:PrintQuality=-3:MediaType=1:DitherType=10:PrintScaleMode=1:PaperKind=A4:PaperIndex=9|ReportField=ProjectName~90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb|ReportField=Revision~|ReportField=Rule~|ReportField=SheetNumber~1|ReportField=SheetTotal~8|ReportField=Time~|ReportField=Title~|ReportField=VersionControl_RevNumber~|ReportField=DataSourceFileName~90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb|ReportField=DataSourceFullPath~C:\Users\cme\Desktop\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0\90042_Cool_Demo_IPS_Driver_Main_Board_V2.0.PrjPcb
+1|LOGO|||IEE|LOGO|1
+2|BATT||BAT1|BATM|BAT|1
+3|BEEP||BEEP1|BELL-5|BEEP|1
+4|0.1uF|[NoValue], Capacitor, Capacitor, Capacitor (Semiconductor SIM Model), Capacitor, Capacitor, Capacitor, Ceramic Capacitor, Capacitor, Capacitor|C2, C26, C29, C43, C63, C67, C68, C70, C71, C72|0603C|C, Cap, Cap, Cap Semi, Cap, Cap, Cap, CAP, Cap, Cap|10
+5|225||C3, C5, C6|0603C|C|3
+6|104||C4, C8, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24, C25, C27, C30, C31, C32, C33, C34, C35, C36, C37, C38, C39, C40, C44, C45|0603C|C|29
+7|10uF||C7, C41, C42, C46, C55, C56|0603C|C|6
+8|6pF||C9, C10|0603C|C|2
+9|33pF|Capacitor|C47, C48|0603C|Cap|2
+10|1uF||C49, C50, C51, C52|0603C|C|4
+11|221||C57|0603C|C|1
+12|0.01uF|Capacitor|C58|0603C|Cap|1
+13|47uF/50V||C59, C60, C62|LC-CASE-C_6032|CAP|3
+14|0.1uF/50V|Capacitor|C61|0603C|Cap|1
+15|np|Capacitor|C64|0603C|Cap|1
+16|47uF/16V||C69, C73|LC-CASE-C_6032|CAP|2
+17|1nF/50V|Ceramic Capacitor|C74|0603C|CAP|1
+18|0.1||C76|0603C|C|1
+19|220pF|Ceramic Capacitor|C77|0603C|CAP|1
+20|SS14|Schottky Diode|D1, D2|0805D - duplicate|D Schottky|2
+21|SS34|Schottky Diode|D3, D4, D6|0805D - duplicate|D Schottky|3
+22|SS34|Schottky Diode|D5|SMA|D Schottky|1
+23|SMAJ30CA||D8|SMA|1SMA*CAT3G_SMA_IMI_REFLOW|1
+24|2EDG3.81-2|Header, 2-Pin|DC_IN1|2EDG-3.81-2|Header 2|1
+25|750mA|Thermal Fuse|F2|1812|Fuse Thermal|1
+26|100R||FB2, FB3|0805|BLM21_0805_CM_REFLOW|2
+27|RGBLCD|FPC-40P-0.5mm|J1|FPC-TOP40|FPC-40|1
+28|FPC_26p_0.5||J2|FPC-TOP20|FPC_26P_0.5|1
+29|47uH/SLF7045|Inductor|L1|SMD737|Inductor|1
+30|LED_RGB||LED1, LED2|LED_RGB|LED_RGB_共阳|2
+31|LED1|Typical RED, GREEN, YELLOW, AMBER GaAs LED|LED3|0805D|LED2|1
+32|MIC||MIC1|MIC-6022|MIC|1
+33|Header 4|Header, 4-Pin|P1|HDR1X4|Header 4|1
+34|Bluetooth_Interface|Header, 4-Pin|P2|Bluetooth Module ( HC_06 )|Header 4_1|1
+35|CAN|Header, 4-Pin|P3|2EDG-3.81-4|Header 4|1
+36|LIN|Header, 3-Pin, Right Angle|P4|2EDG-3.81-3|Header 3H|1
+37|CSTCE25M||Q1|CSTCE_G_A-CM-REFLOW|CSTCE|1
+38|S8050|8050/BCW846/BCW847|Q3|SOT-23R|NPN|1
+39|100K||R1|0603R|R|1
+40|10K|[NoValue], [NoValue], Resistance(SMD), [NoValue]|R2, R5, R19, R33|0603R|R, R, RES, R|4
+41|10R|[NoValue], [NoValue], Resistance(SMD), [NoValue]|R3, R4, R20, R22|0603R|R, R, RES, R|4
+42|1K|[NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], Resistor, SMD, [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], [NoValue], Resistor, SMD|R6, R8, R12, R13, R21, R27, R28, R29, R31, R32, R34, R35, R36, R39, R40, R41, R42, R43, R44, R45, R46, R47, R48, R49, R50, R51, R53|0603R|R, R, R, R, R, R, R, R, R, R, R, R, RES, R, R, R, R, R, R, R, R, R, R, R, R, R, RES|27
+43|22R||R7, R9, R10, R11|0603R|R|4
+44|47K||R14, R15, R16, R17, R18, R25|0603R|R|6
+45|680R||R23|0603R|R|1
+46|0R||R24|0603R|R|1
+47|30K||R30|0603R|R|1
+48|62R/1%|Resistance(SMD)|R37, R38|0603R|RES|2
+49|sd card||SD_CARD1|SDCARD_L|sd card|1
+50|SPK+|测试点|SPK+|Test_PIN|TEST-POINT|1
+51|SPK-|测试点|SPK-|Test_PIN|TEST-POINT|1
+52|GND||TP1, TP2|PIN1|TPS|2
+53|STM32H743IIT6|STM32F767IGT6|U1|LQFP176|STM32F767IGT6|1
+54|FT230XS||U2|LC-SSOP-16_150mil|FT230XS|1
+55|TJA1029T|集成电路|U3|SOP-8|TJA1028|1
+56|W9825G6KH|32MB SDRAM|U4|TSOP54|IS42S16160B|1
+57|W25Q256|W25Q128|U5|WSON8|W25Q128|1
+58|WM8978|24bit ADC&DAC|U6|qfn32|WM8978|1
+59|TPS5410||U7|SO-8|TPS5410|1
+60|AMS1117-3.3||U8, U12|AMS1117|AMS1117|2
+61|TJA1044GT|CAN_FD Transceiver|U9|SO-8|TJA1050|1
+62|MicroUSB||USB1, USB2|microUSB|USB5|2
+63|ESP-01&01S Module||WIFI1|ESP-01&01S Module|ESP-01&01S Module|1
+64|32.768KHz|普通晶振|Y1|XTAL3215|XTAL|1
