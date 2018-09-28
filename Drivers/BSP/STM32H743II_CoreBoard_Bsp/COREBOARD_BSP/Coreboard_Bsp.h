@@ -171,7 +171,7 @@
   * @brief  The define for MOUNT_SD_CARD
   */  
 #define MOUNT_SD_CARD_ENABLE		1
-#define MOUNT_SD_CARD_DEBUG			0
+#define MOUNT_SD_CARD_DEBUG			1
 
 #define SD_MMC_ENABLE    			1
 #define SD_MMC_DEBUG    			0

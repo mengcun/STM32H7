@@ -436,7 +436,6 @@ void Bsp_FatFs_CreateNewFile(const TCHAR* path, const TCHAR* fname)
 	if (result ==  FR_OK)
 	{
 		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
-		return;
 	}
 	result = f_write(&file, "FatFS Write Test \r\n www.IEECHN.com \r\n", 34, &bw);
 	if (result == FR_OK)
@@ -542,7 +541,6 @@ void Bsp_FatFs_ReadFileData(const TCHAR* path, const TCHAR* fname, char* ReadDat
 	if (result ==  FR_OK)
 	{
 		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
-		return;
 	}
 	result = f_read(&file, ReadDataBuff, strlen(WriteDataBuff), &bw);
 	if (bw > 0)
@@ -584,7 +582,6 @@ void Bsp_FatFs_WriteFileData(const TCHAR* path, const TCHAR* fname, char* WriteD
 	if (result ==  FR_OK)
 	{
 		Bsp_Printf("The File %s is opened success (%d).\r\n",fname, result);
-		return;
 	}	
 	result = f_write(&file, WriteDataBuff, strlen(WriteDataBuff), &bw);
 	if (bw > 0)
