@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MALLOC/Adc_Bsp.c
+  * @file    STM32H7_CoreBoard/Drivers/BSP/STM32H743II_CoreBoard_Bsp/MALLOC/Malloc_Bsp.c
   * @author  CME
   * @version SW:V1.0.0 HW:V1.0
   * @date  	 26-September-2018

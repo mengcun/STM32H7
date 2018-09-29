@@ -252,11 +252,11 @@ void Coreboard_BSP_Init(void)
 
 #endif	/*SD_MMC_ENABLE*/
 
-#if MOUNT_SD_CARD_ENABLE == 1
+#if MOUNT_SD_FATFS_ENABLE == 1
 	/* -32- Initialize SD CARD and mounted to STM32H743II_CoreBoard*/
 	Bsp_FatFs_Init();
   	f_mount(fs[0],"0:",1); 						//π“‘ÿSDø® 
-#endif	/*MOUNT_SD_CARD_ENABLE*/
+#endif	/*MOUNT_SD_FATFS_ENABLE*/
 
 #if USE_FLASH_AS_VOLUM == 1
 	/* -33- Initialize FLASH and mounted to STM32H743II_CoreBoard*/
@@ -296,12 +296,12 @@ void Coreboard_BSP_Init(void)
 	while(1)
 	{	
 		Bsp_LCD_Clear(BLUE);
-#if MOUNT_SD_CARD_DEBUG == 1		
+#if MOUNT_SD_FATFS_DEBUG == 1		
 		uint32_t total,free;
 		Bsp_FatFs_GetDisk_Volume("0:",&total,&free);
 		Bsp_Printf("The SD Card Total Size are %d KB! \r\n",total);
 		Bsp_Printf("The SD Card Free Size are %d KB! \r\n",free);
-		Bsp_FatFs_ViewRootDir("/");
+		Bsp_FatFs_ViewDir("/");
 		
 		Bsp_FatFs_CreateDir("/TEST");
 		Bsp_FatFs_CreateNewFile("/TEST", "/TEST/IEEInfo.txt");
@@ -311,7 +311,7 @@ void Coreboard_BSP_Init(void)
 		
 		Bsp_FatFs_DeleteDirFile("/TEST", "/TEST/IEEInfo.txt");
 		Bsp_FatFs_DeleteDirFile("/", "TEST");
-#endif	/*MOUNT_SD_CARD_DEBUG*/		
+#endif	/*MOUNT_SD_FATFS_DEBUG*/		
 		GetInfo_Calendar();
 		
 		Bsp_LCD_ShowString(10,40,800,32,32,CoreBoard_Infor.BOARD_NAME); 	

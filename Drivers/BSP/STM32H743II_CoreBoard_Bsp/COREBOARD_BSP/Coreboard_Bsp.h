@@ -21,6 +21,7 @@
 #include "includes.h"
 /***************************************Include StdLib**********************************************/
 #include "stdint.h"
+#include "string.h"
 #include "stm32h7xx_hal.h"
 #include "stm32h743xx.h"
 /*******************************************APP/BSP*************************************************/
@@ -46,8 +47,6 @@
 #include "Hardware_Timer_Bsp.h"
 #include "Software_Timer_Bsp.h"
 
-#include "FatFs_ExtendFunctions_Bsp.h"
-
 #include "GT9271_Bsp.h"
 #include "GT9147_Bsp.h"
 #include "FT5206_Bsp.h"
@@ -60,6 +59,7 @@
 /**********************************************OS***************************************************/
 /********************************************STwin**************************************************/
 /********************************************FatFS**************************************************/
+#include "FasFt_User_Bsp.h"
 
 /** @addtogroup STM32H743II_CoreBoard
   * @{
@@ -170,8 +170,8 @@
 /**
   * @brief  The define for MOUNT_SD_CARD
   */  
-#define MOUNT_SD_CARD_ENABLE		1
-#define MOUNT_SD_CARD_DEBUG			1
+#define MOUNT_SD_FATFS_ENABLE		1
+#define MOUNT_SD_FATFS_DEBUG		1
 
 #define SD_MMC_ENABLE    			1
 #define SD_MMC_DEBUG    			0

@@ -561,11 +561,6 @@
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\SD_MMC\Malloc_Bsp.c</FilePath>
             </File>
             <File>
-              <FileName>FatFs_ExtendFunctions_Bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middlewares\Third_Party\FatFs\ff13b\extend_functions\FatFs_ExtendFunctions_Bsp.c</FilePath>
-            </File>
-            <File>
               <FileName>GT9271_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\TOUCH\GT9271_Bsp.c</FilePath>
@@ -589,6 +584,11 @@
               <FileName>24CXX_Bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drivers\BSP\STM32H743II_CoreBoard_Bsp\AT24CXX\24CXX_Bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>FasFt_User_Bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Middlewares\Third_Party\FatFs\ff13b\extend_functions\FasFt_User_Bsp.c</FilePath>
             </File>
           </Files>
         </Group>
